@@ -1,0 +1,114 @@
+{
+    "projects": [
+        {
+            "id": "lds-brass",
+            "category": "engenharia",
+            "title": "Sistemas de Detecção de Vazamentos (LDS)",
+            "subtitle": "BRASS Brasil",
+            "description": "Desenvolvimento e implementação de sistemas de detecção de vazamentos em oleodutos e gasodutos, utilizando modelos hidráulicos avançados e análise de transientes.",
+            "fullDescription": "Projeto focado na detecção precoce de vazamentos em dutos de transporte de petróleo e gás. O sistema utiliza modelos hidráulicos sofisticados para analisar variações de pressão e vazão, identificando anomalias que possam indicar vazamentos. A implementação inclui cálculos de transientes hidráulicos para melhorar a precisão da detecção em tempo real.",
+            "techStack": [
+                "Hidráulica",
+                "Cálculos Transientes",
+                "Excel Avançado",
+                "Python",
+                "Análise de Dados"
+            ],
+            "challenges": [
+                "Modelagem de comportamento hidráulico complexo em dutos de grande extensão",
+                "Minimização de falsos positivos em condições operacionais variáveis",
+                "Integração com sistemas SCADA existentes"
+            ],
+            "results": [
+                "Redução do tempo de detecção de vazamentos em 40%",
+                "Implementação bem-sucedida em múltiplos dutos",
+                "Melhoria na confiabilidade operacional"
+            ],
+            "image": "/images/lds-system.jpg",
+            "featured": true
+        },
+        {
+            "id": "otimizacao-processos",
+            "category": "engenharia",
+            "title": "Otimização de Processos Industriais",
+            "subtitle": "Cervejaria & Indústria de Ração",
+            "description": "Mapeamento de gargalos e implementação de melhorias em linhas de produção, aumentando a eficiência fabril através de análise de dados e reengenharia de processos.",
+            "fullDescription": "Projeto de consultoria em otimização de processos industriais, focado em identificar e eliminar gargalos de produção. Utilizando técnicas de mapeamento de fluxo de valor e análise estatística, foram identificadas oportunidades de melhoria que resultaram em ganhos significativos de produtividade. O trabalho envolveu tanto cervejarias artesanais quanto fábricas de ração animal.",
+            "techStack": [
+                "Reologia",
+                "Gestão de Ativos",
+                "Lean Manufacturing",
+                "Excel Avançado",
+                "Análise Estatística"
+            ],
+            "challenges": [
+                "Diagnóstico preciso de ineficiências em processos complexos",
+                "Balanceamento entre custo e qualidade nas mudanças propostas",
+                "Gestão de mudança com equipes operacionais"
+            ],
+            "results": [
+                "Aumento de 25% na eficiência da linha de produção",
+                "Redução de 15% no desperdício de matéria-prima",
+                "Padronização de processos operacionais"
+            ],
+            "image": "/images/process-optimization.jpg",
+            "featured": true
+        },
+        {
+            "id": "agentes-llm",
+            "category": "programacao",
+            "title": "Sistema de Agentes LLM",
+            "subtitle": "Automação Inteligente",
+            "description": "Desenvolvimento de agentes de IA para automação de relatórios técnicos e análise de dados, utilizando Large Language Models e técnicas de prompt engineering.",
+            "fullDescription": "Criação de um sistema multi-agente baseado em LLMs para automatizar tarefas repetitivas de engenharia. O sistema inclui agentes especializados em análise de dados técnicos, geração de relatórios, e extração de informações de documentos. A arquitetura utiliza orquestração de agentes para dividir tarefas complexas em subtarefas gerenciáveis.",
+            "techStack": [
+                "Python",
+                "LangChain",
+                "OpenAI API",
+                "Prompt Engineering",
+                "RAG"
+            ],
+            "challenges": [
+                "Design de prompts eficientes para tarefas técnicas específicas",
+                "Garantia de consistência e precisão nas respostas geradas",
+                "Integração com fontes de dados estruturados e não-estruturados"
+            ],
+            "results": [
+                "Redução de 70% no tempo de geração de relatórios",
+                "Automação de análises que antes levavam horas",
+                "Framework reutilizável para novos casos de uso"
+            ],
+            "github": "https://github.com/lucasoliveira/llm-agents",
+            "image": "/images/llm-agents.jpg",
+            "featured": true
+        },
+        {
+            "id": "aplicacoes-react",
+            "category": "programacao",
+            "title": "Aplicações Web com React",
+            "subtitle": "VibeCoding & Ferramentas de Engenharia",
+            "description": "Desenvolvimento de aplicações web modernas, incluindo ferramentas de cálculo de engenharia migradas para a web e este próprio portfólio.",
+            "fullDescription": "Portfolio de aplicações web desenvolvidas usando React e Node.js, demonstrando a capacidade de criar interfaces modernas e funcionais. Os projetos incluem calculadoras de engenharia (dimensionamento de bombas, cálculos de perda de carga), dashboards de visualização de dados, e este próprio site de portfólio. Todos os projetos utilizam práticas modernas de desenvolvimento e são construídos com foco em UX.",
+            "techStack": [
+                "React",
+                "Node.js",
+                "Vite",
+                "CSS Modules",
+                "API Integration"
+            ],
+            "challenges": [
+                "Migração de cálculos complexos de Excel para ambiente web",
+                "Criação de interfaces intuitivas para ferramentas técnicas",
+                "Otimização de performance para cálculos em tempo real"
+            ],
+            "results": [
+                "Ferramentas de cálculo acessíveis de qualquer dispositivo",
+                "Interface moderna que facilita o uso por não-programadores",
+                "Código open-source disponível para a comunidade"
+            ],
+            "github": "https://github.com/lucasoliveira/engineering-tools",
+            "image": "/images/web-apps.jpg",
+            "featured": true
+        }
+    ]
+}
