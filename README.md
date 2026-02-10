@@ -6,7 +6,6 @@ This repository contains the source code for Lucas Oliveira's professional portf
 
 - **frontend/**: React application built with Vite.
 - **backend/**: Node.js/Express server for serving project data.
-- **TEP_Sentinel/**: Resources and documentation for the featured TEP-Sentinel project.
 
 ## Featured Projects
 
