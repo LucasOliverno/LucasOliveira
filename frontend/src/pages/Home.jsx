@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Hero from '../components/Hero';
 import About from '../components/About';
 import ProjectGrid from '../components/ProjectGrid';
@@ -6,14 +7,16 @@ import ProjectGrid from '../components/ProjectGrid';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 function Home() {
+    const { t, i18n } = useTranslation();
     const [engineeringProjects, setEngineeringProjects] = useState([]);
     const [programmingProjects, setProgrammingProjects] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProjects = async () => {
+            setLoading(true);
             try {
-                const response = await fetch(`${API_URL}/api/projects?featured=true`);
+                const response = await fetch(`${API_URL}/api/projects?featured=true&lang=${i18n.language}`);
                 const data = await response.json();
 
                 setEngineeringProjects(data.filter(p => p.category === 'engenharia').slice(0, 2));
@@ -26,7 +29,7 @@ function Home() {
         };
 
         fetchProjects();
-    }, []);
+    }, [i18n.language]);
 
     return (
         <main>
@@ -41,16 +44,16 @@ function Home() {
                 <>
                     <ProjectGrid
                         projects={engineeringProjects}
-                        tag="Engenharia & Processos"
-                        title="Rigor Técnico e Precisão Industrial"
-                        description="Projetos focados em hidráulica, reologia e otimização de processos."
+                        tag={t('projects.eng_tag')}
+                        title={t('projects.eng_title')}
+                        description={t('projects.eng_desc')}
                     />
 
                     <ProjectGrid
                         projects={programmingProjects}
-                        tag="Programação & VibeCoding"
-                        title="Inovação e Automação com IA"
-                        description="Desenvolvimento moderno com foco em automação e inteligência artificial."
+                        tag={t('projects.tech_tag')}
+                        title={t('projects.tech_title')}
+                        description={t('projects.tech_desc')}
                     />
                 </>
             )}

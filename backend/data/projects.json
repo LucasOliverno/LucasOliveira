@@ -4,9 +4,17 @@
             "id": "lds-brass",
             "category": "engenharia",
             "title": "Sistemas de Detecção de Vazamentos (LDS)",
+            "title_en": "Leak Detection Systems (LDS)",
+            "title_es": "Sistemas de Detección de Fugas (LDS)",
             "subtitle": "BRASS Brasil",
+            "subtitle_en": "BRASS Brazil",
+            "subtitle_es": "BRASS Brasil",
             "description": "Desenvolvimento e implementação de sistemas de detecção de vazamentos em oleodutos e gasodutos, utilizando modelos hidráulicos avançados e análise de transientes.",
+            "description_en": "Development and implementation of leak detection systems for oil and gas pipelines, using advanced hydraulic models and transient analysis.",
+            "description_es": "Desarrollo e implementación de sistemas de detección de fugas en oleoductos y gasoductos, utilizando modelos hidráulicos avanzados y análisis de transitorios.",
             "fullDescription": "Projeto focado na detecção precoce de vazamentos em dutos de transporte de petróleo e gás. O sistema utiliza modelos hidráulicos sofisticados para analisar variações de pressão e vazão, identificando anomalias que possam indicar vazamentos. A implementação inclui cálculos de transientes hidráulicos para melhorar a precisão da detecção em tempo real.",
+            "fullDescription_en": "Project focused on early detection of leaks in oil and gas transport pipelines. The system uses sophisticated hydraulic models to analyze pressure and flow variations, identifying anomalies that may indicate leaks. Implementation includes hydraulic transient calculations to improve real-time detection accuracy.",
+            "fullDescription_es": "Proyecto enfocado en la detección temprana de fugas en ductos de transporte de petróleo y gas. El sistema utiliza modelos hidráulicos sofisticados para analizar variaciones de presión y caudal, identificando anomalías que puedan indicar fugas. La implementación incluye cálculos de transitorios hidráulicos para mejorar la precisión de la detección en tiempo real.",
             "techStack": [
                 "Hidráulica",
                 "Cálculos Transientes",
@@ -14,54 +22,178 @@
                 "Python",
                 "Análise de Dados"
             ],
+            "techStack_en": [
+                "Hydraulics",
+                "Transient Calculations",
+                "Advanced Excel",
+                "Python",
+                "Data Analysis"
+            ],
+            "techStack_es": [
+                "Hidráulica",
+                "Cálculos Transitorios",
+                "Excel Avanzado",
+                "Python",
+                "Análisis de Datos"
+            ],
             "challenges": [
                 "Modelagem de comportamento hidráulico complexo em dutos de grande extensão",
                 "Minimização de falsos positivos em condições operacionais variáveis",
                 "Integração com sistemas SCADA existentes"
+            ],
+            "challenges_en": [
+                "Modeling complex hydraulic behavior in large-scale pipelines",
+                "Minimizing false positives under variable operational conditions",
+                "Integration with existing SCADA systems"
+            ],
+            "challenges_es": [
+                "Modelado de comportamento hidráulico complejo en ductos de gran extensión",
+                "Minimización de falsos positivos en condiciones operacionales variables",
+                "Integración con sistemas SCADA existentes"
             ],
             "results": [
                 "Redução do tempo de detecção de vazamentos em 40%",
                 "Implementação bem-sucedida em múltiplos dutos",
                 "Melhoria na confiabilidade operacional"
             ],
-            "image": "/images/lds-system.jpg",
+            "results_en": [
+                "40% reduction in leak detection time",
+                "Successful implementation across multiple pipelines",
+                "Improved operational reliability"
+            ],
+            "results_es": [
+                "Reducción del tiempo de detección de fugas en un 40%",
+                "Implementación exitosa en múltiples ductos",
+                "Mejora en la confiabilidad operacional"
+            ],
+            "image": "/images/lds-system.svg",
             "featured": true
         },
         {
-            "id": "otimizacao-processos",
+            "id": "tep-sentinel",
             "category": "engenharia",
-            "title": "Otimização de Processos Industriais",
-            "subtitle": "Cervejaria & Indústria de Ração",
-            "description": "Mapeamento de gargalos e implementação de melhorias em linhas de produção, aumentando a eficiência fabril através de análise de dados e reengenharia de processos.",
-            "fullDescription": "Projeto de consultoria em otimização de processos industriais, focado em identificar e eliminar gargalos de produção. Utilizando técnicas de mapeamento de fluxo de valor e análise estatística, foram identificadas oportunidades de melhoria que resultaram em ganhos significativos de produtividade. O trabalho envolveu tanto cervejarias artesanais quanto fábricas de ração animal.",
+            "title": "TEP-Sentinel: IA Industrial de Ciclo Fechado",
+            "title_en": "TEP-Sentinel: Closed-Loop Industrial AI",
+            "title_es": "TEP-Sentinel: IA Industrial de Ciclo Cerrado",
+            "subtitle": "Tennessee Eastman Process",
+            "subtitle_en": "Tennessee Eastman Process",
+            "subtitle_es": "Tennessee Eastman Process",
+            "description": "Sistema avançado de monitoramento e controle autônomo para plantas químicas utilizando Deep Learning, Reinforcement Learning e IA Generativa em ciclo fechado.",
+            "description_en": "Advanced autonomous monitoring and control system for chemical plants using Deep Learning, Reinforcement Learning and Generative AI in a closed loop.",
+            "description_es": "Sistema avanzado de monitoreo y control autónomo para plantas químicas utilizando Deep Learning, Reinforcement Learning e IA Generativa en ciclo cerrado.",
+            "fullDescription": "🛡️ **TEP-Sentinel: IA Industrial de Ciclo Fechado**\n\nO TEP-Sentinel é um sistema avançado de monitoramento e controle autônomo desenvolvido sobre o Tennessee Eastman Process (TEP) — o 'padrão ouro' dos benchmarks industriais. Este projeto demonstra a orquestração de Deep Learning, Reinforcement Learning e IA Generativa para garantir a segurança e a eficiência de uma planta química virtual.\n\n🧩 **Arquitetura 'Sense-Think-Act-Explain'**\nO sistema foi construído sob uma metodologia modular que mimetiza a tomada de decisão humana:\n\n* **Sense (Sensoriamento):** Processamento em tempo real de 52 variáveis de processo (sensores de pressão, temperatura e nível) utilizando um pipeline de dados robusto em formato Parquet.\n* **Think (Monitoramento & FDD):** Estrutura redundante com Autoencoder (detecção de anomalias, FAR 0,69%) e CNN-LSTM (diagnóstico de causa raiz, precisão 92%).\n* **Act (Controle Autônomo):** Agente PPO treinado em simulador neural para estabilizar a planta, com Camada de Segurança (Safety Layer) para impedir violações físicas.\n* **Explain (IA Explicável):** Módulo RAG com Gemini 2.0 e ChromaDB, traduzindo alertas matemáticos em relatórios técnicos acionáveis.",
+            "fullDescription_en": "🛡️ **TEP-Sentinel: Closed-Loop Industrial AI**\n\nTEP-Sentinel is an advanced autonomous monitoring and control system developed on the Tennessee Eastman Process (TEP) — the 'gold standard' of industrial benchmarks. This project demonstrates the orchestration of Deep Learning, Reinforcement Learning and Generative AI to ensure the safety and efficiency of a virtual chemical plant.\n\n🧩 **'Sense-Think-Act-Explain' Architecture**\nThe system was built under a modular methodology mimicking human decision making:\n\n* **Sense:** Real-time processing of 52 process variables using a robust Parquet data pipeline.\n* **Think (Monitoring & FDD):** Redundant structure with Autoencoder (anomaly detection, FAR 0.69%) and CNN-LSTM (root cause diagnosis, 92% accuracy).\n* **Act (Autonomous Control):** PPO Agent trained on a neural simulator to stabilize the plant, with a Safety Layer to prevent physical violations.\n* **Explain (Explainable AI):** RAG module with Gemini 2.0 and ChromaDB, translating mathematical alerts into actionable technical reports.",
+            "fullDescription_es": "🛡️ **TEP-Sentinel: IA Industrial de Ciclo Cerrado**\n\nTEP-Sentinel es un sistema avanzado de monitoreo y control autónomo desarrollado sobre el Tennessee Eastman Process (TEP) — el 'estándar de oro' de los benchmarks industriales. Este proyecto demuestra la orquestación de Deep Learning, Reinforcement Learning e IA Generativa para garantizar la seguridad y eficiencia de una planta química virtual.\n\n🧩 **Arquitectura 'Sense-Think-Act-Explain'**\nEl sistema fue construido bajo una metodología modular que mimetiza la toma de decisiones humana:\n\n* **Sense (Sensoriado):** Procesamiento en tiempo real de 52 variables de proceso utilizando un pipeline de datos robusto en formato Parquet.\n* **Think (Monitoreo & FDD):** Estructura redundante con Autoencoder (detección de anomalías, FAR 0,69%) y CNN-LSTM (diagnóstico de causa raíz, precisión 92%).\n* **Act (Control Autónomo):** Agente PPO entrenado en simulador neural para estabilizar la planta, con Capa de Seguridad (Safety Layer) para impedir violaciones físicas.\n* **Explain (IA Explicable):** Módulo RAG con Gemini 2.0 y ChromaDB, traduciendo alertas matemáticas en informes técnicos accionables.",
             "techStack": [
-                "Reologia",
-                "Gestão de Ativos",
-                "Lean Manufacturing",
-                "Excel Avançado",
-                "Análise Estatística"
+                "Python",
+                "PyTorch/TensorFlow",
+                "Stable-Baselines3",
+                "Google Gemini 2.0",
+                "LangChain",
+                "ChromaDB",
+                "Streamlit"
+            ],
+            "techStack_en": [
+                "Python",
+                "PyTorch/TensorFlow",
+                "Stable-Baselines3",
+                "Google Gemini 2.0",
+                "LangChain",
+                "ChromaDB",
+                "Streamlit"
+            ],
+            "techStack_es": [
+                "Python",
+                "PyTorch/TensorFlow",
+                "Stable-Baselines3",
+                "Google Gemini 2.0",
+                "LangChain",
+                "ChromaDB",
+                "Streamlit"
             ],
             "challenges": [
-                "Diagnóstico preciso de ineficiências em processos complexos",
-                "Balanceamento entre custo e qualidade nas mudanças propostas",
-                "Gestão de mudança com equipes operacionais"
+                "Controle de planta química altamente não-linear e instável",
+                "Integração de múltiplas técnicas de IA em sistema de ciclo fechado",
+                "Implementação de camada de segurança para evitar violações físicas críticas",
+                "Tradução de alertas matemáticos complexos em relatórios acionáveis"
+            ],
+            "challenges_en": [
+                "Control of highly non-linear and unstable chemical plant",
+                "Integration of multiple AI techniques in closed-loop system",
+                "Implementation of safety layer to prevent critical physical violations",
+                "Translation of complex mathematical alerts into actionable reports"
+            ],
+            "challenges_es": [
+                "Control de planta química altamente no lineal e inestable",
+                "Integración de múltiples técnicas de IA en sistema de ciclo cerrado",
+                "Implementación de capa de seguridad para evitar violaciones físicas críticas",
+                "Traducción de alertas matemáticas complejas en informes accionables"
             ],
             "results": [
-                "Aumento de 25% na eficiência da linha de produção",
-                "Redução de 15% no desperdício de matéria-prima",
-                "Padronização de processos operacionais"
+                "Detecção de anomalias com FAR de apenas 0,69%",
+                "Diagnóstico de causa raiz com precisão média de 92%",
+                "Sistema de controle autônomo com proteção de Safety Layer",
+                "Módulo RAG para explicabilidade de alertas técnicos"
             ],
-            "image": "/images/process-optimization.jpg",
+            "results_en": [
+                "Anomaly detection with FAR of only 0.69%",
+                "Root cause diagnosis with average precision of 92%",
+                "Autonomous control system with Safety Layer protection",
+                "RAG module for technical alert explainability"
+            ],
+            "results_es": [
+                "Detección de anomalías con FAR de solo 0,69%",
+                "Diagnóstico de causa raíz con precisión promedio del 92%",
+                "Sistema de control autónomo con protección de Safety Layer",
+                "Módulo RAG para explicabilidad de alertas técnicos"
+            ],
+            "github": "https://github.com/LucasOliverno/TEP-Sentinel",
+            "image": "/images/tep-sentinel/dashboard.png",
+            "gallery": [
+                "/images/tep-sentinel/dashboard.png",
+                "/images/tep-sentinel/confusion_matrix.png",
+                "/images/tep-sentinel/correlation_matrix.png",
+                "/images/tep-sentinel/rl_performance.png",
+                "/images/tep-sentinel/fault_detection.png"
+            ],
+            "documents": [
+                {
+                    "title": "Relatório Técnico Completo (PT-BR)",
+                    "path": "/docs/TEP_Sentinel_Relatorio_Tecnico.pdf"
+                }
+            ],
             "featured": true
         },
         {
             "id": "agentes-llm",
             "category": "programacao",
             "title": "Sistema de Agentes LLM",
+            "title_en": "LLM Agent System",
+            "title_es": "Sistema de Agentes LLM",
             "subtitle": "Automação Inteligente",
+            "subtitle_en": "Intelligent Automation",
+            "subtitle_es": "Automatización Inteligente",
             "description": "Desenvolvimento de agentes de IA para automação de relatórios técnicos e análise de dados, utilizando Large Language Models e técnicas de prompt engineering.",
+            "description_en": "Development of AI agents for technical report automation and data analysis, using Large Language Models and prompt engineering techniques.",
+            "description_es": "Desarrollo de agentes de IA para la automatización de informes técnicos y análisis de datos, utilizando Large Language Models y técnicas de prompt engineering.",
             "fullDescription": "Criação de um sistema multi-agente baseado em LLMs para automatizar tarefas repetitivas de engenharia. O sistema inclui agentes especializados em análise de dados técnicos, geração de relatórios, e extração de informações de documentos. A arquitetura utiliza orquestração de agentes para dividir tarefas complexas em subtarefas gerenciáveis.",
+            "fullDescription_en": "Creation of an LLM-based multi-agent system to automate repetitive engineering tasks. The system includes agents specialized in technical data analysis, report generation, and information extraction from documents. Architecture uses agent orchestration to break down complex tasks into manageable subtasks.",
+            "fullDescription_es": "Creación de un sistema multi-agente basado en LLMs para automatizar tareas repetitivas de ingeniería. El sistema incluye agentes especializados en análisis de datos técnicos, generación de informes y extracción de información de documentos. La arquitectura utiliza orquestación de agentes para dividir tareas complejas en subtareas manejables.",
             "techStack": [
+                "Python",
+                "LangChain",
+                "OpenAI API",
+                "Prompt Engineering",
+                "RAG"
+            ],
+            "techStack_en": [
+                "Python",
+                "LangChain",
+                "OpenAI API",
+                "Prompt Engineering",
+                "RAG"
+            ],
+            "techStack_es": [
                 "Python",
                 "LangChain",
                 "OpenAI API",
@@ -73,23 +205,65 @@
                 "Garantia de consistência e precisão nas respostas geradas",
                 "Integração com fontes de dados estruturados e não-estruturados"
             ],
+            "challenges_en": [
+                "Designing efficient prompts for specific technical tasks",
+                "Ensuring consistency and accuracy in generated responses",
+                "Integration with structured and unstructured data sources"
+            ],
+            "challenges_es": [
+                "Diseño de prompts eficientes para tareas técnicas específicas",
+                "Garantía de consistencia y precisión en las respuestas generadas",
+                "Integración con fuentes de datos estructuradas y no estructuradas"
+            ],
             "results": [
                 "Redução de 70% no tempo de geração de relatórios",
                 "Automação de análises que antes levavam horas",
                 "Framework reutilizável para novos casos de uso"
             ],
-            "github": "https://github.com/lucasoliveira/llm-agents",
-            "image": "/images/llm-agents.jpg",
+            "results_en": [
+                "70% reduction in report generation time",
+                "Automation of analyses that previously took hours",
+                "Reusable framework for new use cases"
+            ],
+            "results_es": [
+                "Reducción del 70% en el tiempo de generación de informes",
+                "Automatización de análisis que antes tomaban horas",
+                "Framework reutilizable para nuevos casos de uso"
+            ],
+            "github": "https://github.com/LucasOliverno/llm-agents",
+            "image": "/images/llm-agents.svg",
             "featured": true
         },
         {
             "id": "aplicacoes-react",
             "category": "programacao",
             "title": "Aplicações Web com React",
+            "title_en": "Web Applications with React",
+            "title_es": "Aplicaciones Web con React",
             "subtitle": "VibeCoding & Ferramentas de Engenharia",
+            "subtitle_en": "VibeCoding & Engineering Tools",
+            "subtitle_es": "VibeCoding y Herramientas de Ingeniería",
             "description": "Desenvolvimento de aplicações web modernas, incluindo ferramentas de cálculo de engenharia migradas para a web e este próprio portfólio.",
+            "description_en": "Development of modern web applications, including engineering calculation tools migrated to the web and this portfolio itself.",
+            "description_es": "Desarrollo de aplicaciones web modernas, incluyendo herramientas de cálculo de ingeniería migradas a la web y este propio portafolio.",
             "fullDescription": "Portfolio de aplicações web desenvolvidas usando React e Node.js, demonstrando a capacidade de criar interfaces modernas e funcionais. Os projetos incluem calculadoras de engenharia (dimensionamento de bombas, cálculos de perda de carga), dashboards de visualização de dados, e este próprio site de portfólio. Todos os projetos utilizam práticas modernas de desenvolvimento e são construídos com foco em UX.",
+            "fullDescription_en": "Portfolio of web applications developed using React and Node.js, demonstrating the ability to create modern and functional interfaces. Projects include engineering calculators (pump sizing, head loss calculations), data visualization dashboards, and this portfolio site. All projects use modern development practices and are built with a focus on UX.",
+            "fullDescription_es": "Portafolio de aplicaciones web desarrolladas utilizando React y Node.js, demostrando la capacidad de crear interfaces modernas y funcionales. Los proyectos incluyen calculadoras de ingeniería (dimensionamiento de bombas, cálculos de pérdida de carga), tableros de visualización de datos y este propio sitio de portafolio. Todos los proyectos utilizan prácticas modernas de desarrollo y están construidos con un enfoque en UX.",
             "techStack": [
+                "React",
+                "Node.js",
+                "Vite",
+                "CSS Modules",
+                "API Integration"
+            ],
+            "techStack_en": [
+                "React",
+                "Node.js",
+                "Vite",
+                "CSS Modules",
+                "API Integration"
+            ],
+            "techStack_es": [
                 "React",
                 "Node.js",
                 "Vite",
@@ -101,13 +275,33 @@
                 "Criação de interfaces intuitivas para ferramentas técnicas",
                 "Otimização de performance para cálculos em tempo real"
             ],
+            "challenges_en": [
+                "Migration of complex Excel calculations to web environment",
+                "Creation of intuitive interfaces for technical tools",
+                "Optimization of performance for real-time calculations"
+            ],
+            "challenges_es": [
+                "Migración de cálculos complejos de Excel al entorno web",
+                "Creación de interfaces intuitivas para herramientas técnicas",
+                "Optimización del rendimiento para cálculos en tiempo real"
+            ],
             "results": [
                 "Ferramentas de cálculo acessíveis de qualquer dispositivo",
                 "Interface moderna que facilita o uso por não-programadores",
                 "Código open-source disponível para a comunidade"
             ],
-            "github": "https://github.com/lucasoliveira/engineering-tools",
-            "image": "/images/web-apps.jpg",
+            "results_en": [
+                "Calculation tools accessible from any device",
+                "Modern interface facilitating use for non-programmers",
+                "Open-source code available for the community"
+            ],
+            "results_es": [
+                "Herramientas de cálculo accesibles desde cualquier dispositivo",
+                "Interfaz moderna que facilita el uso para no programadores",
+                "Código de código abierto disponible para la comunidad"
+            ],
+            "github": "https://github.com/LucasOliverno/engineering-tools",
+            "image": "/images/web-apps.svg",
             "featured": true
         }
     ]

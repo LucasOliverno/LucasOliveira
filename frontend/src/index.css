@@ -7,28 +7,28 @@
   --bg-secondary: #111111;
   --bg-card: #1a1a1a;
   --bg-card-hover: #222222;
-  
+
   --accent-primary: #00ff88;
   --accent-secondary: #00d4ff;
   --accent-gradient: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
-  
+
   --text-primary: #ffffff;
   --text-secondary: #a0a0a0;
   --text-muted: #666666;
-  
+
   --border-color: rgba(255, 255, 255, 0.1);
   --glass-bg: rgba(26, 26, 26, 0.8);
-  
+
   /* Spacing */
   --container-max: 1200px;
   --section-padding: 100px;
-  
+
   /* Border radius */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
   --radius-xl: 30px;
-  
+
   /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
@@ -36,7 +36,9 @@
 }
 
 /* ===== RESET & BASE ===== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -60,7 +62,8 @@ a {
   text-decoration: none;
 }
 
-ul, ol {
+ul,
+ol {
   list-style: none;
 }
 
@@ -85,7 +88,10 @@ button {
 }
 
 /* ===== TYPOGRAPHY ===== */
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-weight: 700;
   line-height: 1.2;
 }
@@ -163,6 +169,24 @@ h3 {
   width: 100%;
 }
 
+.lang-switcher {
+  padding: 6px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--accent-primary);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: all var(--transition-fast);
+  margin-left: 10px;
+}
+
+.lang-switcher:hover {
+  background: var(--accent-primary);
+  color: #000;
+  border-color: var(--accent-primary);
+}
+
 .navbar-toggle {
   display: none;
   flex-direction: column;
@@ -198,13 +222,22 @@ h3 {
   width: 200%;
   height: 200%;
   background: radial-gradient(ellipse at center, rgba(0, 255, 136, 0.08) 0%, transparent 50%),
-              radial-gradient(ellipse at 80% 20%, rgba(0, 212, 255, 0.06) 0%, transparent 40%);
+    radial-gradient(ellipse at 80% 20%, rgba(0, 212, 255, 0.06) 0%, transparent 40%);
   animation: pulse 8s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.05); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
 }
 
 .hero-content {
@@ -235,8 +268,15 @@ h3 {
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
 }
 
 .hero h1 {
@@ -441,6 +481,10 @@ h3 {
   transform: translateY(-8px);
   border-color: var(--accent-primary);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.project-card:hover .project-card-image img {
+  transform: scale(1.1);
 }
 
 .project-card-image {
@@ -843,37 +887,37 @@ h3 {
     grid-template-columns: 1fr;
     gap: 40px;
   }
-  
+
   .about-image {
     max-width: 400px;
     margin: 0 auto;
   }
-  
+
   .project-details-content {
     grid-template-columns: 1fr;
   }
-  
+
   .project-details-sidebar {
     position: static;
   }
-  
+
   .timeline::before {
     left: 20px;
   }
-  
+
   .timeline-item,
   .timeline-item:nth-child(even) {
     justify-content: flex-start;
     padding-left: 60px;
     padding-right: 0;
   }
-  
+
   .timeline-content,
   .timeline-item:nth-child(even) .timeline-content {
     margin: 0;
     max-width: 100%;
   }
-  
+
   .timeline-dot {
     left: 20px;
   }
@@ -883,7 +927,7 @@ h3 {
   :root {
     --section-padding: 60px;
   }
-  
+
   .navbar-links {
     display: none;
     position: absolute;
@@ -896,32 +940,32 @@ h3 {
     border-bottom: 1px solid var(--border-color);
     gap: 20px;
   }
-  
+
   .navbar-links.open {
     display: flex;
   }
-  
+
   .navbar-toggle {
     display: flex;
   }
-  
+
   .hero {
     padding: 100px 24px 60px;
   }
-  
+
   .hero-buttons {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .about-stats {
     grid-template-columns: 1fr;
   }
-  
+
   .projects-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .category-tabs {
     flex-wrap: wrap;
   }
@@ -945,7 +989,9 @@ h3 {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ===== PAGE TRANSITIONS ===== */

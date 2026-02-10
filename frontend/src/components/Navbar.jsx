@@ -1,24 +1,33 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const location = useLocation();
+    const { t, i18n } = useTranslation();
 
     const isActive = (path) => location.pathname === path;
 
+    const toggleLanguage = () => {
+        const languages = ['pt', 'en', 'es'];
+        const currentIndex = languages.indexOf(i18n.language);
+        const nextIndex = (currentIndex + 1) % languages.length;
+        i18n.changeLanguage(languages[nextIndex]);
+    };
+
     const navLinks = [
-        { path: '/', label: 'Home' },
-        { path: '/engenharia', label: 'Engenharia' },
-        { path: '/tech', label: 'Tech' },
-        { path: '/sobre', label: 'Sobre' },
+        { path: '/', label: t('nav.home') },
+        { path: '/engenharia', label: t('nav.engineering') },
+        { path: '/tech', label: t('nav.tech') },
+        { path: '/sobre', label: t('nav.about') },
     ];
 
     return (
         <nav className="navbar">
             <div className="container">
-                <Link to="/" className="navbar-logo">
-                    LO
+                <Link to="/" className="navbar-logo" style={{ display: 'flex', alignItems: 'center' }}>
+                    <img src="/logo.png" alt="Logo" style={{ height: '45px', width: 'auto' }} />
                 </Link>
 
                 <div className={`navbar-links ${isOpen ? 'open' : ''}`}>
@@ -32,6 +41,10 @@ function Navbar() {
                             {link.label}
                         </Link>
                     ))}
+
+                    <button onClick={toggleLanguage} className="lang-switcher">
+                        {i18n.language.toUpperCase()}
+                    </button>
                 </div>
 
                 <button

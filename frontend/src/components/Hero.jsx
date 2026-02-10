@@ -1,31 +1,33 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function Hero() {
+    const { t } = useTranslation();
+
     return (
         <section className="hero">
             <div className="hero-content">
                 <div className="hero-badge">
                     <span className="dot"></span>
-                    <span>Aberto a novas oportunidades</span>
+                    <span>{t('hero.badge')}</span>
                 </div>
 
                 <h1>
-                    <span className="gradient-text">Engenheiro Químico</span> (UFMG) & <br />
-                    <span className="gradient-text">Full Stack Developer</span>
+                    <span className="gradient-text">{t('hero.title_main')}</span> (UFMG) {t('hero.title_and')} <br />
+                    <span className="gradient-text">{t('hero.title_sub')}</span>
                 </h1>
 
                 <p className="hero-subtitle">
-                    Unindo o rigor da engenharia industrial à agilidade do desenvolvimento
-                    de software e IA. Transformando problemas complexos em soluções elegantes.
+                    {t('hero.subtitle')}
                 </p>
 
                 <div className="hero-buttons">
                     <Link to="/engenharia" className="btn btn-primary">
-                        Ver Projetos de Engenharia
+                        {t('hero.btn_eng')}
                         <span>→</span>
                     </Link>
                     <Link to="/tech" className="btn btn-secondary">
-                        Explorar Tech & VibeCoding
+                        {t('hero.btn_tech')}
                     </Link>
                 </div>
             </div>

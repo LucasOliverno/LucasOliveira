@@ -1,8 +1,12 @@
+import { useTranslation } from 'react-i18next';
+
 function About() {
+    const { t } = useTranslation();
+
     const stats = [
-        { number: '3+', label: 'Anos de Experiência' },
-        { number: '10+', label: 'Projetos Entregues' },
-        { number: '∞', label: 'Curiosidade' },
+        { number: '3+', label: t('about.stat_exp') },
+        { number: '10+', label: t('about.stat_proj') },
+        { number: '∞', label: t('about.stat_curiosity') },
     ];
 
     return (
@@ -17,21 +21,12 @@ function About() {
                     </div>
 
                     <div className="about-text">
-                        <div className="section-tag">Sobre Mim</div>
-                        <h2>Da Engenharia Química ao Código</h2>
+                        <div className="section-tag">{t('about.tag')}</div>
+                        <h2>{t('about.title')}</h2>
 
-                        <p>
-                            Sou estudante de Engenharia Química na UFMG e estagiário na BRASS Brasil,
-                            onde trabalho com sistemas de detecção de vazamentos em oleodutos.
-                            Minha jornada me levou a descobrir o poder da programação como ferramenta
-                            para resolver problemas de engenharia de forma mais eficiente.
-                        </p>
+                        <p>{t('about.p1')}</p>
 
-                        <p>
-                            Hoje, combino o conhecimento técnico da engenharia com habilidades de
-                            desenvolvimento Full Stack, criando soluções que vão desde automação
-                            com IA até aplicações web que facilitam cálculos complexos.
-                        </p>
+                        <p>{t('about.p2')}</p>
 
                         <div className="about-stats">
                             {stats.map((stat, index) => (

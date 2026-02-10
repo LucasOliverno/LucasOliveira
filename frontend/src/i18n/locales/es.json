@@ -1,0 +1,79 @@
+{
+    "translation": {
+        "nav": {
+            "home": "Inicio",
+            "engineering": "Ingeniería",
+            "tech": "Tech",
+            "about": "Sobre mí"
+        },
+        "hero": {
+            "badge": "Abierto a nuevas oportunidades",
+            "title_main": "Ingeniero Químico",
+            "title_and": "y",
+            "title_sub": "Full Stack Developer",
+            "subtitle": "Uniendo el rigor de la ingeniería industrial con la agilidad del desarrollo de software e IA. Transformando problemas complejos en soluciones elegantes.",
+            "btn_eng": "Ver Proyectos de Ingeniería",
+            "btn_tech": "Explorar Tech & VibeCoding"
+        },
+        "about": {
+            "tag": "Sobre Mí",
+            "title": "De la Ingeniería Química al Código",
+            "p1": "Soy estudiante de Ingeniería Química en la UFMG y pasante en BRASS Brasil, donde trabajo con sistemas de detección de fugas en oleodutos. Mi trayectoria me llevó a descubrir el poder de la programación como herramienta para resolver problemas de ingeniería de forma más eficiente.",
+            "p2": "Hoy, combino el conocimiento técnico de la ingeniería con habilidades de desarrollo Full Stack, creando soluciones que van desde la automatización con IA hasta aplicaciones web que facilitan cálculos complejos.",
+            "stat_exp": "Años de Experiencia",
+            "stat_proj": "Proyectos Entregados",
+            "stat_curiosity": "Curiosidad"
+        },
+        "projects": {
+            "eng_tag": "Ingeniería & Procesos",
+            "eng_title": "Rigor Técnico y Precisión Industrial",
+            "eng_desc": "Proyectos enfocados en hidráulica, reología y optimización de procesos.",
+            "tech_tag": "Programación & VibeCoding",
+            "tech_title": "Innovación y Automatización con IA",
+            "tech_desc": "Desarrollo moderno con enfoque en automatización e inteligencia artificial.",
+            "view_details": "Ver Detalles",
+            "category_eng": "Ingeniería",
+            "category_prog": "Programación"
+        },
+        "footer": {
+            "subtitle": "Ingeniero Químico & Full Stack Developer"
+        },
+        "about_page": {
+            "tag": "Mi Trayectoria",
+            "title": "De la UFMG a la Industria, del Excel al React",
+            "description": "Un viaje de descubrimientos que conecta ingeniería química, desarrollo de software e inteligencia artificial.",
+            "trajectory": "Trayectoria",
+            "skills": "Habilidades",
+            "skills_eng": "Ingeniería",
+            "skills_tech": "Técnicas",
+            "skills_prog": "Programación",
+            "skills_comp": "Comportamentales",
+            "skills_langs": "Idiomas",
+            "talk_title": "¿Hablamos?",
+            "talk_p": "Siempre estoy abierto a nuevas oportunidades, colaboraciones y proyectos interesantes. Si tienes una idea u oportunidad, ¡ponte en contacto!",
+            "send_email": "Enviar Correo"
+        },
+        "project_details": {
+            "back_eng": "Volver a Ingeniería",
+            "back_tech": "Voltar a Tech",
+            "overview": "Visión General",
+            "challenges": "Desafíos Técnicos",
+            "results": "Resultados",
+            "tech_stack": "Tech Stack"
+        },
+        "tech_page": {
+            "title": "Proyectos de Tech",
+            "description": "Desarrollo moderno con IA y automatización. VibeCoding: usando inteligencia artificial como socia en el proceso creativo de desarrollo.",
+            "vibe_title": "¿Qué es VibeCoding?",
+            "vibe_desc": "VibeCoding es la práctica de usar IA como socia en el desarrollo de software. En lugar de escribir cada línea de código manualmente, colaboro con modelos de lenguaje para acelerar el desarrollo, mantener la calidad y explorar soluciones creativas para problemas técnicos."
+        },
+        "eng_page": {
+            "title": "Proyectos de Ingeniería",
+            "description": "Experiencia en sistemas hidráulicos, optimización de procesos industriales y consultoría técnica. Enfoque en resultados medibles y precisión.",
+            "filter_all": "Todos",
+            "filter_hyd": "Hidráulica",
+            "filter_proc": "Procesos",
+            "filter_cons": "Consultoría"
+        }
+    }
+}

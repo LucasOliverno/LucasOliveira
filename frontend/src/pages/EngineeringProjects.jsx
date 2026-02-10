@@ -1,25 +1,28 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import ProjectCard from '../components/ProjectCard';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 function EngineeringProjects() {
+    const { t, i18n } = useTranslation();
     const [projects, setProjects] = useState([]);
     const [filteredProjects, setFilteredProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState('all');
 
     const filters = [
-        { id: 'all', label: 'Todos' },
-        { id: 'hidraulica', label: 'Hidráulica' },
-        { id: 'processos', label: 'Processos' },
-        { id: 'consultoria', label: 'Consultoria' },
+        { id: 'all', label: t('eng_page.filter_all') },
+        { id: 'hidraulica', label: t('eng_page.filter_hyd') },
+        { id: 'processos', label: t('eng_page.filter_proc') },
+        { id: 'consultoria', label: t('eng_page.filter_cons') },
     ];
 
     useEffect(() => {
         const fetchProjects = async () => {
+            setLoading(true);
             try {
-                const response = await fetch(`${API_URL}/api/projects?category=engenharia`);
+                const response = await fetch(`${API_URL}/api/projects?category=engenharia&lang=${i18n.language}`);
                 const data = await response.json();
                 setProjects(data);
                 setFilteredProjects(data);
@@ -31,7 +34,7 @@ function EngineeringProjects() {
         };
 
         fetchProjects();
-    }, []);
+    }, [i18n.language]);
 
     const handleFilter = (filterId) => {
         setActiveFilter(filterId);
@@ -53,11 +56,10 @@ function EngineeringProjects() {
         <div className="project-details" style={{ paddingTop: '120px' }}>
             <div className="container">
                 <div className="section-header">
-                    <span className="section-tag">Engenharia & Processos</span>
-                    <h1 className="section-title">Projetos de Engenharia</h1>
+                    <span className="section-tag">{t('projects.eng_tag')}</span>
+                    <h1 className="section-title">{t('eng_page.title')}</h1>
                     <p className="section-description">
-                        Experiência em sistemas hidráulicos, otimização de processos industriais
-                        e consultoria técnica. Foco em resultados mensuráveis e precisão.
+                        {t('eng_page.description')}
                     </p>
                 </div>
 

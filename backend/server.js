@@ -20,8 +20,34 @@ const projectsData = JSON.parse(readFileSync(projectsPath, 'utf-8'));
 
 // Routes
 app.get('/api/projects', (req, res) => {
-  const { category, featured } = req.query;
-  let projects = projectsData.projects;
+  const { category, featured, lang } = req.query;
+  let projects = projectsData.projects.map(p => {
+    if (lang === 'en') {
+      return {
+        ...p,
+        title: p.title_en || p.title,
+        subtitle: p.subtitle_en || p.subtitle,
+        description: p.description_en || p.description,
+        fullDescription: p.fullDescription_en || p.fullDescription,
+        techStack: p.techStack_en || p.techStack,
+        challenges: p.challenges_en || p.challenges,
+        results: p.results_en || p.results
+      };
+    }
+    if (lang === 'es') {
+      return {
+        ...p,
+        title: p.title_es || p.title,
+        subtitle: p.subtitle_es || p.subtitle,
+        description: p.description_es || p.description,
+        fullDescription: p.fullDescription_es || p.fullDescription,
+        techStack: p.techStack_es || p.techStack,
+        challenges: p.challenges_es || p.challenges,
+        results: p.results_es || p.results
+      };
+    }
+    return p;
+  });
 
   if (category) {
     projects = projects.filter(p => p.category === category);
@@ -35,10 +61,37 @@ app.get('/api/projects', (req, res) => {
 });
 
 app.get('/api/projects/:id', (req, res) => {
+  const { lang } = req.query;
   const project = projectsData.projects.find(p => p.id === req.params.id);
-  
+
   if (!project) {
     return res.status(404).json({ error: 'Projeto não encontrado' });
+  }
+
+  if (lang === 'en') {
+    return res.json({
+      ...project,
+      title: project.title_en || project.title,
+      subtitle: project.subtitle_en || project.subtitle,
+      description: project.description_en || project.description,
+      fullDescription: project.fullDescription_en || project.fullDescription,
+      techStack: project.techStack_en || project.techStack,
+      challenges: project.challenges_en || project.challenges,
+      results: project.results_en || project.results
+    });
+  }
+
+  if (lang === 'es') {
+    return res.json({
+      ...project,
+      title: project.title_es || project.title,
+      subtitle: project.subtitle_es || project.subtitle,
+      description: project.description_es || project.description,
+      fullDescription: project.fullDescription_es || project.fullDescription,
+      techStack: project.techStack_es || project.techStack,
+      challenges: project.challenges_es || project.challenges,
+      results: project.results_es || project.results
+    });
   }
 
   res.json(project);

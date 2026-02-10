@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import ProjectCard from '../components/ProjectCard';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 function TechProjects() {
+    const { t, i18n } = useTranslation();
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProjects = async () => {
+            setLoading(true);
             try {
-                const response = await fetch(`${API_URL}/api/projects?category=programacao`);
+                const response = await fetch(`${API_URL}/api/projects?category=programacao&lang=${i18n.language}`);
                 const data = await response.json();
                 setProjects(data);
             } catch (error) {
@@ -21,17 +24,16 @@ function TechProjects() {
         };
 
         fetchProjects();
-    }, []);
+    }, [i18n.language]);
 
     return (
         <div className="project-details" style={{ paddingTop: '120px' }}>
             <div className="container">
                 <div className="section-header">
-                    <span className="section-tag">Programação & VibeCoding</span>
-                    <h1 className="section-title">Projetos de Tech</h1>
+                    <span className="section-tag">{t('projects.tech_tag')}</span>
+                    <h1 className="section-title">{t('tech_page.title')}</h1>
                     <p className="section-description">
-                        Desenvolvimento moderno com IA e automação. VibeCoding: usando inteligência
-                        artificial como parceira no processo criativo de desenvolvimento.
+                        {t('tech_page.description')}
                     </p>
                 </div>
 
@@ -43,13 +45,10 @@ function TechProjects() {
                     border: '1px solid var(--border-color)'
                 }}>
                     <h3 style={{ color: 'var(--accent-primary)', marginBottom: '12px' }}>
-                        💡 O que é VibeCoding?
+                        💡 {t('tech_page.vibe_title')}
                     </h3>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7' }}>
-                        VibeCoding é a prática de usar IA como parceira no desenvolvimento de software.
-                        Em vez de escrever cada linha de código manualmente, colaboro com modelos de
-                        linguagem para acelerar o desenvolvimento, manter a qualidade e explorar
-                        soluções criativas para problemas técnicos.
+                        {t('tech_page.vibe_desc')}
                     </p>
                 </div>
 

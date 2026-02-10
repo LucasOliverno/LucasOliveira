@@ -1,0 +1,8 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#1a1a1a"/>
+  <text x="400" y="300" font-family="Arial" font-size="48" fill="#00d4ff" text-anchor="middle">LLM Agents</text>
+  <circle cx="400" cy="300" r="100" stroke="#00d4ff" stroke-width="2" fill="none"/>
+  <circle cx="200" cy="200" r="40" fill="#00d4ff" opacity="0.6"/>
+  <circle cx="600" cy="200" r="40" fill="#00ff88" opacity="0.6"/>
+  <circle cx="400" cy="500" r="40" fill="#ff6b6b" opacity="0.6"/>
+</svg>

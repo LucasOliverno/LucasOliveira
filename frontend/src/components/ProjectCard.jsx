@@ -1,20 +1,37 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function ProjectCard({ project }) {
+    const { t } = useTranslation();
+
     const categoryIcons = {
         engenharia: '⚙️',
         programacao: '💻',
     };
 
     const categoryLabels = {
-        engenharia: 'Engenharia',
-        programacao: 'Programação',
+        engenharia: t('projects.category_eng'),
+        programacao: t('projects.category_prog'),
     };
 
     return (
         <article className="project-card">
             <div className="project-card-image">
-                <span>{categoryIcons[project.category]}</span>
+                {project.image ? (
+                    <img
+                        src={project.image}
+                        alt={project.title}
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            objectPosition: 'center',
+                            transition: 'transform 0.5s ease'
+                        }}
+                    />
+                ) : (
+                    <span>{categoryIcons[project.category]}</span>
+                )}
                 <span className={`project-card-category ${project.category}`}>
                     {categoryLabels[project.category]}
                 </span>
@@ -35,7 +52,7 @@ function ProjectCard({ project }) {
                 </div>
 
                 <Link to={`/projeto/${project.id}`} className="project-card-link">
-                    Ver Detalhes
+                    {t('projects.view_details')}
                     <span className="arrow">→</span>
                 </Link>
             </div>

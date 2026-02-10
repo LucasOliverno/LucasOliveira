@@ -1,0 +1,79 @@
+{
+    "translation": {
+        "nav": {
+            "home": "Home",
+            "engineering": "Engineering",
+            "tech": "Tech",
+            "about": "About"
+        },
+        "hero": {
+            "badge": "Open to new opportunities",
+            "title_main": "Chemical Engineer",
+            "title_and": "and",
+            "title_sub": "Full Stack Developer",
+            "subtitle": "Uniting the rigor of industrial engineering with the agility of software development and AI. Transforming complex problems into elegant solutions.",
+            "btn_eng": "See Engineering Projects",
+            "btn_tech": "Explore Tech & VibeCoding"
+        },
+        "about": {
+            "tag": "About Me",
+            "title": "From Chemical Engineering to Code",
+            "p1": "I am a Chemical Engineering student at UFMG and an intern at BRASS Brasil, where I work with leak detection systems for pipelines. My journey led me to discover the power of programming as a tool to solve engineering problems more efficiently.",
+            "p2": "Today, I combine technical engineering knowledge with Full Stack development skills, creating solutions ranging from AI automation to web applications that facilitate complex calculations.",
+            "stat_exp": "Years of Experience",
+            "stat_proj": "Projects Delivered",
+            "stat_curiosity": "Curiosity"
+        },
+        "projects": {
+            "eng_tag": "Engineering & Processes",
+            "eng_title": "Technical Rigor and Industrial Precision",
+            "eng_desc": "Projects focused on hydraulics, rheology, and process optimization.",
+            "tech_tag": "Programming & VibeCoding",
+            "tech_title": "Innovation and Automation with AI",
+            "tech_desc": "Modern development focused on automation and artificial intelligence.",
+            "view_details": "View Details",
+            "category_eng": "Engineering",
+            "category_prog": "Programming"
+        },
+        "footer": {
+            "subtitle": "Chemical Engineer & Full Stack Developer"
+        },
+        "about_page": {
+            "tag": "My Journey",
+            "title": "From UFMG to Industry, from Excel to React",
+            "description": "A journey of discovery that connects chemical engineering, software development, and artificial intelligence.",
+            "trajectory": "Trajectory",
+            "skills": "Skills",
+            "skills_eng": "Engineering",
+            "skills_tech": "Technical",
+            "skills_prog": "Programming",
+            "skills_comp": "Behavioral",
+            "skills_langs": "Languages",
+            "talk_title": "Let's Talk?",
+            "talk_p": "I am always open to new opportunities, collaborations, and interesting projects. If you have an idea or opportunity, get in touch!",
+            "send_email": "Send Email"
+        },
+        "project_details": {
+            "back_eng": "Back to Engineering",
+            "back_tech": "Back to Tech",
+            "overview": "Overview",
+            "challenges": "Technical Challenges",
+            "results": "Results",
+            "tech_stack": "Tech Stack"
+        },
+        "tech_page": {
+            "title": "Tech Projects",
+            "description": "Modern development with AI and automation. VibeCoding: using artificial intelligence as a partner in the creative development process.",
+            "vibe_title": "What is VibeCoding?",
+            "vibe_desc": "VibeCoding is the practice of using AI as a partner in software development. Instead of writing every line of code manually, I collaborate with language models to accelerate development, maintain quality, and explore creative solutions to technical problems."
+        },
+        "eng_page": {
+            "title": "Engineering Projects",
+            "description": "Experience in hydraulic systems, industrial process optimization, and technical consulting. Focus on measurable results and precision.",
+            "filter_all": "All",
+            "filter_hyd": "Hydraulics",
+            "filter_proc": "Processes",
+            "filter_cons": "Consulting"
+        }
+    }
+}
