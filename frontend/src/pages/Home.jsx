@@ -4,7 +4,7 @@ import Hero from '../components/Hero';
 import About from '../components/About';
 import ProjectGrid from '../components/ProjectGrid';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 function Home() {
     const { t, i18n } = useTranslation();
