@@ -33,7 +33,8 @@
             "tech_desc": "Desarrollo moderno con enfoque en automatización e inteligencia artificial.",
             "view_details": "Ver Detalles",
             "category_eng": "Ingeniería",
-            "category_prog": "Programación"
+            "category_prog": "Programación",
+            "in_progress": "En Construcción 🚧"
         },
         "footer": {
             "subtitle": "Ingeniero Químico & Full Stack Developer"

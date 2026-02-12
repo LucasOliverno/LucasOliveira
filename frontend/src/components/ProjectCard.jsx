@@ -17,6 +17,11 @@ function ProjectCard({ project }) {
     return (
         <article className="project-card">
             <div className="project-card-image">
+                {project.status === 'in_progress' && (
+                    <span className="status-badge">
+                        {t('projects.in_progress')}
+                    </span>
+                )}
                 {project.image ? (
                     <img
                         src={project.image}

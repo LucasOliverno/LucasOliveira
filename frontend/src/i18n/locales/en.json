@@ -33,7 +33,8 @@
             "tech_desc": "Modern development focused on automation and artificial intelligence.",
             "view_details": "View Details",
             "category_eng": "Engineering",
-            "category_prog": "Programming"
+            "category_prog": "Programming",
+            "in_progress": "Work in Progress 🚧"
         },
         "footer": {
             "subtitle": "Chemical Engineer & Full Stack Developer"

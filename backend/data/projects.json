@@ -67,7 +67,8 @@
                 "Mejora en la confiabilidad operacional"
             ],
             "image": "/images/lds-system.svg",
-            "featured": true
+            "featured": true,
+            "status": "in_progress"
         },
         {
             "id": "tep-sentinel",
@@ -232,76 +233,87 @@
             ],
             "github": "https://github.com/LucasOliverno/llm-agents",
             "image": "/images/llm-agents.svg",
-            "featured": true
+            "featured": true,
+            "status": "in_progress"
         },
         {
-            "id": "aplicacoes-react",
+            "id": "sgca-java",
             "category": "programacao",
-            "title": "Aplicações Web com React",
-            "title_en": "Web Applications with React",
-            "title_es": "Aplicaciones Web con React",
-            "subtitle": "VibeCoding & Ferramentas de Engenharia",
-            "subtitle_en": "VibeCoding & Engineering Tools",
-            "subtitle_es": "VibeCoding y Herramientas de Ingeniería",
-            "description": "Desenvolvimento de aplicações web modernas, incluindo ferramentas de cálculo de engenharia migradas para a web e este próprio portfólio.",
-            "description_en": "Development of modern web applications, including engineering calculation tools migrated to the web and this portfolio itself.",
-            "description_es": "Desarrollo de aplicaciones web modernas, incluyendo herramientas de cálculo de ingeniería migradas a la web y este propio portafolio.",
-            "fullDescription": "Portfolio de aplicações web desenvolvidas usando React e Node.js, demonstrando a capacidade de criar interfaces modernas e funcionais. Os projetos incluem calculadoras de engenharia (dimensionamento de bombas, cálculos de perda de carga), dashboards de visualização de dados, e este próprio site de portfólio. Todos os projetos utilizam práticas modernas de desenvolvimento e são construídos com foco em UX.",
-            "fullDescription_en": "Portfolio of web applications developed using React and Node.js, demonstrating the ability to create modern and functional interfaces. Projects include engineering calculators (pump sizing, head loss calculations), data visualization dashboards, and this portfolio site. All projects use modern development practices and are built with a focus on UX.",
-            "fullDescription_es": "Portafolio de aplicaciones web desarrolladas utilizando React y Node.js, demostrando la capacidad de crear interfaces modernas y funcionales. Los proyectos incluyen calculadoras de ingeniería (dimensionamiento de bombas, cálculos de pérdida de carga), tableros de visualización de datos y este propio sitio de portafolio. Todos los proyectos utilizan prácticas modernas de desarrollo y están construidos con un enfoque en UX.",
+            "title": "SGCA - Sistema de Gestão de Cervejaria Artesanal",
+            "title_en": "SGCA - Craft Brewery Management System",
+            "title_es": "SGCA - Sistema de Gestión de Cervecería Artesanal",
+            "subtitle": "Domain-Driven Design (DDD) & Clean Arch",
+            "subtitle_en": "Domain-Driven Design (DDD) & Clean Arch",
+            "subtitle_es": "Domain-Driven Design (DDD) & Clean Arch",
+            "description": "Simulação completa de backend para cervejaria artesanal, focada em modelagem de domínio rica e regras de negócio complexas sem frameworks invasivos.",
+            "description_en": "Complete backend simulation for a craft brewery, focused on rich domain modeling and complex business rules without invasive frameworks.",
+            "description_es": "Simulación completa de backend para cervecería artesanal, enfocada en modelado de dominio rico y reglas de negocio complejas sin frameworks invasivos.",
+            "fullDescription": "🍺 **SGCA - Sistema de Gestão de Cervejaria Artesanal**\n\nEste projeto é uma implementação robusta de **Domain-Driven Design (DDD)** em Java puro para modelagem de processos industriais complexos. Diferente de CRUDs tradicionais, o foco aqui é no **comportamento** das entidades e na integridade das regras de negócio.\n\n### Metodologia STAR/PAR\n\n**Situation (Problema):**\nMuitos sistemas corporativos sofrem com o 'Modelo Anêmico', onde regras de negócio ficam espalhadas e duplicadas, tornando a manutenção difícil e propensa a erros.\n\n**Task (Tarefa):**\nProjetar o núcleo de um sistema de gestão cervejeira onde todas as regras (cálculo de álcool, conversão de unidades, validação de etapas) estivessem encapsuladas no Domínio, utilizando Java puro.\n\n**Action (Ação):**\nUtilizei **DDD** e **Clean Architecture**:\n*   **Rich Domain Model:** Entidades protegem seu próprio estado (ex: `Lote` não avança sem validação).\n*   **Separação de Camadas:** Domínio isolado de frameworks e banco de dados.\n*   **Design Patterns:** Repository, Value Objects (imutabilidade) e State/Strategy.\n*   **Testabilidade:** Regras de negócio 100% testáveis unitariamente.\n\n**Result (Resultado):**\nUm sistema altamente coeso e desacoplado. A lógica de produção simula com precisão todo o ciclo, calculando automaticamente teor alcoólico (ABV), amargor (IBU) e conformidade com o estilo, tudo validado em tempo de execução.",
+            "fullDescription_en": "🍺 **SGCA - Craft Brewery Management System**\n\nThis project is a robust implementation of **Domain-Driven Design (DDD)** in pure Java for modeling complex industrial processes. Unlike traditional CRUDs, the focus here is on entity **behavior** and business rule integrity.\n\n### STAR/PAR Methodology\n\n**Situation:**\nMany enterprise systems suffer from 'Anemic Models', where business rules are scattered and duplicated, making maintenance difficult and error-prone.\n\n**Task:**\nDesign the core of a brewery management system where all rules (alcohol calculation, unit conversion, stage validation) are encapsulated in the Domain, using pure Java.\n\n**Action:**\nUsed **DDD** and **Clean Architecture**:\n*   **Rich Domain Model:** Entities protect their own state (e.g., `Batch` doesn't advance without validation).\n*   **Layer Separation:** Domain isolated from frameworks and databases.\n*   **Design Patterns:** Repository, Value Objects (immutability), and State/Strategy.\n*   **Testability:** Business rules 100% unit testable.\n\n**Result:**\nA highly cohesive and decoupled system. Production logic accurately simulates the full cycle, automatically calculating alcohol content (ABV), bitterness (IBU), and style compliance, all validated at runtime.",
+            "fullDescription_es": "🍺 **SGCA - Sistema de Gestión de Cervecería Artesanal**\n\nEste proyecto es una implementación robusta de **Domain-Driven Design (DDD)** en Java puro para modelar procesos industriales complejos. A diferencia de los CRUD tradicionales, el enfoque aquí está en el **comportamiento** de las entidades y la integridad de las reglas de negocio.\n\n### Metodología STAR/PAR\n\n**Situation (Problema):**\nMuchos sistemas corporativos sufren del 'Modelo Anémico', donde las reglas de negocio están dispersas y duplicadas, dificultando el mantenimiento.\n\n**Task (Tarea):**\nDiseñar el núcleo de un sistema de gestión cervecera donde todas las reglas (cálculo de alcohol, conversión de unidades, validación de etapas) esten encapsuladas en el Dominio, utilizando Java puro.\n\n**Action (Acción):**\nUtilicé **DDD** y **Clean Architecture**:\n*   **Rich Domain Model:** Las entidades protegen su propio estado.\n*   **Separación de Capas:** Dominio aislado de frameworks y bases de datos.\n*   **Design Patterns:** Repository, Value Objects (inmutabilidad) y State/Strategy.\n*   **Testabilidad:** Reglas de negocio 100% testeables unitariamente.\n\n**Result (Resultado):**\nUn sistema altamente cohesivo y desacoplado. La lógica de producción simula con precisión todo el ciclo, calculando automáticamente contenido alcohólico (ABV), amargor (IBU) y conformidad con el estilo.",
             "techStack": [
-                "React",
-                "Node.js",
-                "Vite",
-                "CSS Modules",
-                "API Integration"
+                "Java 21 LTS",
+                "Maven",
+                "JavaFX",
+                "DDD (Domain-Driven Design)",
+                "Clean Architecture",
+                "JUnit 5"
             ],
             "techStack_en": [
-                "React",
-                "Node.js",
-                "Vite",
-                "CSS Modules",
-                "API Integration"
+                "Java 21 LTS",
+                "Maven",
+                "JavaFX",
+                "DDD (Domain-Driven Design)",
+                "Clean Architecture",
+                "JUnit 5"
             ],
             "techStack_es": [
-                "React",
-                "Node.js",
-                "Vite",
-                "CSS Modules",
-                "API Integration"
+                "Java 21 LTS",
+                "Maven",
+                "JavaFX",
+                "DDD (Domain-Driven Design)",
+                "Clean Architecture",
+                "JUnit 5"
             ],
             "challenges": [
-                "Migração de cálculos complexos de Excel para ambiente web",
-                "Criação de interfaces intuitivas para ferramentas técnicas",
-                "Otimização de performance para cálculos em tempo real"
+                "Modelagem de processos industriais complexos em código",
+                "Implementação de Rich Domain Model evitando anemia",
+                "Garantia de pureza do domínio sem dependências externas"
             ],
             "challenges_en": [
-                "Migration of complex Excel calculations to web environment",
-                "Creation of intuitive interfaces for technical tools",
-                "Optimization of performance for real-time calculations"
+                "Modeling complex industrial processes in code",
+                "Implementing Rich Domain Model avoiding anemia",
+                "Ensuring domain purity without external dependencies"
             ],
             "challenges_es": [
-                "Migración de cálculos complejos de Excel al entorno web",
-                "Creación de interfaces intuitivas para herramientas técnicas",
-                "Optimización del rendimiento para cálculos en tiempo real"
+                "Modelado de procesos industriales complejos en código",
+                "Implementación de Rich Domain Model evitando anemia",
+                "Garantía de pureza del dominio sin dependencias externas"
             ],
             "results": [
-                "Ferramentas de cálculo acessíveis de qualquer dispositivo",
-                "Interface moderna que facilita o uso por não-programadores",
-                "Código open-source disponível para a comunidade"
+                "Sistema desacoplado e altamente testável",
+                "Regras de negócio centralizadas e seguras",
+                "Simulação precisa de processos físico-químicos"
             ],
             "results_en": [
-                "Calculation tools accessible from any device",
-                "Modern interface facilitating use for non-programmers",
-                "Open-source code available for the community"
+                "Decoupled and highly testable system",
+                "Centralized and secure business rules",
+                "Accurate simulation of physico-chemical processes"
             ],
             "results_es": [
-                "Herramientas de cálculo accesibles desde cualquier dispositivo",
-                "Interfaz moderna que facilita el uso para no programadores",
-                "Código de código abierto disponible para la comunidad"
+                "Sistema desacoplado y altamente testeable",
+                "Reglas de negocio centralizadas y seguras",
+                "Simulación precisa de procesos físico-químicos"
             ],
-            "github": "https://github.com/LucasOliverno/engineering-tools",
-            "image": "/images/web-apps.svg",
+            "github": "https://github.com/LucasOliverno/Sgca-Java",
+            "image": "/images/cerveja/screenshot_1.png",
+            "gallery": [
+                "/images/cerveja/screenshot_1.png",
+                "/images/cerveja/screenshot_2.png",
+                "/images/cerveja/screenshot_3.png",
+                "/images/cerveja/screenshot_4.png",
+                "/images/cerveja/logo.png"
+            ],
             "featured": true
         }
     ]
