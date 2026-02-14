@@ -14,6 +14,8 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+// Force restart to reload projects.json
+
 // Load projects data
 const projectsPath = join(__dirname, 'data', 'projects.json');
 const projectsData = JSON.parse(readFileSync(projectsPath, 'utf-8'));
