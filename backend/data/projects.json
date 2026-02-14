@@ -315,6 +315,82 @@
                 "/images/cerveja/logo.png"
             ],
             "featured": true
+        },
+        {
+            "id": "estudo-viabilidade-racao",
+            "category": "engenharia",
+            "title": "Estudo de Viabilidade - Fábrica de Ração",
+            "title_en": "Feasibility Study - Feed Production Plant",
+            "title_es": "Estudio de Viabilidad - Fábrica de Pienso",
+            "subtitle": "Engenharia Econômica & Industrial",
+            "subtitle_en": "Economic & Industrial Engineering",
+            "subtitle_es": "Ingeniería Económica e Industrial",
+            "description": "Estudo completo de viabilidade técnica e econômica para implantação de uma fábrica de ração para gado leiteiro, abrangendo desde o layout industrial até a análise financeira.",
+            "description_en": "Complete technical and economic feasibility study for the implementation of a dairy cattle feed plant, covering everything from industrial layout to financial analysis.",
+            "description_es": "Estudio completo de viabilidad técnica y económica para la implementación de una fábrica de pienso para ganado lechero, abarcando desde el diseño industrial hasta el análisis financiero.",
+            "fullDescription": "🏭 **Estudo de Viabilidade Industrial - Produção de Ração**\n\nEste projeto consiste em um estudo detalhado para a implantação de uma unidade fabril destinada à produção de ração para gado leiteiro. O trabalho abrange todas as etapas de planejamento, desde a concepção técnica do processo produtivo até a análise de viabilidade econômica do investimento.\n\n### Escopo do Projeto\n\n*   **Análise de Mercado:** Estudo da demanda, concorrência e projeção de vendas.\n*   **Engenharia de Processo:** Definição do fluxograma de produção, balanceamento de linha e seleção de equipamentos.\n*   **Layout Industrial:** Dimensionamento da área fabril, estoques e áreas administrativas, visando otimização logística e segurança.\n*   **Análise Financeira:** Cálculo de VPL, TIR, Payback e Ponto de Equilíbrio para validar o retorno do investimento.\n\nO resultado é um plano de negócios robusto que orienta a tomada de decisão para a construção e operação da fábrica.",
+            "fullDescription_en": "🏭 **Industrial Feasibility Study - Feed Production**\n\nThis project consists of a detailed study for the implementation of a manufacturing unit affecting the production of feed for dairy cattle. The work covers all planning stages, from the technical conception of the production process to the economic feasibility analysis of the investment.\n\n### Project Scope\n\n*   **Market Analysis:** Study of demand, competition, and sales projection.\n*   **Process Engineering:** Definition of production flowchart, line balancing, and equipment selection.\n*   **Industrial Layout:** Sizing of the manufacturing area, inventory, and administrative areas, aiming for logistical optimization and safety.\n*   **Financial Analysis:** Calculation of NPV, IRR, Payback, and Break-even Point to validate the return on investment.\n\nThe result is a robust business plan that guides decision-making for the construction and operation of the plant.",
+            "fullDescription_es": "🏭 **Estudio de Viabilidad Industrial - Producción de Pienso**\n\nEste proyecto consiste en un estudio detallado para la implementación de una unidad fabril destinada a la producción de pienso para ganado lechero. El trabajo abarca todas las etapas de planificación, desde la concepción técnica del proceso productivo hasta el análisis de viabilidad económica de la inversión.\n\n### Alcance del Proyecto\n\n*   **Análisis de Mercado:** Estudio de demanda, competencia y proyección de ventas.\n*   **Ingeniería de Proceso:** Definición del flujograma de producción, balanceo de línea y selección de equipos.\n*   **Diseño Industrial:** Dimensionamiento del área fabril, inventarios y áreas administrativas, buscando optimización logística y seguridad.\n*   **Análisis Financiero:** Cálculo de VAN, TIR, Payback y Punto de Equilibrio para validar el retorno de la inversión.\n\nEl resultado es un plan de negocios robusto que orienta la toma de decisiones para la construcción y operación de la fábrica.",
+            "techStack": [
+                "Engenharia Econômica",
+                "Planejamento Industrial",
+                "Layout Fabril",
+                "Processos de Produção",
+                "Análise Financeira"
+            ],
+            "techStack_en": [
+                "Economic Engineering",
+                "Industrial Planning",
+                "Factory Layout",
+                "Production Processes",
+                "Financial Analysis"
+            ],
+            "techStack_es": [
+                "Ingeniería Económica",
+                "Planificación Industrial",
+                "Diseño de Fábrica",
+                "Procesos de Producción",
+                "Análisis Financiero"
+            ],
+            "challenges": [
+                "Otimização do layout para minimizar movimentação de materiais",
+                "Seleção de equipamentos com melhor relação custo-benefício",
+                "Projeção precisa de custos operacionais e receitas"
+            ],
+            "challenges_en": [
+                "Layout optimization to minimize material handling",
+                "Selection of equipment with best cost-benefit ratio",
+                "Accurate projection of operating costs and revenues"
+            ],
+            "challenges_es": [
+                "Optimización del diseño para minimizar el manejo de materiales",
+                "Selección de equipos con la mejor relación costo-beneficio",
+                "Proyección precisa de costos operativos e ingresos"
+            ],
+            "results": [
+                "Plano de negócios completo e validado",
+                "Layout industrial otimizado para fluxo contínuo",
+                "Indicadores financeiros favoráveis para investimento"
+            ],
+            "results_en": [
+                "Complete and validated business plan",
+                "Industrial layout optimized for continuous flow",
+                "Favorable financial indicators for investment"
+            ],
+            "results_es": [
+                "Plan de negocios completo y validado",
+                "Diseño industrial optimizado para flujo continuo",
+                "Indicadores financieros favorables para inversión"
+            ],
+            "image": "/images/feed_production_plant_v2.png",
+            "documents": [
+                {
+                    "title": "Relatório de Viabilidade (PDF)",
+                    "path": "/docs/Estudo_Viabilidade_Racao.pdf"
+                }
+            ],
+            "featured": false,
+            "status": "completed"
         }
     ]
 }
