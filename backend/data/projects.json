@@ -391,6 +391,86 @@
             ],
             "featured": false,
             "status": "completed"
+        },
+        {
+            "id": "vox-finance",
+            "category": "programacao",
+            "title": "VoxFinance - Rastreador Financeiro por Voz",
+            "title_en": "VoxFinance - Voice-First Financial Tracker",
+            "title_es": "VoxFinance - Rastreador Financiero por Voz",
+            "subtitle": "AI-Powered & Vibecoded Personal Finance",
+            "subtitle_en": "AI-Powered & Vibecoded Personal Finance",
+            "subtitle_es": "AI-Powered & Vibecoded Personal Finance",
+            "description": "Rastreador financeiro 'voice-first' que elimina a fricção do registro manual. Utiliza IA híbrida para categorização instantânea e uma estética 'Vibecoded'.",
+            "description_en": "Voice-first financial tracker that eliminates manual logging friction. Uses hybrid AI for instant categorization and a 'Vibecoded' aesthetic.",
+            "description_es": "Rastreador financiero 'voice-first' que elimina la fricción del registro manual. Utiliza IA híbrida para la categorización instantánea y una estética 'Vibecoded'.",
+            "fullDescription": "🎙️ **VoxFinance - Rastreador Financeiro por Voz**\n\n**VoxFinance** é um rastreador financeiro pessoal desenhado para eliminar a fricção do registro manual de despesas. Aproveitando IA avançada e uma estética 'Vibecoded', permite aos usuários rastrear suas finanças simplesmente falando, garantindo precisão de nível contábil.\n\n### Metodologia STAR/PAR\n\n**Situation (Problema):**\nApps de finanças tradicionais exigem múltiplos cliques, preenchimento de formulários e categorização manual. Essa fricção leva ao abandono e falta de visibilidade financeira.\n\n**Task (Tarefa):**\nCriar uma solução que transforme 'Gastei 50 reais no almoço' em uma transação estruturada em milissegundos, sem sacrificar a precisão.\n\n**Action (Ação):**\nDesenvolvi um sistema **Voice-First** com arquitetura híbrida:\n*   **Motor de IA Híbrido:** Prioriza **Mapeamento de Palavras-Chave** (determinístico) para velocidade, com fallback para **Llama 3.1** (via Groq) para frases complexas.\n*   **Tech Stack Moderna:** Front-end em **Next.js 15** com Tailwind CSS para a estética 'Vibecoded', e Back-end em **FastAPI (Python)** para processamento de alto desempenho.\n*   **Precisão Financeira:** Uso estrito de tipos `Decimal` para evitar erros de ponto flutuante.\n\n**Result (Resultado):**\nUma experiência 'sem fricção' que captura transações instantaneamente. O sistema não só registra, mas categoriza inteligentemente, oferece insights visuais em tempo real e rastreia metas financeiras e contas recorrentes.",
+            "fullDescription_en": "🎙️ **VoxFinance - Voice-First Financial Tracker**\n\n**VoxFinance** is a personal finance tracker designed to eliminate the friction of manual expense logging. Leveraging advanced AI and a 'Vibecoded' aesthetic, it allows users to track their finances simply by speaking, ensuring accountant-level precision.\n\n### STAR/PAR Methodology\n\n**Situation:**\nTraditional finance apps require multiple clicks, form fills, and manual categorization. This friction leads to abandonment and lack of financial visibility.\n\n**Task:**\nCreate a solution that turns 'I spent $50 on lunch' into a structured transaction in milliseconds, without sacrificing accuracy.\n\n**Action:**\nDeveloped a **Voice-First** system with a hybrid architecture:\n*   **Hybrid AI Engine:** Prioritizes **Keyword Mapping** (deterministic) for speed, with fallback to **Llama 3.1** (via Groq) for complex phrases.\n*   **Modern Tech Stack:** Front-end in **Next.js 15** with Tailwind CSS for 'Vibecoded' aesthetics, and Back-end in **FastAPI (Python)** for high-performance processing.\n*   **Financial Precision:** Strict use of `Decimal` types to avoid floating-point errors.\n\n**Result:**\nA 'frictionless' experience that captures transactions instantly. The system not only logs but intelligently categorizes, offers real-time visual insights, and tracks financial goals and recurring bills.",
+            "fullDescription_es": "🎙️ **VoxFinance - Rastreador Financiero por Voz**\n\n**VoxFinance** es un rastreador financiero personal diseñado para eliminar la fricción del registro manual de gastos. Aprovechando IA avanzada y una estética 'Vibecoded', permite a los usuarios rastrear sus finanzas simplemente hablando, garantizando precisión de nivel contable.\n\n### Metodología STAR/PAR\n\n**Situation (Problema):**\nLas aplicaciones de finanzas tradicionales requieren múltiples clics, llenado de formularios y categorización manual. Esta fricción lleva al abandono y falta de visibilidad financiera.\n\n**Task (Tarea):**\nCrear una solución que transforme 'Gasté 50 reales en el almuerzo' en una transacción estructurada en milisegundos, sin sacrificar la precisión.\n\n**Action (Acción):**\nDesarrollé un sistema **Voice-First** con arquitectura híbrida:\n*   **Motor de IA Híbrido:** Prioriza **Mapeo de Palabras Clave** (determinístico) para velocidad, con fallback a **Llama 3.1** (vía Groq) para frases complejas.\n*   **Tech Stack Moderna:** Front-end en **Next.js 15** con Tailwind CSS para la estética 'Vibecoded', y Back-end en **FastAPI (Python)** para procesamiento de alto rendimiento.\n*   **Precisión Financiera:** Uso estricto de tipos `Decimal` para evitar errores de punto flotante.\n\n**Result (Resultado):**\nUna experiencia 'sin fricción' que captura transacciones instantáneamente. El sistema no solo registra, pero categoriza inteligentemente, ofrece insights visuales en tiempo real y rastrea metas financieras y cuentas recurrentes.",
+            "techStack": [
+                "Next.js 15",
+                "FastAPI (Python)",
+                "AI / LLM (Llama 3.1)",
+                "Speech-to-Text (Deepgram)",
+                "Vibecoded UI"
+            ],
+            "techStack_en": [
+                "Next.js 15",
+                "FastAPI (Python)",
+                "AI / LLM (Llama 3.1)",
+                "Speech-to-Text (Deepgram)",
+                "Vibecoded UI"
+            ],
+            "techStack_es": [
+                "Next.js 15",
+                "FastAPI (Python)",
+                "AI / LLM (Llama 3.1)",
+                "Speech-to-Text (Deepgram)",
+                "Vibecoded UI"
+            ],
+            "challenges": [
+                "Redução de latência na transcrição e categorização de voz",
+                "Design de UI 'Vibecoded' que seja funcional e estético",
+                "Implementação de precisão financeira decimal em todo o stack"
+            ],
+            "challenges_en": [
+                "Latency reduction in voice transcription and categorization",
+                "'Vibecoded' UI design that is both functional and aesthetic",
+                "Implementation of decimal financial precision across the stack"
+            ],
+            "challenges_es": [
+                "Reducción de latencia en la transcripción y categorización de voz",
+                "Diseño de UI 'Vibecoded' que sea funcional y estético",
+                "Implementación de precisión financiera decimal en todo el stack"
+            ],
+            "results": [
+                "Categorização instantânea de despesas por voz",
+                "Interface PWA moderna e responsiva",
+                "Sistema robusto de metas e contas recorrentes"
+            ],
+            "results_en": [
+                "Instant voice expense categorization",
+                "Modern and responsive PWA interface",
+                "Robust goals and recurring bills system"
+            ],
+            "results_es": [
+                "Categorización instantánea de gastos por voz",
+                "Interfaz PWA moderna y responsiva",
+                "Sistema robusto de metas y cuentas recurrentes"
+            ],
+            "image": "/images/vox-finance/pagina-main-melhor-pro.png",
+            "gallery": [
+                "/images/vox-finance/pagina-main-melhor-pro.png",
+                "/images/vox-finance/pagina-main.png",
+                "/images/vox-finance/grafico-1.png",
+                "/images/vox-finance/grafico-2.png",
+                "/images/vox-finance/metas.png",
+                "/images/vox-finance/fixas.png",
+                "/images/vox-finance/desbloquear-pro.png",
+                "/images/vox-finance/perfil.png"
+            ],
+            "featured": true,
+            "status": "completed"
         }
     ]
 }
