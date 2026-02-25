@@ -169,6 +169,12 @@ h3 {
   width: 100%;
 }
 
+.lang-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-left: 10px;
+}
+
 .lang-switcher {
   padding: 6px 12px;
   background: var(--bg-card);
@@ -178,13 +184,47 @@ h3 {
   font-size: 0.75rem;
   font-weight: 700;
   transition: all var(--transition-fast);
-  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .lang-switcher:hover {
   background: var(--accent-primary);
   color: #000;
   border-color: var(--accent-primary);
+}
+
+.lang-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.lang-dropdown-menu button {
+  padding: 10px 16px;
+  text-align: left;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background var(--transition-fast);
+  width: 100%;
+}
+
+.lang-dropdown-menu button:hover,
+.lang-dropdown-menu button.active {
+  background: var(--bg-card-hover);
+  color: var(--accent-primary);
 }
 
 .navbar-toggle {
