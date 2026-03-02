@@ -1,74 +1,74 @@
 {
     "projects": [
         {
-            "id": "lds-brass",
+            "id": "lds",
             "category": "engenharia",
             "title": "Sistemas de Detecção de Vazamentos (LDS)",
             "title_en": "Leak Detection Systems (LDS)",
             "title_es": "Sistemas de Detección de Fugas (LDS)",
-            "subtitle": "BRASS Brasil",
-            "subtitle_en": "BRASS Brazil",
-            "subtitle_es": "BRASS Brasil",
-            "description": "Desenvolvimento e implementação de sistemas de detecção de vazamentos em oleodutos e gasodutos, utilizando modelos hidráulicos avançados e análise de transientes.",
-            "description_en": "Development and implementation of leak detection systems for oil and gas pipelines, using advanced hydraulic models and transient analysis.",
-            "description_es": "Desarrollo e implementación de sistemas de detección de fugas en oleoductos y gasoductos, utilizando modelos hidráulicos avanzados y análisis de transitorios.",
-            "fullDescription": "Projeto focado na detecção precoce de vazamentos em dutos de transporte de petróleo e gás. O sistema utiliza modelos hidráulicos sofisticados para analisar variações de pressão e vazão, identificando anomalias que possam indicar vazamentos. A implementação inclui cálculos de transientes hidráulicos para melhorar a precisão da detecção em tempo real.",
-            "fullDescription_en": "Project focused on early detection of leaks in oil and gas transport pipelines. The system uses sophisticated hydraulic models to analyze pressure and flow variations, identifying anomalies that may indicate leaks. Implementation includes hydraulic transient calculations to improve real-time detection accuracy.",
-            "fullDescription_es": "Proyecto enfocado en la detección temprana de fugas en ductos de transporte de petróleo y gas. El sistema utiliza modelos hidráulicos sofisticados para analizar variaciones de presión y caudal, identificando anomalías que puedan indicar fugas. La implementación incluye cálculos de transitorios hidráulicos para mejorar la precisión de la detección en tiempo real.",
+            "subtitle": "Engenharia Hidráulica Aplicada",
+            "subtitle_en": "Applied Hydraulic Engineering",
+            "subtitle_es": "Ingeniería Hidráulica Aplicada",
+            "description": "Suporte e aplicação de mecânica dos fluidos em software de detecção de vazamentos para minerodutos e rejeitodutos.",
+            "description_en": "Support and application of fluid mechanics in leak detection software for slurry and tailings pipelines.",
+            "description_es": "Soporte y aplicación de mecánica de fluidos en software de detección de fugas para mineroductos y ductos de relaves.",
+            "fullDescription": "A operação de minerodutos e rejeitodutos exige precisão extrema para evitar desastres ambientais e perdas financeiras, sendo a detecção rápida de vazamentos um desafio crítico devido ao comportamento complexo dessas polpas minerais. Minha missão foi atuar no suporte técnico e na aplicação prática de mecânica dos fluidos para otimizar um software especializado em Leak Detection Systems (LDS).\n\nPara isso, realizei análises profundas do comportamento reológico das polpas minerais (fluidos não-newtonianos) em diferentes condições operacionais. Apliquei conceitos avançados de mecânica dos fluidos, como cálculo de perda de carga, análise de transientes hidráulicos e balanço de massa, para calibrar e aprimorar os modelos matemáticos do software. Também atuei diretamente na resolução de problemas complexos relatados pelas equipes de operação em campo, traduzindo dados brutos de pressão e vazão em diagnósticos precisos sobre a saúde do duto.\n\nComo resultado, o sistema de detecção obteve uma redução significativa na taxa de falsos alarmes, aumentando a confiabilidade da operação. A aplicação rigorosa da teoria hidráulica permitiu identificar anomalias reais de forma muito mais célere, mitigando riscos catastróficos nas operações de transporte de minérios e rejeitos.",
+            "fullDescription_en": "The operation of slurry and tailings pipelines requires extreme precision to prevent environmental disasters and financial losses. Rapid leak detection is a critical challenge due to the complex behavior of these mineral slurries. My mission was to provide technical support and practical application of fluid mechanics to optimize specialized Leak Detection Systems (LDS) software.\n\nTo achieve this, I conducted in-depth analyses of the rheological behavior of mineral slurries (non-Newtonian fluids) under various operational conditions. I applied advanced fluid mechanics concepts—such as head loss calculation, hydraulic transient analysis, and mass balance—to calibrate and improve the software's mathematical models. I also directly solved complex problems reported by field operations teams, translating raw pressure and flow data into accurate diagnostics of pipeline health.\n\nAs a result, the detection system achieved a significant reduction in false alarm rates, increasing operational reliability. The rigorous application of hydraulic theory allowed for much faster identification of real anomalies, mitigating catastrophic risks in the transport operations of ores and tailings.",
+            "fullDescription_es": "La operación de mineroductos y ductos de relaves exige una precisión extrema para evitar desastres ambientales y pérdidas financieras. La rápida detección de fugas es un desafío crítico debido al comportamiento complejo de estas pulpas minerales. Mi misión fue brindar soporte técnico y aplicar prácticamente la mecánica de fluidos para optimizar un software especializado en Leak Detection Systems (LDS).\n\nPara ello, realicé análisis exhaustivos del comportamiento reológico de las pulpas minerales (fluidos no newtonianos) en diversas condiciones operativas. Apliqué conceptos avanzados de mecánica de fluidos—como el cálculo de pérdida de carga, el análisis de transitorios hidráulicos y el balance de masa—para calibrar y mejorar los modelos matemáticos del software. También resolví directamente problemas complejos reportados por los equipos de operación en campo, traduciendo datos brutos de presión y flujo en diagnósticos precisos sobre la salud del ducto.\n\nComo resultado, el sistema de detección logró una reducción significativa en la tasa de falsas alarmas, aumentando la confiabilidad operativa. La aplicación rigurosa de la teoría hidráulica permitió una identificación mucho más rápida de anomalías reales, mitigando riesgos catastróficos en las operaciones de transporte de minerales y relaves.",
             "techStack": [
-                "Hidráulica",
-                "Cálculos Transientes",
-                "Excel Avançado",
-                "Python",
-                "Análise de Dados"
+                "Mecânica dos Fluidos",
+                "Reologia de Polpas",
+                "Software LDS",
+                "Análise de Transientes",
+                "Suporte Técnico Avançado"
             ],
             "techStack_en": [
-                "Hydraulics",
-                "Transient Calculations",
-                "Advanced Excel",
-                "Python",
-                "Data Analysis"
+                "Fluid Mechanics",
+                "Slurry Rheology",
+                "LDS Software",
+                "Transient Analysis",
+                "Advanced Technical Support"
             ],
             "techStack_es": [
-                "Hidráulica",
-                "Cálculos Transitorios",
-                "Excel Avanzado",
-                "Python",
-                "Análisis de Datos"
+                "Mecánica de Fluidos",
+                "Reología de Pulpas",
+                "Software LDS",
+                "Análisis de Transitorios",
+                "Soporte Técnico Avanzado"
             ],
             "challenges": [
-                "Modelagem de comportamento hidráulico complexo em dutos de grande extensão",
-                "Minimização de falsos positivos em condições operacionais variáveis",
-                "Integração com sistemas SCADA existentes"
+                "Modelagem do comportamento não-newtoniano de rejeitos e minérios",
+                "Calibração de modelos matemáticos para reduzir falsos positivos",
+                "Respostas rápidas a incidentes operacionais em campo"
             ],
             "challenges_en": [
-                "Modeling complex hydraulic behavior in large-scale pipelines",
-                "Minimizing false positives under variable operational conditions",
-                "Integration with existing SCADA systems"
+                "Modeling non-Newtonian behavior of tailings and ores",
+                "Calibrating mathematical models to reduce false positives",
+                "Rapid response to operational field incidents"
             ],
             "challenges_es": [
-                "Modelado de comportamento hidráulico complejo en ductos de gran extensión",
-                "Minimización de falsos positivos en condiciones operacionales variables",
-                "Integración con sistemas SCADA existentes"
+                "Modelado del comportamiento no newtoniano de relaves y minerales",
+                "Calibración de modelos matemáticos para reducir falsos positivos",
+                "Respuestas rápidas a incidentes operativos en campo"
             ],
             "results": [
-                "Redução do tempo de detecção de vazamentos em 40%",
-                "Implementação bem-sucedida em múltiplos dutos",
-                "Melhoria na confiabilidade operacional"
+                "Expressiva diminuição de falsos alarmes no sistema",
+                "Aumento da confiabilidade operacional da planta",
+                "Prevenção ativa de riscos ambientais catastróficos"
             ],
             "results_en": [
-                "40% reduction in leak detection time",
-                "Successful implementation across multiple pipelines",
-                "Improved operational reliability"
+                "Significant decrease in false alarms within the system",
+                "Increased operational reliability of the plant",
+                "Active prevention of catastrophic environmental risks"
             ],
             "results_es": [
-                "Reducción del tiempo de detección de fugas en un 40%",
-                "Implementación exitosa en múltiples ductos",
-                "Mejora en la confiabilidad operacional"
+                "Disminución significativa de falsas alarmas en el sistema",
+                "Incremento de la confiabilidad operativa de la planta",
+                "Prevención activa de riesgos ambientales catastróficos"
             ],
-            "image": "/images/lds-system.svg",
+            "image": "/images/lds-system.png",
             "featured": true,
-            "status": "in_progress"
+            "status": "completed"
         },
         {
             "id": "tep-sentinel",
@@ -166,75 +166,74 @@
             "featured": true
         },
         {
-            "id": "agentes-llm",
+            "id": "ai-data-bridge",
             "category": "programacao",
-            "title": "Sistema de Agentes LLM",
-            "title_en": "LLM Agent System",
-            "title_es": "Sistema de Agentes LLM",
-            "subtitle": "Automação Inteligente",
-            "subtitle_en": "Intelligent Automation",
-            "subtitle_es": "Automatización Inteligente",
-            "description": "Desenvolvimento de agentes de IA para automação de relatórios técnicos e análise de dados, utilizando Large Language Models e técnicas de prompt engineering.",
-            "description_en": "Development of AI agents for technical report automation and data analysis, using Large Language Models and prompt engineering techniques.",
-            "description_es": "Desarrollo de agentes de IA para la automatización de informes técnicos y análisis de datos, utilizando Large Language Models y técnicas de prompt engineering.",
-            "fullDescription": "Criação de um sistema multi-agente baseado em LLMs para automatizar tarefas repetitivas de engenharia. O sistema inclui agentes especializados em análise de dados técnicos, geração de relatórios, e extração de informações de documentos. A arquitetura utiliza orquestração de agentes para dividir tarefas complexas em subtarefas gerenciáveis.",
-            "fullDescription_en": "Creation of an LLM-based multi-agent system to automate repetitive engineering tasks. The system includes agents specialized in technical data analysis, report generation, and information extraction from documents. Architecture uses agent orchestration to break down complex tasks into manageable subtasks.",
-            "fullDescription_es": "Creación de un sistema multi-agente basado en LLMs para automatizar tareas repetitivas de ingeniería. El sistema incluye agentes especializados en análisis de datos técnicos, generación de informes y extracción de información de documentos. La arquitectura utiliza orquestación de agentes para dividir tareas complejas en subtareas manejables.",
+            "title": "AI Data Bridge 🌉",
+            "title_en": "AI Data Bridge 🌉",
+            "title_es": "AI Data Bridge 🌉",
+            "subtitle": "Ponte Semântica de Dados com IA",
+            "subtitle_en": "Semantic Data Bridge with AI",
+            "subtitle_es": "Puente Semántico de Datos con IA",
+            "description": "Aplicação Full-Stack inteligente que transforma perguntas em linguagem natural de gestores em consultas SQL seguras com insights e gráficos.",
+            "description_en": "Intelligent Full-Stack application that transforms managers' natural language questions into secure SQL queries with insights and charts.",
+            "description_es": "Aplicación Full-Stack inteligente que transforma preguntas en lenguaje natural de gestores en consultas SQL seguras con insights y gráficos.",
+            "fullDescription": "Muitas empresas enfrentam um gargalo técnico onde os gestores dependem de equipes de dados para extrair planilhas sob demanda, atrasando a tomada de decisão em horas ou dias. O desafio foi criar uma ponte semântica que permitisse aos usuários realizar perguntas em linguagem natural e receber respostas estruturadas instantaneamente, garantindo total segurança do banco de dados.\n\nPara resolver o problema, projetei o AI Data Bridge, uma aplicação Full-Stack com um motor SQL híbrido alimentado por Vanna.ai (LLM + RAG). O sistema conta com uma camada semântica treinada no contexto fiscal brasileiro (ex: entendendo CFOPs) e um validador anti-destrutivo rigoroso que intercepta e bloqueia comandos como DROP ou DELETE. Para o frontend, apliquei conceitos de 'Vibe Coding', gerando gráficos narrativos com Recharts e implementando um hub de Transparência Técnica ('Ver Lógica') para explicar ao usuário as operações desenvolvidas pela IA.\n\nO resultado foi a redução no tempo de acesso a insights de horas para milissegundos. Um sistema de cache semântico eliminou consultas redundantes, controlando os custos com a nuvem e proporcionando respostas instantâneas, enquanto a transparência na explicação de lógicas ampliou muito a confiança corporativa.",
+            "fullDescription_en": "Many companies face a technical bottleneck where managers rely on data teams to extract on-demand spreadsheets, delaying decision-making by hours or days. The challenge was to create a semantic bridge allowing users to ask natural language questions and receive instantly structured answers, while strictly ensuring database security.\n\nI designed the AI Data Bridge, a Full-Stack application with a hybrid SQL engine powered by Vanna.ai (LLM + RAG), trained on Brazilian fiscal context. A strict anti-destructive validator intercepts data manipulation commands (e.g. DROP, DELETE). On the front-end, I used a 'Vibe Coding' aesthetic with automated narrative charts (Recharts) and an Explainable AI Transparency hub ('See Logic').\n\nAs a result, time-to-insight dropped from hours to milliseconds. A semantic cache eliminated redundant queries, controlling cloud costs entirely and returning fast, while technical transparency successfully built management trust in the AI system.",
+            "fullDescription_es": "Muchas empresas se enfrentan a un cuello de botella técnico en el que los gestores dependen de los equipos de datos para extraer hojas de cálculo a demanda, retrasando la toma de decisiones. El reto consistía en crear un puente semántico que permitiera realizar preguntas en lenguaje natural y obtener respuestas estructuradas al instante, garantizando la seguridad de la base de datos.\n\nDiseñé AI Data Bridge, una aplicación Full-Stack con un motor SQL híbrido impulsado por Vanna.ai (LLM + RAG) y entrenado en el contexto fiscal brasileño. Un validador antidestructivo estricto intercepta manipulaciones de datos (DROP, DELETE). En el front-end utilicé una estética 'Vibe Coding' con gráficos narrativos y un hub de Transparencia de IA Explicable.\n\nComo resultado, el tiempo hasta obtener insights bajó de horas a milisegundos. El almacenamiento en caché semántico eliminó las consultas redundantes y redujo los costes de nube. Un alto nivel de transparencia técnica logró afianzar la confianza de la directiva en la herramienta.",
             "techStack": [
-                "Python",
-                "LangChain",
-                "OpenAI API",
-                "Prompt Engineering",
-                "RAG"
+                "Python (FastAPI)",
+                "Next.js 15 & React 19",
+                "Vanna.ai (LLM + RAG)",
+                "PostgreSQL",
+                "Recharts"
             ],
             "techStack_en": [
-                "Python",
-                "LangChain",
-                "OpenAI API",
-                "Prompt Engineering",
-                "RAG"
+                "Python (FastAPI)",
+                "Next.js 15 & React 19",
+                "Vanna.ai (LLM + RAG)",
+                "PostgreSQL",
+                "Recharts"
             ],
             "techStack_es": [
-                "Python",
-                "LangChain",
-                "OpenAI API",
-                "Prompt Engineering",
-                "RAG"
+                "Python (FastAPI)",
+                "Next.js 15 & React 19",
+                "Vanna.ai (LLM + RAG)",
+                "PostgreSQL",
+                "Recharts"
             ],
             "challenges": [
-                "Design de prompts eficientes para tarefas técnicas específicas",
-                "Garantia de consistência e precisão nas respostas geradas",
-                "Integração com fontes de dados estruturados e não-estruturados"
+                "Treinamento do contexto semântico fiscal complexo",
+                "Validação de segurança anti-destrutiva contra injeções SQL",
+                "Geração autônoma de gráficos interpretando respostas da IA"
             ],
             "challenges_en": [
-                "Designing efficient prompts for specific technical tasks",
-                "Ensuring consistency and accuracy in generated responses",
-                "Integration with structured and unstructured data sources"
+                "Training complex semantic fiscal contexts",
+                "Anti-destructive security validation to prevent SQL injections",
+                "Autonomous chart generation based on AI answers"
             ],
             "challenges_es": [
-                "Diseño de prompts eficientes para tareas técnicas específicas",
-                "Garantía de consistencia y precisión en las respuestas generadas",
-                "Integración con fuentes de datos estructuradas y no estructuradas"
+                "Entrenamiento de contexto fiscal semántico complejo",
+                "Validación de seguridad para prevenir inyecciones SQL destuctivas",
+                "Generación autónoma de gráficos a partir de respuestas de la IA"
             ],
             "results": [
-                "Redução de 70% no tempo de geração de relatórios",
-                "Automação de análises que antes levavam horas",
-                "Framework reutilizável para novos casos de uso"
+                "Respostas baseadas em dados convertidas de horas para milissegundos",
+                "Economia nas APIs e eliminação total do frio start usando cache semântico",
+                "Adoção de hub explicativo que aumentou a confiança empresarial"
             ],
             "results_en": [
-                "70% reduction in report generation time",
-                "Automation of analyses that previously took hours",
-                "Reusable framework for new use cases"
+                "Data-based answers converted from hours to milliseconds",
+                "API savings and cold start elimination via semantic cache",
+                "Explanatory hub adoption that increased business trust"
             ],
             "results_es": [
-                "Reducción del 70% en el tiempo de generación de informes",
-                "Automatización de análisis que antes tomaban horas",
-                "Framework reutilizable para nuevos casos de uso"
+                "Respuestas extraídas de datos en milisegundos en vez de horas",
+                "Ahorro de APIs y de cold starts a través de un caché semántico",
+                "Adopción de hub explicativo que elevó la confianza empresarial"
             ],
-            "github": "https://github.com/LucasOliverno/llm-agents",
-            "image": "/images/llm-agents.svg",
+            "image": "/images/ai-data-bridge.png",
             "featured": true,
-            "status": "in_progress"
+            "status": "completed"
         },
         {
             "id": "sgca-java",
