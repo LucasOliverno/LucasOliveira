@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import profilePhoto from '../assets/foto.png';
 
 function About() {
     const { t } = useTranslation();
@@ -15,7 +16,7 @@ function About() {
                 <div className="about-content">
                     <div className="about-image">
                         <div className="about-image-wrapper">
-                            <div className="about-image-placeholder">👨‍🔬</div>
+                            <img src={profilePhoto} alt="Lucas Oliveira" className="about-profile-img" />
                         </div>
                         <div className="about-image-decoration"></div>
                     </div>
