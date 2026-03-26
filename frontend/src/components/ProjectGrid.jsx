@@ -1,6 +1,6 @@
 import ProjectCard from './ProjectCard';
 
-function ProjectGrid({ projects, title, tag, description }) {
+function ProjectGrid({ projects, title, tag, description, featured }) {
     return (
         <section className="section">
             <div className="container">
@@ -12,9 +12,11 @@ function ProjectGrid({ projects, title, tag, description }) {
                     </div>
                 )}
 
-                <div className="projects-grid">
-                    {projects.map((project) => (
-                        <ProjectCard key={project.id} project={project} />
+                <div className={`projects-grid${featured ? ' projects-grid--featured' : ''}`}>
+                    {projects.map((project, i) => (
+                        <div key={project.id} data-animate style={{ '--index': i }}>
+                            <ProjectCard project={project} />
+                        </div>
                     ))}
                 </div>
             </div>

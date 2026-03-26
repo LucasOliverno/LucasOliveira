@@ -4,11 +4,6 @@ import { useTranslation } from 'react-i18next';
 function ProjectCard({ project }) {
     const { t } = useTranslation();
 
-    const categoryIcons = {
-        engenharia: '⚙️',
-        programacao: '💻',
-    };
-
     const categoryLabels = {
         engenharia: t('projects.category_eng'),
         programacao: t('projects.category_prog'),
@@ -31,11 +26,13 @@ function ProjectCard({ project }) {
                             height: '100%',
                             objectFit: 'cover',
                             objectPosition: 'center',
-                            transition: 'transform 0.5s ease'
+                            transition: 'transform 0.5s var(--spring)'
                         }}
                     />
                 ) : (
-                    <span>{categoryIcons[project.category]}</span>
+                    <span className="card-icon-fallback">
+                        {project.category?.toUpperCase().slice(0, 3)}
+                    </span>
                 )}
                 <span className={`project-card-category ${project.category}`}>
                     {categoryLabels[project.category]}

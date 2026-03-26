@@ -13,8 +13,8 @@ function Hero() {
                 </div>
 
                 <h1>
-                    <span className="gradient-text">{t('hero.title_main')}</span> (UFMG) {t('hero.title_and')} <br />
-                    <span className="gradient-text">{t('hero.title_sub')}</span>
+                    <span className="text-accent">{t('hero.title_main')}</span> (UFMG) {t('hero.title_and')} <br />
+                    <span className="text-secondary-accent">{t('hero.title_sub')}</span>
                 </h1>
 
                 <p className="hero-subtitle">

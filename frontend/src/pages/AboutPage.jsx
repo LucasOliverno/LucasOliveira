@@ -182,7 +182,7 @@ function AboutPage() {
                     <h2 style={{ textAlign: 'center', marginBottom: '40px' }}>{t('about_page.trajectory')}</h2>
                     <div className="timeline">
                         {timeline.map((item, index) => (
-                            <div className="timeline-item" key={index}>
+                            <div className="timeline-item" key={index} data-animate style={{ '--index': index }}>
                                 <div className="timeline-content">
                                     <span className="timeline-date">{item.date}</span>
                                     <h3 className="timeline-title">{item.title}</h3>
@@ -206,9 +206,9 @@ function AboutPage() {
 
                 <section>
                     <h2 style={{ textAlign: 'center', marginBottom: '40px' }}>{t('about_page.skills')}</h2>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+                    <div className="skills-grid">
                         <div className="sidebar-card">
-                            <h4>⚙️ {t('about_page.skills_eng')}</h4>
+                            <h4>{t('about_page.skills_eng')}</h4>
                             <div className="sidebar-tech-list">
                                 {skills.engenharia.map((skill, index) => (
                                     <span key={index} className="tech-tag">{skill}</span>
@@ -217,7 +217,7 @@ function AboutPage() {
                         </div>
 
                         <div className="sidebar-card">
-                            <h4>🛠️ {t('about_page.skills_tech')}</h4>
+                            <h4>{t('about_page.skills_tech')}</h4>
                             <div className="sidebar-tech-list">
                                 {skills.tecnicas.map((skill, index) => (
                                     <span key={index} className="tech-tag">{skill}</span>
@@ -226,7 +226,7 @@ function AboutPage() {
                         </div>
 
                         <div className="sidebar-card">
-                            <h4>💻 {t('about_page.skills_prog')}</h4>
+                            <h4>{t('about_page.skills_prog')}</h4>
                             <div className="sidebar-tech-list">
                                 {skills.programacao.map((skill, index) => (
                                     <span key={index} className="tech-tag">{skill}</span>
@@ -235,7 +235,7 @@ function AboutPage() {
                         </div>
 
                         <div className="sidebar-card">
-                            <h4>🧠 {t('about_page.skills_comp')}</h4>
+                            <h4>{t('about_page.skills_comp')}</h4>
                             <div className="sidebar-tech-list">
                                 {skills.comportamentais.map((skill, index) => (
                                     <span key={index} className="tech-tag">{skill}</span>
@@ -244,7 +244,7 @@ function AboutPage() {
                         </div>
 
                         <div className="sidebar-card">
-                            <h4>🌍 {t('about_page.skills_langs')}</h4>
+                            <h4>{t('about_page.skills_langs')}</h4>
                             <div className="sidebar-tech-list">
                                 {skills.idiomas.map((skill, index) => (
                                     <span key={index} className="tech-tag">{skill}</span>

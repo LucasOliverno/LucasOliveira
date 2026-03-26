@@ -81,8 +81,10 @@ function EngineeringProjects() {
                     </div>
                 ) : (
                     <div className="projects-grid">
-                        {filteredProjects.map((project) => (
-                            <ProjectCard key={project.id} project={project} />
+                        {filteredProjects.map((project, i) => (
+                            <div key={project.id} data-animate style={{ '--index': i }}>
+                                <ProjectCard project={project} />
+                            </div>
                         ))}
                     </div>
                 )}

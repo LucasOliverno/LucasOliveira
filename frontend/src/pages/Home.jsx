@@ -32,9 +32,18 @@ function Home() {
     }, [i18n.language]);
 
     return (
-        <main>
+        <main className="section--connected">
             <Hero />
+
+            <div className="process-node">
+                <span className="process-node__label">01</span>
+            </div>
+
             <About />
+
+            <div className="process-node">
+                <span className="process-node__label">02</span>
+            </div>
 
             {loading ? (
                 <div className="loading">
@@ -47,6 +56,7 @@ function Home() {
                         tag={t('projects.eng_tag')}
                         title={t('projects.eng_title')}
                         description={t('projects.eng_desc')}
+                        featured
                     />
 
                     <ProjectGrid
@@ -54,6 +64,7 @@ function Home() {
                         tag={t('projects.tech_tag')}
                         title={t('projects.tech_title')}
                         description={t('projects.tech_desc')}
+                        featured
                     />
                 </>
             )}

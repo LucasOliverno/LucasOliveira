@@ -45,7 +45,7 @@ function TechProjects() {
                     border: '1px solid var(--border-color)'
                 }}>
                     <h3 style={{ color: 'var(--accent-primary)', marginBottom: '12px' }}>
-                        💡 {t('tech_page.vibe_title')}
+                        {t('tech_page.vibe_title')}
                     </h3>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7' }}>
                         {t('tech_page.vibe_desc')}
@@ -58,8 +58,10 @@ function TechProjects() {
                     </div>
                 ) : (
                     <div className="projects-grid">
-                        {projects.map((project) => (
-                            <ProjectCard key={project.id} project={project} />
+                        {projects.map((project, i) => (
+                            <div key={project.id} data-animate style={{ '--index': i }}>
+                                <ProjectCard project={project} />
+                            </div>
                         ))}
                     </div>
                 )}

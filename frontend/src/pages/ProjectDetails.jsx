@@ -150,11 +150,7 @@ function ProjectDetails() {
                         {project.gallery && (
                             <section style={{ marginBottom: '48px' }}>
                                 <h2 style={{ marginBottom: '20px', color: 'var(--text-primary)' }}>Galeria</h2>
-                                <div style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                                    gap: '20px'
-                                }}>
+                                <div className="gallery-grid">
                                     {project.gallery.map((img, index) => (
                                         <div key={index} style={{
                                             borderRadius: 'var(--radius-md)',
@@ -212,12 +208,12 @@ function ProjectDetails() {
                                                 e.currentTarget.style.transform = 'translateX(0)';
                                             }}
                                         >
-                                            <span style={{ fontSize: '1.5rem' }}>📄</span>
+                                            <span className="doc-type-label">PDF</span>
                                             <div>
                                                 <strong style={{ display: 'block' }}>{doc.title}</strong>
                                                 <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>PDF Document</span>
                                             </div>
-                                            <span style={{ marginLeft: 'auto', color: 'var(--accent-primary)' }}>⬇️</span>
+                                            <span style={{ marginLeft: 'auto', color: 'var(--accent-primary)', fontFamily: 'var(--font-body)', fontSize: '0.9rem' }}>↓</span>
                                         </a>
                                     ))}
                                 </div>
