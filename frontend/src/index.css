@@ -983,6 +983,25 @@ h3 { font-size: clamp(1.1rem, 2vw, 1.3rem); }
   color: var(--text-primary);
 }
 
+.blog-post-body figure {
+  margin: 40px 0;
+  text-align: center;
+}
+
+.blog-post-body figure img {
+  max-width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.blog-post-body figcaption {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
 /* ===== FOOTER ===== */
 .footer {
   padding: 48px 0;
