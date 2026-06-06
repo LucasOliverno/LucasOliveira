@@ -7,11 +7,6 @@ function Hero() {
     return (
         <section className="hero">
             <div className="hero-content">
-                <div className="hero-badge">
-                    <span className="dot"></span>
-                    <span>{t('hero.badge')}</span>
-                </div>
-
                 <h1 className="hero-name">{t('hero.name')}</h1>
 
                 <p className="hero-role">{t('hero.role')}</p>
