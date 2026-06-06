@@ -67,6 +67,11 @@ function ProjectDetails() {
                                 GitHub ↗
                             </a>
                         )}
+                        {project.liveUrl && (
+                            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                                {i18n.language === 'pt' ? 'Ver Demo ↗' : 'Live Demo ↗'}
+                            </a>
+                        )}
                         {project.documents?.map((doc, i) => (
                             <a key={i} href={doc.path} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
                                 {doc.title} ↗
