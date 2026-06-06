@@ -1,58 +1,30 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
-    const [isLangOpen, setIsLangOpen] = useState(false);
     const location = useLocation();
     const { t, i18n } = useTranslation();
-    const langDropdownRef = useRef(null);
 
     const isActive = (path) => location.pathname === path;
 
     const changeLanguage = (lang) => {
         i18n.changeLanguage(lang);
-        setIsLangOpen(false);
+        setIsOpen(false);
     };
 
-    // Close dropdown on click outside
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (langDropdownRef.current && !langDropdownRef.current.contains(event.target)) {
-                setIsLangOpen(false);
-            }
-        };
-
-        if (isLangOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isLangOpen]);
-
-    const languages = [
-        { code: 'pt', label: 'PT - Português' },
-        { code: 'en', label: 'EN - English' },
-        { code: 'es', label: 'ES - Español' },
-    ];
-
     const navLinks = [
-        { path: '/', label: t('nav.home') },
-        { path: '/engenharia', label: t('nav.engineering') },
-        { path: '/tech', label: t('nav.tech') },
+        { path: '/projetos', label: t('nav.projects') },
+        { path: '/blog', label: t('nav.blog') },
         { path: '/sobre', label: t('nav.about') },
     ];
 
     return (
         <nav className="navbar">
-            <div className="container">
-                <Link to="/" className="navbar-logo" style={{ display: 'flex', alignItems: 'center' }}>
-                    <img src="/logo.png" alt="Logo" style={{ height: '45px', width: 'auto' }} />
+            <div className="container navbar-inner">
+                <Link to="/" className="navbar-logo" onClick={() => setIsOpen(false)}>
+                    <img src="/logo.png" alt="Lucas Oliveira" style={{ height: '40px', width: 'auto' }} />
                 </Link>
 
                 <div className={`navbar-links ${isOpen ? 'open' : ''}`}>
@@ -67,43 +39,29 @@ function Navbar() {
                         </Link>
                     ))}
 
-                    <div className="lang-dropdown-wrapper" ref={langDropdownRef}>
+                    <div className="navbar-lang">
                         <button
-                            onClick={() => setIsLangOpen(!isLangOpen)}
-                            className="lang-switcher"
-                            aria-haspopup="true"
-                            aria-expanded={isLangOpen}
+                            onClick={() => changeLanguage('pt')}
+                            className={i18n.language === 'pt' ? 'lang-btn active' : 'lang-btn'}
                         >
-                            {i18n.language.toUpperCase()}
-                            <svg
-                                width="12"
-                                height="12"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                style={{ transform: isLangOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
-                            >
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
+                            PT
                         </button>
-
-                        {isLangOpen && (
-                            <div className="lang-dropdown-menu">
-                                {languages.map((lang) => (
-                                    <button
-                                        key={lang.code}
-                                        onClick={() => changeLanguage(lang.code)}
-                                        className={i18n.language === lang.code ? 'active' : ''}
-                                    >
-                                        {lang.label}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+                        <span className="lang-separator">|</span>
+                        <button
+                            onClick={() => changeLanguage('en')}
+                            className={i18n.language === 'en' ? 'lang-btn active' : 'lang-btn'}
+                        >
+                            EN
+                        </button>
                     </div>
+
+                    <a
+                        href="mailto:soareslucas031@gmail.com"
+                        className="btn-contact"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        {t('nav.contact')}
+                    </a>
                 </div>
 
                 <button

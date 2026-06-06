@@ -1,80 +1,75 @@
 {
     "translation": {
         "nav": {
-            "home": "Home",
-            "engineering": "Engenharia",
-            "tech": "Tech",
-            "about": "Sobre"
+            "projects": "Projetos",
+            "blog": "Blog",
+            "about": "Sobre",
+            "contact": "Contato"
         },
         "hero": {
             "badge": "Aberto a novas oportunidades",
-            "title_main": "Engenheiro Químico",
-            "title_and": "e",
-            "title_sub": "Full Stack Developer",
-            "subtitle": "Unindo o rigor da engenharia industrial à agilidade do desenvolvimento de software e IA. Transformando problemas complexos em soluções elegantes.",
-            "btn_eng": "Ver Projetos de Engenharia",
-            "btn_tech": "Explorar Tech & VibeCoding"
+            "name": "Lucas Oliveira",
+            "role": "Engenheiro de Processos & Desenvolvedor de Software",
+            "pitch": "Construo sistemas digitais para resolver problemas industriais, operacionais e de manufatura.",
+            "btn_projects": "Ver Projetos",
+            "btn_contact": "Entrar em contato"
         },
         "about": {
-            "tag": "Sobre Mim",
-            "title": "Da Engenharia Química ao Código",
-            "p1": "Sou estudante de Engenharia Química na UFMG e estagiário na BRASS Brasil, onde trabalho com sistemas de detecção de vazamentos em oleodutos. Minha jornada me levou a descobrir o poder da programação como ferramenta para resolver problemas de engenharia de forma mais eficiente.",
-            "p2": "Hoje, combino o conhecimento técnico da engenharia com habilidades de desenvolvimento Full Stack, criando soluções que vão desde automação com IA até aplicações web que facilitam cálculos complexos.",
-            "stat_exp": "Anos de Experiência",
-            "stat_proj": "Projetos Entregues",
-            "stat_curiosity": "Curiosidade"
+            "p1": "Sou estudante de Engenharia Química na UFMG e estagiário na BRASS Brasil, onde trabalho com sistemas de detecção de vazamentos em minerodutos. Minha jornada me levou a descobrir o poder da programação como ferramenta para resolver problemas de engenharia de forma mais eficiente.",
+            "p2": "Hoje, combino o conhecimento técnico da engenharia com habilidades de desenvolvimento de software, criando soluções que vão desde automação com IA até aplicações que facilitam cálculos complexos em processos industriais."
+        },
+        "home": {
+            "cred_education_label": "Formação",
+            "cred_education_value": "Engenharia Química",
+            "cred_education_detail": "UFMG",
+            "cred_experience_label": "Experiência",
+            "cred_experience_value": "BRASS Brasil",
+            "cred_experience_detail": "Engenharia de Processos",
+            "cred_areas_label": "Áreas",
+            "cred_areas_value": "Industrial + Software",
+            "cred_areas_detail": "Processos · Automação · Dados",
+            "projects_title": "Projetos em Destaque",
+            "projects_desc": "Uma seleção de trabalhos na interseção entre engenharia industrial e software.",
+            "view_all": "Ver todos os projetos"
         },
         "projects": {
-            "eng_tag": "Engenharia & Processos",
-            "eng_title": "Rigor Técnico e Precisão Industrial",
-            "eng_desc": "Projetos focados em hidráulica, reologia e otimização de processos.",
-            "tech_tag": "Programação & VibeCoding",
-            "tech_title": "Inovação e Automação com IA",
-            "tech_desc": "Desenvolvimento moderno com foco em automação e inteligência artificial.",
             "view_details": "Ver Detalhes",
             "category_eng": "Engenharia",
-            "category_prog": "Programação",
+            "category_prog": "Software",
             "in_progress": "Em Progresso"
         },
-        "footer": {
-            "subtitle": "Engenheiro Químico & Full Stack Developer"
-        },
-        "about_page": {
-            "tag": "Minha Jornada",
-            "title": "Da UFMG à Indústria, do Excel ao React",
-            "description": "Uma jornada de descobertas que conecta engenharia química, desenvolvimento de software e inteligência artificial.",
-            "trajectory": "Trajetória",
-            "skills": "Habilidades",
-            "skills_eng": "Engenharia",
-            "skills_tech": "Técnicas",
-            "skills_prog": "Programação",
-            "skills_comp": "Comportamentais",
-            "skills_langs": "Idiomas",
-            "talk_title": "Vamos Conversar?",
-            "talk_p": "Estou sempre aberto a novas oportunidades, colaborações e projetos interessantes. Se tens uma ideia ou oportunidade, entra em contacto!",
-            "send_email": "Enviar Email"
+        "projects_page": {
+            "title": "Projetos",
+            "subtitle": "Sistemas industriais, aplicações de software e o espaço onde os dois se encontram.",
+            "filter_all": "Todos",
+            "filter_eng": "Engenharia",
+            "filter_software": "Software"
         },
         "project_details": {
-            "back_eng": "Voltar para Engenharia",
-            "back_tech": "Voltar para Tech",
+            "back": "Voltar para Projetos",
             "overview": "Visão Geral",
             "challenges": "Desafios Técnicos",
             "results": "Resultados",
-            "tech_stack": "Tech Stack"
+            "tech_stack": "Tech Stack",
+            "gallery": "Galeria"
         },
-        "tech_page": {
-            "title": "Projetos de Tech",
-            "description": "Desenvolvimento moderno com IA e automação. VibeCoding: usando inteligência artificial como parceira no processo criativo de desenvolvimento.",
-            "vibe_title": "O que é VibeCoding?",
-            "vibe_desc": "VibeCoding é a prática de usar IA como parceira no desenvolvimento de software. Em vez de escrever cada linha de código manualmente, colaboro com modelos de linguagem para acelerar o desenvolvimento, manter a qualidade e explorar soluções criativas para problemas técnicos."
+        "blog": {
+            "title": "Blog",
+            "subtitle": "Notas sobre engenharia, software e sistemas.",
+            "empty": "Em breve — primeiros artigos chegando.",
+            "read_more": "Ler artigo"
         },
-        "eng_page": {
-            "title": "Projetos de Engenharia",
-            "description": "Experiência em sistemas hidráulicos, otimização de processos industriais e consultoria técnica. Foco em resultados mensuráveis e precisão.",
-            "filter_all": "Todos",
-            "filter_hyd": "Hidráulica",
-            "filter_proc": "Processos",
-            "filter_cons": "Consultoria"
+        "about_page": {
+            "experience_title": "Experiência",
+            "skills": "Habilidades",
+            "skills_eng": "Engenharia",
+            "skills_prog": "Software",
+            "talk_title": "Vamos conversar?",
+            "talk_p": "Estou sempre aberto a novas oportunidades, colaborações e projetos interessantes.",
+            "send_email": "Enviar Email"
+        },
+        "footer": {
+            "subtitle": "Engenheiro de Processos & Desenvolvedor de Software"
         }
     }
 }

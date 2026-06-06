@@ -3,7 +3,6 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import ptTranslation from './locales/pt.json';
 import enTranslation from './locales/en.json';
-import esTranslation from './locales/es.json';
 
 i18n
     .use(LanguageDetector)
@@ -12,10 +11,9 @@ i18n
         resources: {
             pt: ptTranslation,
             en: enTranslation,
-            es: esTranslation,
         },
-        lng: 'en', // Força o idioma padrão para inglês
-        fallbackLng: 'en', // Define o fallback também para inglês
+        lng: 'pt',
+        fallbackLng: 'pt',
         interpolation: {
             escapeValue: false,
         },

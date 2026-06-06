@@ -1,80 +1,75 @@
 {
     "translation": {
         "nav": {
-            "home": "Home",
-            "engineering": "Engineering",
-            "tech": "Tech",
-            "about": "About"
+            "projects": "Projects",
+            "blog": "Blog",
+            "about": "About",
+            "contact": "Contact"
         },
         "hero": {
             "badge": "Open to new opportunities",
-            "title_main": "Chemical Engineer",
-            "title_and": "and",
-            "title_sub": "Full Stack Developer",
-            "subtitle": "Uniting the rigor of industrial engineering with the agility of software development and AI. Transforming complex problems into elegant solutions.",
-            "btn_eng": "See Engineering Projects",
-            "btn_tech": "Explore Tech & VibeCoding"
+            "name": "Lucas Oliveira",
+            "role": "Process Engineer & Software Developer",
+            "pitch": "I build digital systems to solve industrial, operational and manufacturing problems.",
+            "btn_projects": "View Projects",
+            "btn_contact": "Get in touch"
         },
         "about": {
-            "tag": "About Me",
-            "title": "From Chemical Engineering to Code",
-            "p1": "I am a Chemical Engineering student at UFMG and an intern at BRASS Brasil, where I work with leak detection systems for pipelines. My journey led me to discover the power of programming as a tool to solve engineering problems more efficiently.",
-            "p2": "Today, I combine technical engineering knowledge with Full Stack development skills, creating solutions ranging from AI automation to web applications that facilitate complex calculations.",
-            "stat_exp": "Years of Experience",
-            "stat_proj": "Projects Delivered",
-            "stat_curiosity": "Curiosity"
+            "p1": "I am a Chemical Engineering student at UFMG and an intern at BRASS Brasil, where I work with leak detection systems for slurry pipelines. My journey led me to discover the power of programming as a tool to solve engineering problems more efficiently.",
+            "p2": "Today, I combine technical engineering knowledge with software development skills, creating solutions ranging from AI automation to applications that facilitate complex calculations in industrial processes."
+        },
+        "home": {
+            "cred_education_label": "Education",
+            "cred_education_value": "Chemical Engineering",
+            "cred_education_detail": "UFMG",
+            "cred_experience_label": "Experience",
+            "cred_experience_value": "BRASS Brasil",
+            "cred_experience_detail": "Process Engineering",
+            "cred_areas_label": "Areas",
+            "cred_areas_value": "Industrial + Software",
+            "cred_areas_detail": "Processes · Automation · Data",
+            "projects_title": "Featured Projects",
+            "projects_desc": "A selection of work at the intersection of industrial engineering and software.",
+            "view_all": "View all projects"
         },
         "projects": {
-            "eng_tag": "Engineering & Processes",
-            "eng_title": "Technical Rigor and Industrial Precision",
-            "eng_desc": "Projects focused on hydraulics, rheology, and process optimization.",
-            "tech_tag": "Programming & VibeCoding",
-            "tech_title": "Innovation and Automation with AI",
-            "tech_desc": "Modern development focused on automation and artificial intelligence.",
             "view_details": "View Details",
             "category_eng": "Engineering",
-            "category_prog": "Programming",
-            "in_progress": "Work in Progress 🚧"
+            "category_prog": "Software",
+            "in_progress": "In Progress"
         },
-        "footer": {
-            "subtitle": "Chemical Engineer & Full Stack Developer"
-        },
-        "about_page": {
-            "tag": "My Journey",
-            "title": "From UFMG to Industry, from Excel to React",
-            "description": "A journey of discovery that connects chemical engineering, software development, and artificial intelligence.",
-            "trajectory": "Trajectory",
-            "skills": "Skills",
-            "skills_eng": "Engineering",
-            "skills_tech": "Technical",
-            "skills_prog": "Programming",
-            "skills_comp": "Behavioral",
-            "skills_langs": "Languages",
-            "talk_title": "Let's Talk?",
-            "talk_p": "I am always open to new opportunities, collaborations, and interesting projects. If you have an idea or opportunity, get in touch!",
-            "send_email": "Send Email"
+        "projects_page": {
+            "title": "Projects",
+            "subtitle": "Industrial systems, software applications, and the space where both meet.",
+            "filter_all": "All",
+            "filter_eng": "Engineering",
+            "filter_software": "Software"
         },
         "project_details": {
-            "back_eng": "Back to Engineering",
-            "back_tech": "Back to Tech",
+            "back": "Back to Projects",
             "overview": "Overview",
             "challenges": "Technical Challenges",
             "results": "Results",
-            "tech_stack": "Tech Stack"
+            "tech_stack": "Tech Stack",
+            "gallery": "Gallery"
         },
-        "tech_page": {
-            "title": "Tech Projects",
-            "description": "Modern development with AI and automation. VibeCoding: using artificial intelligence as a partner in the creative development process.",
-            "vibe_title": "What is VibeCoding?",
-            "vibe_desc": "VibeCoding is the practice of using AI as a partner in software development. Instead of writing every line of code manually, I collaborate with language models to accelerate development, maintain quality, and explore creative solutions to technical problems."
+        "blog": {
+            "title": "Blog",
+            "subtitle": "Notes on engineering, software and systems.",
+            "empty": "Coming soon — first articles on the way.",
+            "read_more": "Read article"
         },
-        "eng_page": {
-            "title": "Engineering Projects",
-            "description": "Experience in hydraulic systems, industrial process optimization, and technical consulting. Focus on measurable results and precision.",
-            "filter_all": "All",
-            "filter_hyd": "Hydraulics",
-            "filter_proc": "Processes",
-            "filter_cons": "Consulting"
+        "about_page": {
+            "experience_title": "Experience",
+            "skills": "Skills",
+            "skills_eng": "Engineering",
+            "skills_prog": "Software",
+            "talk_title": "Let's talk?",
+            "talk_p": "I am always open to new opportunities, collaborations and interesting projects.",
+            "send_email": "Send Email"
+        },
+        "footer": {
+            "subtitle": "Process Engineer & Software Developer"
         }
     }
 }

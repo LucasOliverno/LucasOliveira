@@ -12,23 +12,23 @@ function Hero() {
                     <span>{t('hero.badge')}</span>
                 </div>
 
-                <h1>
-                    <span className="text-accent">{t('hero.title_main')}</span> (UFMG) {t('hero.title_and')} <br />
-                    <span className="text-secondary-accent">{t('hero.title_sub')}</span>
-                </h1>
+                <h1 className="hero-name">{t('hero.name')}</h1>
 
-                <p className="hero-subtitle">
-                    {t('hero.subtitle')}
-                </p>
+                <p className="hero-role">{t('hero.role')}</p>
+
+                <p className="hero-pitch">{t('hero.pitch')}</p>
 
                 <div className="hero-buttons">
-                    <Link to="/engenharia" className="btn btn-primary">
-                        {t('hero.btn_eng')}
+                    <Link to="/projetos" className="btn btn-primary">
+                        {t('hero.btn_projects')}
                         <span>→</span>
                     </Link>
-                    <Link to="/tech" className="btn btn-secondary">
-                        {t('hero.btn_tech')}
-                    </Link>
+                    <a
+                        href="mailto:soareslucas031@gmail.com"
+                        className="btn btn-secondary"
+                    >
+                        {t('hero.btn_contact')} ↗
+                    </a>
                 </div>
             </div>
         </section>

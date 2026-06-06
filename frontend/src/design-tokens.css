@@ -1,43 +1,39 @@
-/* ===== DESIGN TOKENS — "Engenheiro que também programa" ===== */
+/* ===== DESIGN TOKENS — Engenheiro de Processos & Desenvolvedor de Software ===== */
 :root {
   /* Colors */
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #111111;
-  --bg-card: #141414;
-  --bg-card-hover: #1c1c1c;
+  --bg-primary: #0f0f0f;
+  --bg-secondary: #161616;
+  --bg-card: #1a1a1a;
+  --bg-card-hover: #202020;
 
-  --accent-primary: #00ff88;
-  --accent-secondary: #ff6b35;
-  --accent-secondary-dim: rgba(255, 107, 53, 0.15);
+  --accent-primary: #3b82f6;
+  --accent-primary-dim: rgba(59, 130, 246, 0.12);
 
-  --text-primary: #e8e8e8;
-  --text-secondary: #888888;
-  --text-muted: #555555;
+  --text-primary: #f0ede8;
+  --text-secondary: #7a7a7a;
+  --text-muted: #4a4a4a;
 
-  --border-color: rgba(255, 255, 255, 0.07);
-  --border-accent: rgba(0, 255, 136, 0.25);
-  --glass-bg: rgba(20, 20, 20, 0.85);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-accent: rgba(59, 130, 246, 0.30);
 
   /* Typography */
   --font-display: 'Syne', sans-serif;
-  --font-body: 'IBM Plex Mono', monospace;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 
   /* Spacing */
   --container-max: 1280px;
   --section-padding: 100px;
 
-  /* Border radius — industrial, nearly square */
+  /* Border radius */
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-xl: 12px;
 
-  /* Spring physics transition */
+  /* Transitions */
   --spring: cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: 0.2s var(--spring);
   --transition-normal: 0.4s var(--spring);
   --transition-slow: 0.6s var(--spring);
-
-  /* Stagger index (set per element via style attribute) */
-  --index: 0;
 }
