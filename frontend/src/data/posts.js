@@ -36,7 +36,7 @@ const posts = [
         category: 'Dados & Engenharia',
         date: '06/07/2026',
         title: 'Indústria Não Tem Problema de Dados',
-        summary: 'Toda indústria vive afogada em dados operacionais, mas ter dado não é o mesmo que ter informação. Uso um chiller industrial e 3.600 linhas de sensores para mostrar por que "Data Rich, Information Poor" é o verdadeiro problema — e como resgatar o método científico resolve isso.',
+        summary: 'Toda indústria vive afogada em dados, mas ter dado não é o mesmo que ter informação. Por que o problema real é DRIP - Data Rich, Information Poor -, por que IA sozinha não resolve, e por que resgatar o método científico e formular hipóteses é o que separa dado de conclusão útil.',
         content: `
 <p>Se você já trabalhou em uma grande indústria ou oferecendo serviços técnicos para uma, com certeza você se deparou com dados. Imensidão de dados, operacionais, financeiros, dados pessoais. Vou focar apenas no primeiro tipo que é o que eu entendo melhor. Claro que o que será abordado pode ser extrapolado para praticamente todo tipo de informação armazenada em bancos de dados.</p>
 
@@ -62,12 +62,22 @@ const posts = [
 
 <p>O motivo daquele equipamento existir é trocar calor, se coletamos dados, deveria ser fácil saber quanto de CALOR foi removido do meio em determinado tempo. Para uma pessoa que estudou isso, uma simples pesquisa, ou sequer um prompt deveria ser o suficiente para conseguir essa informação. Teríamos um dado nos dando uma resposta. Mas, se a informação que temos é de algum tempo atrás, a operação pode ter mudado. Se a quantidade for tão grande que não conseguimos extrair os parâmetros que queremos? A quantidade de ruído pode ser tão relevante que impede uma análise sem um tratamento prévio.</p>
 
-<p>No final do dia, caímos em um problema tão simples e até meio besta, mas na Era da Informação, é relativamente fácil ter acesso aos "dados", o difícil é fazer com que eles não baguncem a sua mente. No próximo texto, vou exemplificar como podemos usar a razão humana para suprir a falta de sensores não críticos.</p>
-
 <figure>
     <img src="/images/blog/dados-pessoa-confusa.png" alt="Pessoa confusa em frente a um monitor cheio de gráficos e percentuais" />
     <figcaption>Muito dado, pouca informação — o retrato clássico do DRIP</figcaption>
 </figure>
+
+<p>No final do dia, caímos em um problema tão simples e até meio besta, mas na Era da Informação, é relativamente fácil ter acesso aos "dados", o difícil é fazer com que eles não baguncem a sua mente. No próximo artigo vou mostrar exatamente como um engenheiro transforma milhares de linhas de dados em uma conclusão útil.</p>
+`,
+    },
+    {
+        slug: 'chiller-desperdicio-energia-dados-operacionais',
+        category: 'Dados & Engenharia',
+        date: '06/07/2026',
+        title: 'Como Descobrir se um Chiller Está Desperdiçando Energia Usando Apenas Dados Operacionais',
+        summary: 'Peguei 3.600 linhas de sensores de um chiller industrial — temperatura, vazão, corrente do compressor — e apliquei na prática o método científico do artigo anterior: hipótese, tratamento de ruído, média móvel e cálculo de COP para provar, com dado, se o equipamento está operando bem ou jogando energia no lixo.',
+        content: `
+<p>No <a href="/blog/industria-nao-tem-problema-de-dados">artigo anterior</a> expliquei por que a indústria não sofre de falta de dados, mas de método: dado bruto sem hipótese só alimenta o problema do DRIP - Data Rich, Information Poor. Agora vou mostrar exatamente como um engenheiro transforma milhares de linhas de dados em uma conclusão útil.</p>
 
 <p>A partir daqui, vou mostrar um exemplo do que estou dizendo, talvez fique muito engenharia de processos e blá blá blá. Ele tá bem simplificado, dados industriais são muito piores, mas serve como um fundamento e um exercício simplificado. Se precisar de ajuda para entender, joga o texto numa IA. O arquivo e o resultado esperado tá no final, usa IA, não faz na mão não!</p>
 
