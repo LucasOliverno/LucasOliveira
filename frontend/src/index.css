@@ -1002,6 +1002,42 @@ h3 { font-size: clamp(1.1rem, 2vw, 1.3rem); }
   letter-spacing: 0.03em;
 }
 
+.blog-post-body ul {
+  margin: 0 0 20px;
+  padding-left: 22px;
+}
+
+.blog-post-body ul li {
+  margin-bottom: 8px;
+}
+
+.blog-attachments {
+  margin: 40px 0 0;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.blog-attachments h3 {
+  margin: 0 0 12px;
+}
+
+.blog-attachments ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.blog-attachments li {
+  margin-bottom: 10px;
+}
+
+.blog-attachments a {
+  font-family: var(--font-mono);
+  color: var(--accent-primary);
+}
+
 /* ===== FOOTER ===== */
 .footer {
   padding: 48px 0;
