@@ -1,10 +1,92 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
-  <rect width="800" height="600" fill="#2c3e50" />
-  <g transform="translate(400,300) scale(3)">
-    <path fill="#e74c3c" d="M-50 0 L50 0 L0 -80 Z" />
-    <rect x="-40" y="0" width="80" height="60" fill="#95a5a6" />
-    <rect x="-10" y="20" width="20" height="40" fill="#7f8c8d" />
+<svg width="800" height="450" viewBox="0 0 800 450" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with dark slate industrial aesthetic -->
+  <rect width="800" height="450" fill="#0B132B"/>
+
+  <defs>
+    <pattern id="grid-mill" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1C2541" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="amber-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#grid-mill)"/>
+
+  <!-- Header -->
+  <text x="50" y="45" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="15" fill="#F59E0B" letter-spacing="1.5">ENGENHARIA INDUSTRIAL — FÁBRICA DE RAÇÃO</text>
+  <text x="50" y="65" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#64748B">Estudo de Viabilidade Técnica e Econômica (EVTE)</text>
+
+  <!-- INDUSTRIAL PROCESS FLOW DIAGRAM (Center) -->
+  <g transform="translate(50, 105)">
+    <!-- Main Box Layout -->
+    <rect width="700" height="175" rx="14" fill="#1C2541" stroke="#3A506B" stroke-width="1.5"/>
+
+    <!-- Process Step 1: Recebimento -->
+    <g transform="translate(30, 35)">
+      <rect width="130" height="105" rx="8" fill="#0B132B" stroke="#3A506B" stroke-width="1"/>
+      <circle cx="65" cy="35" r="16" fill="#F59E0B" fill-opacity="0.2" stroke="#F59E0B" stroke-width="1.5"/>
+      <text x="65" y="40" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#F59E0B" text-anchor="middle">🌾</text>
+      <text x="65" y="70" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="11" fill="#F8FAFC" text-anchor="middle">Recebimento &amp; Silos</text>
+      <text x="65" y="88" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#64748B" text-anchor="middle">Matéria-Prima</text>
+    </g>
+
+    <!-- Arrow 1 -->
+    <path d="M 170 88 L 195 88" stroke="#F59E0B" stroke-width="2" stroke-dasharray="4 3"/>
+
+    <!-- Process Step 2: Moagem & Dosagem -->
+    <g transform="translate(200, 35)">
+      <rect width="130" height="105" rx="8" fill="#0B132B" stroke="#3A506B" stroke-width="1"/>
+      <circle cx="65" cy="35" r="16" fill="#3B82F6" fill-opacity="0.2" stroke="#60A5FA" stroke-width="1.5"/>
+      <text x="65" y="40" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#60A5FA" text-anchor="middle">⚙️</text>
+      <text x="65" y="70" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="11" fill="#F8FAFC" text-anchor="middle">Moagem &amp; Mistura</text>
+      <text x="65" y="88" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#64748B" text-anchor="middle">Moinho de Martelos</text>
+    </g>
+
+    <!-- Arrow 2 -->
+    <path d="M 340 88 L 365 88" stroke="#3B82F6" stroke-width="2" stroke-dasharray="4 3"/>
+
+    <!-- Process Step 3: Peletização -->
+    <g transform="translate(370, 35)">
+      <rect width="130" height="105" rx="8" fill="#0B132B" stroke="#3A506B" stroke-width="1"/>
+      <circle cx="65" cy="35" r="16" fill="#10B981" fill-opacity="0.2" stroke="#34D399" stroke-width="1.5"/>
+      <text x="65" y="40" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#34D399" text-anchor="middle">🏭</text>
+      <text x="65" y="70" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="11" fill="#F8FAFC" text-anchor="middle">Peletização</text>
+      <text x="65" y="88" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#64748B" text-anchor="middle">Resfriamento</text>
+    </g>
+
+    <!-- Arrow 3 -->
+    <path d="M 510 88 L 535 88" stroke="#10B981" stroke-width="2" stroke-dasharray="4 3"/>
+
+    <!-- Process Step 4: Expedição -->
+    <g transform="translate(540, 35)">
+      <rect width="130" height="105" rx="8" fill="#0B132B" stroke="#3A506B" stroke-width="1"/>
+      <circle cx="65" cy="35" r="16" fill="#8B5CF6" fill-opacity="0.2" stroke="#A855F7" stroke-width="1.5"/>
+      <text x="65" y="40" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#A855F7" text-anchor="middle">🚛</text>
+      <text x="65" y="70" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="11" fill="#F8FAFC" text-anchor="middle">Expedição &amp; Ensaque</text>
+      <text x="65" y="88" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#64748B" text-anchor="middle">Logística Saída</text>
+    </g>
   </g>
-  <text x="400" y="500" font-family="Arial" font-size="40" fill="white" text-anchor="middle">Fábrica de Ração</text>
-  <text x="400" y="550" font-family="Arial" font-size="24" fill="#bdc3c7" text-anchor="middle">Viabilidade Econômica</text>
+
+  <!-- LOWER METRICS / ENGINEERING KPI CARDS -->
+  <g transform="translate(50, 305)">
+    <!-- KPI 1: VPL / TIR -->
+    <rect x="0" y="0" width="215" height="90" rx="10" fill="#1C2541" stroke="#3A506B" stroke-width="1"/>
+    <text x="20" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748B">INDICADORES FINANCEIROS</text>
+    <text x="20" y="58" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" font-size="18" fill="#F59E0B">VPL &gt; 0 | TIR &gt; TMA</text>
+    <text x="20" y="76" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#34D399">✓ Projeto Viável Econômica &amp; Financeiramente</text>
+
+    <!-- KPI 2: Capacidade -->
+    <rect x="240" y="0" width="215" height="90" rx="10" fill="#1C2541" stroke="#3A506B" stroke-width="1"/>
+    <text x="260" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748B">CAPACIDADE PRODUTIVA</text>
+    <text x="260" y="58" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" font-size="18" fill="#60A5FA">Layout Otimizado</text>
+    <text x="260" y="76" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#94A3B8">Fluxo contínuo sem gargalos</text>
+
+    <!-- KPI 3: Documentação -->
+    <rect x="485" y="0" width="215" height="90" rx="10" fill="#1C2541" stroke="#3A506B" stroke-width="1"/>
+    <text x="505" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748B">DOCUMENTO TÉCNICO</text>
+    <text x="505" y="58" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" font-size="18" fill="#A855F7">Relatório de Viabilidade</text>
+    <text x="505" y="76" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#94A3B8">Plano de negócios completo em PDF</text>
+  </g>
 </svg>

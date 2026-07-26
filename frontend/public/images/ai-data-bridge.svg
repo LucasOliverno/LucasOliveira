@@ -1,0 +1,96 @@
+<svg width="800" height="450" viewBox="0 0 800 450" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with subtle gradient and engineering grid -->
+  <rect width="800" height="450" fill="#0F172A"/>
+  
+  <defs>
+    <pattern id="grid-ai" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1E293B" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="blue-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#1E1B4B" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="purple-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.05"/>
+    </linearGradient>
+    <filter id="glow-effect" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Grid overlay -->
+  <rect width="800" height="450" fill="url(#grid-ai)" />
+  
+  <!-- Subtle ambient glow circle -->
+  <circle cx="400" cy="225" r="180" fill="url(#blue-glow)" />
+
+  <!-- Connection Lines (Data Stream) -->
+  <path d="M 230 225 L 340 225 M 460 225 L 570 225" stroke="#38BDF8" stroke-width="2" stroke-dasharray="6 6"/>
+  <circle cx="285" cy="225" r="4" fill="#38BDF8" filter="url(#glow-effect)"/>
+  <circle cx="515" cy="225" r="4" fill="#8B5CF6" filter="url(#glow-effect)"/>
+
+  <!-- LEFT CARD: Natural Language Query -->
+  <g transform="translate(60, 145)">
+    <rect width="170" height="160" rx="12" fill="#1E293B" stroke="#334155" stroke-width="1.5"/>
+    <rect width="170" height="160" rx="12" fill="url(#blue-glow)"/>
+    
+    <!-- User Icon -->
+    <circle cx="85" cy="48" r="18" fill="#3B82F6" fill-opacity="0.2" stroke="#60A5FA" stroke-width="1.5"/>
+    <path d="M 77 48 C 77 44 93 44 93 48" stroke="#60A5FA" stroke-width="1.5" stroke-linecap="round"/>
+    
+    <!-- Header -->
+    <text x="85" y="90" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#F8FAFC" text-anchor="middle">Linguagem Natural</text>
+    
+    <!-- Query preview -->
+    <rect x="15" y="105" width="140" height="36" rx="6" fill="#0F172A" stroke="#334155"/>
+    <text x="85" y="127" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#94A3B8" text-anchor="middle">"Qual o faturamento?"</text>
+  </g>
+
+  <!-- CENTER CARD: AI Data Bridge Engine -->
+  <g transform="translate(320, 125)">
+    <rect width="160" height="200" rx="16" fill="#0F172A" stroke="#8B5CF6" stroke-width="2" filter="url(#glow-effect)"/>
+    <rect width="160" height="200" rx="16" fill="url(#purple-glow)"/>
+
+    <!-- AI Core Icon (Neural Nodes) -->
+    <g transform="translate(80, 55)">
+      <circle cx="0" cy="-12" r="6" fill="#A855F7"/>
+      <circle cx="-16" cy="12" r="6" fill="#3B82F6"/>
+      <circle cx="16" cy="12" r="6" fill="#38BDF8"/>
+      <line x1="0" y1="-12" x2="-16" y2="12" stroke="#C084FC" stroke-width="1.5"/>
+      <line x1="0" y1="-12" x2="16" y2="12" stroke="#C084FC" stroke-width="1.5"/>
+      <line x1="-16" y1="12" x2="16" y2="12" stroke="#60A5FA" stroke-width="1.5"/>
+    </g>
+
+    <!-- Title -->
+    <text x="80" y="102" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="14" fill="#F8FAFC" text-anchor="middle">AI Data Bridge</text>
+    <text x="80" y="120" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#A855F7" text-anchor="middle">Vanna.ai + RAG Engine</text>
+
+    <!-- Security Badge -->
+    <rect x="25" y="142" width="110" height="26" rx="13" fill="#1E1B4B" stroke="#6366F1" stroke-width="1"/>
+    <text x="80" y="159" font-family="system-ui, -apple-system, sans-serif" font-weight="500" font-size="10" fill="#E0E7FF" text-anchor="middle">🛡️ Anti-SQL Injection</text>
+  </g>
+
+  <!-- RIGHT CARD: SQL Database -->
+  <g transform="translate(570, 145)">
+    <rect width="170" height="160" rx="12" fill="#1E293B" stroke="#334155" stroke-width="1.5"/>
+    
+    <!-- Database Cylinder Icon -->
+    <g transform="translate(85, 45)">
+      <ellipse cx="0" cy="-12" rx="22" ry="7" fill="#10B981" fill-opacity="0.3" stroke="#34D399" stroke-width="1.5"/>
+      <path d="M -22 -12 V 12 C -22 18 22 18 22 12 V -12" fill="none" stroke="#34D399" stroke-width="1.5"/>
+      <path d="M -22 0 C -22 6 22 6 22 0" fill="none" stroke="#34D399" stroke-width="1.5"/>
+    </g>
+
+    <!-- Title -->
+    <text x="85" y="90" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#F8FAFC" text-anchor="middle">SQL / PostgreSQL</text>
+
+    <!-- Query output preview -->
+    <rect x="15" y="105" width="140" height="36" rx="6" fill="#0F172A" stroke="#334155"/>
+    <text x="85" y="127" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#34D399" text-anchor="middle">SELECT SUM(total)...</text>
+  </g>
+
+  <!-- Top Title Bar inside image -->
+  <text x="400" y="45" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="16" fill="#94A3B8" text-anchor="middle" letter-spacing="2">ARQUITETURA AI DATA BRIDGE</text>
+</svg>

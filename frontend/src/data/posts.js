@@ -5,6 +5,33 @@ const posts = [
         date: '06/06/2026',
         title: 'Cláudio Vai Roubar Seu Emprego?',
         summary: 'Volta e meia eu converso com um amigo na academia sobre como a Inteligência Artificial vai roubar todos os empregos. Ficamos desanimados, pensando em um futuro cyberpunk caótico. Proponho o seguinte debate: será realmente que o nosso amigo Cláudio vai usurpar a fonte de renda de todos?',
+        title_en: 'Will Claude Steal Your Job?',
+        summary_en: 'Every now and then I have a conversation with a friend at the gym about how Artificial Intelligence is going to steal every technical, commercial, and even manual job. We get discouraged, imagining a chaotic cyberpunk future. I propose the following debate: will our friend Claude really usurp everyone\'s income?',
+        content_en: `
+<p>Every now and then I have a conversation with a friend at the gym about how Artificial Intelligence is going to steal every technical, commercial, and even manual job. We get discouraged, imagining a chaotic cyberpunk future where nobody owns anything and everyone entertains themselves with mindless content. Despite the fact that we already live in that future, I propose the following debate: will our friend Claude really usurp everyone's income?</p>
+
+<p>To start, I am not an expert in LLMs, Artificial Intelligence, or even Machine Learning — it's all educated guessing based on empiricism. Yes, I am a chronic LLM addict. It all started when I realized I no longer needed to spend hours writing articles and papers at university, that I just needed to guide a Chatbot and review it at the end. It was gratifying to see that GPT's texts could score +20% higher than texts written by a mere engineering student.</p>
+
+<p>That was 2023 and the AI was pretty "weak" — the models were quite dumb and needed well-defined <strong>--CONTEXT--</strong> (Yes, the word <strong>--CONTEXT--</strong> always deserves special emphasis when talking about LLMs). Some time passed and I was using chatbots to introduce myself to new topics and help with life problems. More time passed and I was using it at work. After a few months, well, I use it for everything. And yes, web chats are the most common form of AI usage, but it's definitely the worst. Below I'll place an image of the AI Funnel/Pyramid. If you're still at level 1, I strongly recommend investing time and money to learn level 2, regardless of whether you're a C-level executive or a bricklayer. And if it has ROI — KEEP GOING DOWN LEVELS.</p>
+
+<figure>
+    <img src="/images/blog/ia-funil.png" alt="The Bottomless Pit — AI Funnel/Pyramid" />
+    <figcaption>The Bottomless Pit — AI Funnel/Pyramid</figcaption>
+</figure>
+
+<p>After that brief story (there'll be more soon), we return to the question: is this going to steal my job?</p>
+
+<p>The answer is yes and no. I like to make the following comparison: AI is the loom of post-contemporaneity. Did the loom kill craftsmanship in England? It left a large part of the population quite poor, but it brought scale and overall productivity. Was the loom a bubble? No. Artificial intelligence is also not a bubble — it also brings productivity and can leave many people very poor, just as it can leave many people very rich. It all depends on asymmetry and risk — Read <em>Skin in the Game</em>.</p>
+
+<p>But understand this: it is humanly impossible to compete with an algorithm that has access to all the data on the planet. I have several personal examples in the field of chemical/mechanical/civil engineering where with the right <strong>--CONTEXT--</strong> you can argue even against your university professor with over 45,000 years of experience (and come out victorious). You can also quickly search for battles between programmers and AI in code production and you'll understand the level we're already at. Remember that in 2023, AI was still kind of weak. I also like to share this chart, which is the origin of the entire discussion. If you know, you know.</p>
+
+<figure>
+    <img src="/images/blog/ia-grafico.png" alt="The Apocalypse Chart — Should we go back to farming or install air conditioning?" />
+    <figcaption>The Apocalypse Chart — Should we go back to farming or install air conditioning?</figcaption>
+</figure>
+
+<p>However, it is still possible to compete against humans. At the end of the day, the last competition is the one that matters. People buy from people, not from machines. HUMAN relationships define and will always define the economy (or until Skynet is actually a thing). But it's worth reflecting: most of the clothes you wear are produced by endless Chinese looms, or are they handmade by an English peasant who charges a lot more?</p>
+`,
         content: `
 <p>Volta e meia eu converso com um amigo na academia sobre como a Inteligência Artificial vai roubar todos empregos técnicos, comerciais e até manuais. Ficamos desanimados, pensando em um futuro cyberpunk caótico, onde ninguém tem absolutamente nenhum tipo de propriedade e se diverte com entretenimento idiota. Apesar de já vivermos nesse futuro, proponho o seguinte debate a seguir: será realmente que o nosso amigo Cláudio vai usurpar a fonte de renda de todos?</p>
 
