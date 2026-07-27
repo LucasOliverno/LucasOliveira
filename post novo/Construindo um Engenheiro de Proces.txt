@@ -1,0 +1,10 @@
+Construindo um Engenheiro de Processos Artificial
+
+
+Esses dias li num post do LinkedIn que um engenheiro conduziu um pseudo-HAZOP com três IA's. Ele era o próprio facilitador, tinha em mãos os documentos e o conhecimento necessário sobre o processo para alimentar o contexto dos agentes de Inteligência Artificial. De acordo com o autor da postagem, o estudo custou a ele cerca de 5 reais e diversas conclusões diferentes. 
+
+Fiquei pensativo, se em algum momento, 80% do trabalho de um engenheiro for automatizado, eu imagino que todos querem ser o automatizador e não o automatizado. Comecei um projeto um pouco ousado esses dias. Vamos imaginar que você só tenha que ser o facilitador e o avaliador de um HAZOP, a IA iria fazer todo o resto. Nesse cenário, não estou falando de semi/pseudo estudo. Quero me referir a análise por completo. 
+
+Pensa em um mundo ideal (que na prática está alguns dias de distância) onde o seguinte acontece. Você insere seus dados, contexto e tudo que é necessário para conduzir um estudo desse calibre. Um agente não só imagina cenários, descreve nós, preenche tabelas com palavras-chave. Ele também é capaz de usar softwares de simulação, chegar em conclusões de projeto com base na informação adquirida/derivada de seu pensamento. Obviamente, incluiria nesse estudo análise de LOPA e SIL. Com um pouco mais de complexidade de código, talvez até um BOW-TIE.
+
+Pode perceber que eu gosto de imaginar bastante... Mas atualmente, meu hiperfoco em processos e análise de risco vai me permitir tirar esse projeto do papel. Esse é só um post inicial desse projeto, que com certeza vai me tirar algum tempo.

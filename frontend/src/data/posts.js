@@ -134,6 +134,44 @@ const posts = [
 </div>
 `,
     },
+    {
+        slug: 'construindo-um-engenheiro-de-processos-artificial',
+        category: 'Projetos Pessoais',
+        date: '27/07/2026',
+        title: 'Construindo um Engenheiro de Processos Artificial',
+        summary: 'Esses dias li num post do LinkedIn que um engenheiro conduziu um pseudo-HAZOP com três IAs... Fiquei pensativo: e se 80% do trabalho de um engenheiro for automatizado? Comecei um projeto ousado para criar um agente de IA capaz de conduzir análises completas de HAZOP, LOPA, SIL e simulação de processos.',
+        title_en: 'Building an Artificial Process Engineer',
+        summary_en: 'The other day I read a LinkedIn post about conducting a pseudo-HAZOP with AIs... What if 80% of an engineer\'s job gets automated? Reflections on a bold new project: an AI agent capable of full HAZOP, LOPA, SIL, and process simulations.',
+        content_en: `
+<p>The other day I read a LinkedIn post where an engineer conducted a pseudo-HAZOP with three AIs. He acted as the facilitator himself, holding the necessary process documents and domain knowledge to feed context into the Artificial Intelligence agents. According to the author of the post, the study cost him around 5 BRL and yielded several distinct conclusions.</p>
+
+<p>It got me thinking: if at some point 80% of an engineer's work gets automated, I imagine everyone will want to be the automator rather than the automated. I recently started a somewhat bold project. Imagine only having to act as the facilitator and evaluator of a HAZOP, while the AI handles everything else. In this scenario, I'm not talking about a semi or pseudo-study. I mean a complete, end-to-end analysis.</p>
+
+<figure>
+    <img src="/images/blog/process-pilot.png" alt="ProcessPilot — AI Agent for Risk Analysis and Process Engineering" />
+    <figcaption>ProcessPilot — Autonomous agent architecture for process engineering, HAZOP, LOPA, and simulation automation</figcaption>
+</figure>
+
+<p>Think of an ideal world (which in practice is only a few days away) where the following happens. You input your data, context, and everything required to conduct a study of this caliber. An agent doesn't just imagine scenarios, describe nodes, and fill out tables with keywords. It is also capable of using simulation software and reaching design conclusions based on the information acquired or derived from its reasoning. Naturally, this study would include LOPA and SIL analyses. With a bit more code complexity, perhaps even a BOW-TIE diagram.</p>
+
+<p>As you can tell, I like to imagine quite a lot... But currently, my hyperfocus on process engineering and risk analysis will allow me to bring this project off the drawing board. This is just an initial post for this project, which will certainly take up some of my time.</p>
+`,
+        content: `
+<p>Esses dias li num post do LinkedIn que um engenheiro conduziu um pseudo-HAZOP com três IA's. Ele era o próprio facilitador, tinha em mãos os documentos e o conhecimento necessário sobre o processo para alimentar o contexto dos agentes de Inteligência Artificial. De acordo com o autor da postagem, o estudo custou a ele cerca de 5 reais e diversas conclusões diferentes.</p>
+
+<p>Fiquei pensativo, se em algum momento, 80% do trabalho de um engenheiro for automatizado, eu imagino que todos querem ser o automatizador e não o automatizado. Comecei um projeto um pouco ousado esses dias. Vamos imaginar que você só tenha que ser o facilitador e o avaliador de um HAZOP, a IA iria fazer todo o resto. Nesse cenário, não estou falando de semi/pseudo estudo. Quero me referir a análise por completo.</p>
+
+<figure>
+    <img src="/images/blog/process-pilot.png" alt="ProcessPilot — Agente Inteligente para Análise de Risco e Engenharia de Processos" />
+    <figcaption>ProcessPilot — Arquitetura de agente autônomo para automação de estudos HAZOP, LOPA e simulação de processos</figcaption>
+</figure>
+
+<p>Pensa em um mundo ideal (que na prática está alguns dias de distância) onde o seguinte acontece. Você insere seus dados, contexto e tudo que é necessário para conduzir um estudo desse calibre. Um agente não só imagina cenários, descreve nós, preenche tabelas com palavras-chave. Ele também é capaz de usar softwares de simulação, chegar em conclusões de projeto com base na informação adquirida/derivada de seu pensamento. Obviamente, incluiria nesse estudo análise de LOPA e SIL. Com um pouco mais de complexidade de código, talvez até um BOW-TIE.</p>
+
+<p>Pode perceber que eu gosto de imaginar bastante... Mas atualmente, meu hiperfoco em processos e análise de risco vai me permitir tirar esse projeto do papel. Esse é só um post inicial desse projeto, que com certeza vai me tirar algum tempo.</p>
+`,
+    },
 ];
 
 export default posts;
+

@@ -2,8 +2,14 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import posts from '../data/posts';
 
+function parseDate(dateStr) {
+    const [day, month, year] = dateStr.split('/').map(Number);
+    return new Date(year, month - 1, day);
+}
+
 function Blog() {
     const { t, i18n } = useTranslation();
+    const sortedPosts = [...posts].sort((a, b) => parseDate(b.date) - parseDate(a.date));
 
     return (
         <div className="page-blog" style={{ paddingTop: '120px' }}>
@@ -13,13 +19,13 @@ function Blog() {
                     <p className="section-description">{t('blog.subtitle')}</p>
                 </div>
 
-                {posts.length === 0 ? (
+                {sortedPosts.length === 0 ? (
                     <div className="blog-empty">
                         <p>{t('blog.empty')}</p>
                     </div>
                 ) : (
                     <div className="blog-list">
-                        {posts.map((post) => {
+                        {sortedPosts.map((post) => {
                             const title = i18n.language === 'en' ? (post.title_en || post.title) : post.title;
                             const summary = i18n.language === 'en' ? (post.summary_en || post.summary) : post.summary;
                             return (
