@@ -171,6 +171,201 @@ const posts = [
 <p>Pode perceber que eu gosto de imaginar bastante... Mas atualmente, meu hiperfoco em processos e análise de risco vai me permitir tirar esse projeto do papel. Esse é só um post inicial desse projeto, que com certeza vai me tirar algum tempo.</p>
 `,
     },
+    {
+        slug: "python-engenharia-quimica-stack",
+        category: "Dados & Engenharia",
+        date: "10/08/2026",
+        title: "Do Excel ao Python: o stack completo que todo engenheiro químico deveria conhecer",
+        summary: "No artigo anterior eu falei que a indústria não tem problema de dados, mas de método. A pergunta que fica é: com o que eu processo tudo isso? Ainda preso no Excel, salvando v14_FINAL_2_CORRETO.xlsx? É hora de conversar sobre o stack Python que conecta planilha, simulador e modelo preditivo sem travamento de célula.",
+        content: `<p>No <a href="/blog/industria-nao-tem-problema-de-dados">artigo anterior</a> eu falei que a indústria não tem problema de dados, mas de método. Dado bruto sem hipótese só alimenta o DRIP. Mas aí você pode estar pensando: beleza, mas com o que eu processo esses dados? Ainda tô preso no Excel, arrastando fórmula até a linha um milhão, salvando como <code>v14_FINAL_2_CORRETO.xlsx</code> e rezando pra não ter apagado uma célula no meio da coluna.</p>
+
+<p>Volta e meia eu converso com um colega de planta e a conversa cai no mesmo lugar. "Python é pra cientista de dados, não pra engenheiro químico." Aí eu pergunto: quantas horas você já perdeu copiando número do SCADA pro Excel, fazendo gráfico que demora cinco minutos pra recalcular, e descobrindo no fim que a célula B2345 tava com vírgula no lugar de ponto? Se a resposta é mais de dez, a gente precisa conversar.</p>
+
+<p>Não é que o Excel seja ruim. Ele é brilhante pra balanço rápido, pra mostrar pro gestor numa reunião de quinze minutos. O problema é quando a planilha vira o sistema. Quando você precisa repetir a mesma análise em dez bateladas diferentes e descobre que o erro de uma célula arrastada subiu pela coluna e corrompeu três gráficos. Aí o trem desanda.</p>
+
+<p>Python é a cola que falta entre a planilha do operador, o simulador do processo e o modelo preditivo. É aberto, gratuito, e roda no seu laptop velho, no servidor da planta ou na nuvem. Você escreve uma vez e reproduz sempre. E o melhor: não substitui o Excel nem o Aspen. Ele os integra. Se amanhã o seu gestor pedir um gráfico novo, você não refaz a planilha - roda o script. Se o engenheiro de manutenção mandar um CSV de seis meses de operação, você não chora. Você dá um <code>pd.read_csv</code> e segue a vida.</p>
+
+<figure>
+    <img src="/images/blog/figura_1.png" alt="Engenheiro químico entre planilhas Excel e código Python" />
+    <figcaption>Engenheiro químico entre planilhas Excel e código Python</figcaption>
+</figure>
+
+<p>A analogia que eu gosto é de uma balança. De um lado, o Excel manual - rápido, visual, todo mundo sabe usar. Do outro, Python - automatizado, versionável, escalável. Se você só tem dez linhas de dados, o Excel ganha. Se você tem dez milhões de linhas de SCADA, Python é o único que não trava. E na indústria, meu amigo, a gente fala de milhões de linhas por dia.</p>
+
+<figure>
+    <img src="/images/blog/figura_2.png" alt="Excel manual versus Python automatizado - a balança do engenheiro moderno" />
+    <figcaption>Excel manual versus Python automatizado - a balança do engenheiro moderno</figcaption>
+</figure>
+
+<p>Beleza, mas e a parte chata da engenharia química, a termodinâmica? A gente passou a faculdade inteira abrindo tabela de vapor e consultando propriedades no livro do Smith. Na indústria, você abre o Aspen. Só que nem todo mundo tem licença do Aspen no notebook pessoal, e às vezes você só quer saber a entalpia do vapor saturado a 10 bar sem ligar um elefante.</p>
+
+<p>É aí que entra o CoolProp. Biblioteca open-source que implementa as mesmas formulações do IAPWS e REFPROP. A mesma precisão do REFPROP, só que sem a janela de licença te julgando. Você pode consultar entalpia, entropia, densidade, viscosidade, tudo por linha de comando. Na prática é isso aqui:</p>
+
+<pre><code>from CoolProp.CoolProp import PropsSI
+
+h = PropsSI("H", "P", 10e5, "T", 573.15, "Water")
+print(f"h = {h/1000:.1f} kJ/kg")
+</code></pre>
+
+<p>Sem abrir tabela de vapor, sem licença comercial, sem clicar em caixa de diálogo. O resultado cai na tela em milissegundos. E não é só água: refrigerantes, gases, misturas. O engenheiro químico que tem isso na manga não precisa mais de desculpa pra não verificar dados de instrumentação.</p>
+
+<figure>
+    <img src="/images/blog/figura_3.png" alt="Tanque de vapor lúdico - consultando entalpia com CoolProp sem abrir tabelas" />
+    <figcaption>Tanque de vapor lúdico - consultando entalpia com CoolProp sem abrir tabelas</figcaption>
+</figure>
+
+<p>Mas a vida não é só propriedade de fluido. Depois que você sabe calcular entalpia, precisa resolver balanço de massa, otimizar consumo de energia, programar produção. Aí entram os solvers. O SciPy já resolve sistemas de equações não-lineares com a mesma facilidade que você usa pra ajustar curva no Excel. O Pyomo permite montar problemas de otimização inteira-mista com dezenas de milhares de variáveis, usando solvers gratuitos como CBC e IPOPT. O Gekko faz controle preditivo. O CasADi é o motor de diferenciação automática pros problemas mais esquisitos. Ou seja, você não precisa mais apelar pro "solver" da planilha que trava na linha 50 mil.</p>
+
+<p>Tem também o DWSIM, que é a alternativa open-source ao Aspen. Não tem todas as bibliotecas de propriedades do mundo, mas resolve 80% dos casos sem custo de licença. E se você realmente precisa do rigor comercial, o Aspen Plus e HYSYS ainda existem - a diferença é que agora você pode automatizar eles por COM ou BKP com scripts Python, em vez de ficar clicando manualmente.</p>
+
+<figure>
+    <img src="/images/blog/figura_4.png" alt="Planta industrial + curva de ótimo - otimização de processo com Pyomo e solvers open-source" />
+    <figcaption>Planta industrial + curva de ótimo - otimização de processo com Pyomo e solvers open-source</figcaption>
+</figure>
+
+<p>Aí alguém pode perguntar: e controle? A malha de temperatura do meu reator tá oscilando e eu quero sintonizar o PID antes de implementar no DCS. Python tem biblioteca pra isso. O python-control faz análise de resposta em frequência, lugar das raízes, sintonia de malha. O simple-pid é um controlador leve pra simulação rápida. E se você quiser ler tag do SCADA em tempo real, o OPC UA via asyncua te conecta direto ao chão de fábrica. O mesmo código que analisa dados históricos pode receber leitura ao vivo e devolver recomendação de ajuste pro operador. É o famoso loop fechado de verdade, só que com Python no meio.</p>
+
+<p>Até aqui, talvez, nada de outro mundo. A parte que me deixa de verdade animado é o que dá pra fazer com séries temporais de planta. No artigo anterior eu usei um chiller com 3.600 linhas de dados. Agora imagina um mineroduto com três meses de operação: pressão de sucção e recalque, vazão de polpa, densidade de sólidos, medidos a cada minuto. A missão é encontrar padrão precursor de vazamento, cavitação ou deposição antes que o alarme de nível baixo dispare. E não, não é questão de olhar o gráfico e ver que a pressão caiu. O padrão é sutil, misturado em dezenas de variáveis ao mesmo tempo.</p>
+
+<p>A abordagem clássica seria escolher cinco indicadores na mão: média, desvio padrão, máximo, mínimo, blá blá blá. Só que o processo não avisa qual feature é importante. Às vezes a autocorrelação de lag 47 é mais preditiva que a média simples. E como que você adivinha isso?</p>
+
+<p>Entra o pyhctsa. É a porta Python do hctsa do MATLAB, validado com correlação maior ou igual a 0,9 em mais de mil séries de benchmark. Na prática, ele calcula mais de 4.500 features de cada janela temporal: entropia de permutação, medidas de fractalidade, energia de banda de frequência, complexidade de Lempel-Ziv. O próprio dado revela o que é informativo, sem você ter que chutar.</p>
+
+<figure>
+    <img src="/images/blog/figura_5.png" alt="Três séries temporais - pressão, vazão e densidade - sendo decompostas em milhares de features" />
+    <figcaption>Três séries temporais - pressão, vazão e densidade - sendo decompostas em milhares de features</figcaption>
+</figure>
+
+<p>O pipeline é direto. Você pega os dados brutos do SCADA, quebra em janelas de dez minutos, extrai as 4.500 features, remove as constantes, deixa o XGBoost escolher as mais importantes, e treina um classificador pra rotular "normal" versus "anomalia". Quando a probabilidade de problema passa de 0,7, o sistema dispara o alerta. Em vez de esperar o alarme sofrido do operador, você intercepta a deriva antes dela virar falha.</p>
+
+<figure>
+    <img src="/images/blog/figura_6.png" alt="Pipeline SCADA → janelas → 4.500 features → modelo → alerta preditivo" />
+    <figcaption>Pipeline SCADA → janelas → 4.500 features → modelo → alerta preditivo</figcaption>
+</figure>
+
+<p>Esse é o case de destaque. Mineroduto operando com polpa, sensores de pressão ao longo da tubulação, e um modelo que aprende a linguagem do próprio processo. Não é magia, é feature extraction massiva aplicada em engenharia de processos.</p>
+
+<figure>
+    <img src="/images/blog/figura_7.png" alt="Mineroduto em corte mostrando polpa + sensores - o case de séries temporais com pyhctsa" />
+    <figcaption>Mineroduto em corte mostrando polpa + sensores - o case de séries temporais com pyhctsa</figcaption>
+</figure>
+
+<p>O código, na prática, é menor do que você imagina:</p>
+
+<pre><code>from pyhctsa.calculator import FeatureCalculator
+
+calc = FeatureCalculator()
+feats = calc.extract(pressao_window)  # 4.500+ features em uma janela
+</code></pre>
+
+<p>Uma linha, 4.500 features. Se isso não é produtividade, eu não sei o que é.</p>
+
+<p>Agora, se você tá pensando "tá, mas por onde eu começo?", eu te respondo: não instala o universo de uma vez. Começa pelo núcleo. NumPy, Pandas, Matplotlib. Resolve um problema de estatística que hoje você faz no Excel. Depois instala o CoolProp e substitui a primeira tabela de vapor que você abriria. Daí você pega um CSV do SCADA, filtra, agrupa e plota tendência de uma semana. Quando estiver confortável, sobe pro scikit-learn com um soft sensor simples. O pyhctsa é o degrau final, pro dia em que você quiser que o processo fale antes de quebrar. É um degrau de cada vez, sem pressa. O importante é começar.</p>
+
+<figure>
+    <img src="/images/blog/figura_8.png" alt="Roadmap de aprendizado - da planilha ao modelo preditivo em degraus" />
+    <figcaption>Roadmap de aprendizado - da planilha ao modelo preditivo em degraus</figcaption>
+</figure>
+
+<p>No final do dia, Python não é sobre abandonar o Excel. É sobre deixar de ser refém da planilha. É sobre ter um ecossistema único que conecta dados, termodinâmica, simulação e inteligência artificial. O engenheiro químico que domina isso não vira cientista de dados. Ele vira um engenheiro químico com superpoderes. E o melhor: você não precisa de permissão de TI pra começar. É só abrir o terminal e dar um pip install.</p>
+
+<p>E se eu te dissesse que daqui a pouco a gente vai abrir o notebook completo do mineroduto, do CSV bruto ao alarme preditivo?</p>`,
+        title_en: "From Excel to Python: the complete stack every chemical engineer should know",
+        summary_en: "In the previous article I argued that industry doesn't lack data, it lacks method. The follow-up question is: what do you actually process it with? Still stuck saving v14_FINAL_2_CORRETO.xlsx? Time to talk about the Python stack that connects spreadsheets, simulators, and predictive models without a single cell crash.",
+        content_en: `<p>In the <a href="/blog/industria-nao-tem-problema-de-dados">previous article</a> I argued that industry doesn't have a data problem, it has a method problem. Raw data without a hypothesis just feeds DRIP. But then you might be thinking: fine, but what do I actually process all that data with? Still stuck in Excel, dragging formulas to row one million, saving as <code>v14_FINAL_2_CORRETO.xlsx</code> and praying you didn't delete a cell in the middle of the column?</p>
+
+<p>Every now and then I chat with a plant colleague and the conversation lands in the same place. "Python is for data scientists, not chemical engineers." So I ask: how many hours have you wasted copying SCADA numbers into Excel, building charts that take five minutes to recalculate, only to find out cell B2345 had a comma instead of a dot? If the answer is more than ten, we need to talk.</p>
+
+<p>It's not that Excel is bad. It's brilliant for quick balances, for showing the manager in a fifteen-minute meeting. The problem is when the spreadsheet becomes the system. When you need to repeat the same analysis across ten batches and find out that a dragged cell error climbed the column and corrupted three charts. Then the train derails.</p>
+
+<p>Python is the missing glue between the operator's spreadsheet, the process simulator, and the predictive model. It's open, free, and runs on your old laptop, the plant server, or the cloud. You write it once and reproduce it forever. Best of all: it doesn't replace Excel or Aspen. It integrates them. If your manager asks for a new chart tomorrow, you don't rebuild the spreadsheet - you rerun the script. If the maintenance engineer sends a six-month operations CSV, you don't cry. You just <code>pd.read_csv</code> and move on.</p>
+
+<figure>
+    <img src="/images/blog/figura_1.png" alt="Chemical engineer between Excel spreadsheets and Python code" />
+    <figcaption>Chemical engineer between Excel spreadsheets and Python code</figcaption>
+</figure>
+
+<p>The analogy I like is a scale. On one side, manual Excel - fast, visual, everyone knows how to use it. On the other, Python - automated, versionable, scalable. If you only have ten rows of data, Excel wins. If you have ten million SCADA rows, Python is the only one that doesn't freeze. And in industry, my friend, we are talking millions of lines per day.</p>
+
+<figure>
+    <img src="/images/blog/figura_2.png" alt="Manual Excel versus automated Python - the modern engineer's scale" />
+    <figcaption>Manual Excel versus automated Python - the modern engineer's scale</figcaption>
+</figure>
+
+<p>Okay, but what about the boring part of chemical engineering, thermodynamics? We spent our entire undergrad opening steam tables and looking up properties in Smith's book. In industry, you open Aspen. Except not everyone has an Aspen license on their personal laptop, and sometimes you just want the saturated steam enthalpy at 10 bar without firing up an elephant.</p>
+
+<p>That's where CoolProp comes in. An open-source library that implements the same IAPWS and REFPROP formulations. The same REFPROP precision, just without the license window judging you. You can query enthalpy, entropy, density, viscosity, all from the command line. In practice, it looks like this:</p>
+
+<pre><code>from CoolProp.CoolProp import PropsSI
+
+h = PropsSI("H", "P", 10e5, "T", 573.15, "Water")
+print(f"h = {h/1000:.1f} kJ/kg")
+</code></pre>
+
+<p>No steam table, no commercial license, no dialog box clicking. The result hits the screen in milliseconds. And it's not just water: refrigerants, gases, mixtures. The chemical engineer who has this up their sleeve no longer has an excuse not to verify instrument data.</p>
+
+<figure>
+    <img src="/images/blog/figura_3.png" alt="Playful steam tank - querying enthalpy with CoolProp without opening tables" />
+    <figcaption>Playful steam tank - querying enthalpy with CoolProp without opening tables</figcaption>
+</figure>
+
+<p>But life isn't just fluid properties. Once you can calculate enthalpy, you need to solve mass balances, optimize energy consumption, schedule production. That's where solvers come in. SciPy already solves nonlinear equation systems with the same ease you use to fit a curve in Excel. Pyomo lets you build mixed-integer optimization problems with tens of thousands of variables, using free solvers like CBC and IPOPT. Gekko does predictive control. CasADi is the automatic differentiation engine for the weirdest problems. In other words, you no longer need to rely on the spreadsheet "solver" that freezes at row fifty thousand.</p>
+
+<p>There's also DWSIM, the open-source alternative to Aspen. It doesn't have every property library in the world, but it solves 80% of cases with zero license cost. And if you really need commercial rigor, Aspen Plus and HYSYS still exist - the difference is that now you can automate them via COM or BKP with Python scripts, instead of clicking manually.</p>
+
+<figure>
+    <img src="/images/blog/figura_4.png" alt="Industrial plant + optimum curve - process optimization with Pyomo and open-source solvers" />
+    <figcaption>Industrial plant + optimum curve - process optimization with Pyomo and open-source solvers</figcaption>
+</figure>
+
+<p>Then someone might ask: what about control? My reactor temperature loop is oscillating and I want to tune the PID before implementing it in the DCS. Python has libraries for that. python-control does frequency response analysis, root locus, loop tuning. simple-pid is a lightweight controller for quick simulation. And if you want to read SCADA tags in real time, OPC UA via asyncua connects you straight to the shop floor. The same code that analyzes historical data can receive live readings and return tuning recommendations to the operator. It's the real closed loop, just with Python in the middle.</p>
+
+<p>Up to here, maybe nothing out of this world. The part that truly excites me is what you can do with plant time series. In the previous article I used a chiller with 3,600 data rows. Now imagine a slurry pipeline with three months of operation: suction and discharge pressure, slurry flow rate, solids density, measured every minute. The mission is to find a precursor pattern for leakage, cavitation, or deposition before the low-level alarm trips. And no, it's not about looking at the chart and seeing pressure drop. The pattern is subtle, mixed across dozens of variables at the same time.</p>
+
+<p>The classic approach would be to manually pick five indicators: mean, standard deviation, max, min, blah blah blah. Except the process doesn't tell you which feature matters. Sometimes the lag-47 autocorrelation is more predictive than the simple mean. How do you guess that?</p>
+
+<p>Enter pyhctsa. It's the Python port of MATLAB's hctsa, validated with correlation greater than or equal to 0.9 across more than a thousand benchmark series. In practice, it calculates over 4,500 features from each time window: permutation entropy, fractal measures, band energy, Lempel-Ziv complexity. The data itself reveals what is informative, without you having to guess.</p>
+
+<figure>
+    <img src="/images/blog/figura_5.png" alt="Three time series - pressure, flow, and density - decomposed into thousands of features" />
+    <figcaption>Three time series - pressure, flow, and density - decomposed into thousands of features</figcaption>
+</figure>
+
+<p>The pipeline is straightforward. You grab raw SCADA data, break it into ten-minute windows, extract the 4,500 features, drop constants, let XGBoost pick the most important ones, and train a classifier to label "normal" versus "anomaly". When the problem probability crosses 0.7, the system fires the alert. Instead of waiting for the operator's distressed alarm, you intercept the drift before it becomes a failure.</p>
+
+<figure>
+    <img src="/images/blog/figura_6.png" alt="Pipeline SCADA → windows → 4,500 features → model → predictive alert" />
+    <figcaption>Pipeline SCADA → windows → 4,500 features → model → predictive alert</figcaption>
+</figure>
+
+<p>That's the highlight case. A slurry pipeline operating with pulp, pressure sensors along the line, and a model that learns the language of the process itself. It's not magic, it's massive feature extraction applied to process engineering.</p>
+
+<figure>
+    <img src="/images/blog/figura_7.png" alt="Cutaway slurry pipeline showing pulp + sensors - the time series case with pyhctsa" />
+    <figcaption>Cutaway slurry pipeline showing pulp + sensors - the time series case with pyhctsa</figcaption>
+</figure>
+
+<p>The code, in practice, is smaller than you think:</p>
+
+<pre><code>from pyhctsa.calculator import FeatureCalculator
+
+calc = FeatureCalculator()
+feats = calc.extract(pressure_window)  # 4,500+ features in one window
+</code></pre>
+
+<p>One line, 4,500 features. If that isn't productivity, I don't know what is.</p>
+
+<p>Now, if you're thinking "okay, but where do I start?", here's my answer: don't install the whole universe at once. Start with the core. NumPy, Pandas, Matplotlib. Solve a statistics problem that you currently do in Excel. Then install CoolProp and replace the first steam table you would open. Next, grab a SCADA CSV, filter, group, and plot a week's trend. When you're comfortable, move up to scikit-learn with a simple soft sensor. pyhctsa is the final step, for the day you want the process to speak before it breaks. One step at a time, no rush. The important thing is to start.</p>
+
+<figure>
+    <img src="/images/blog/figura_8.png" alt="Learning roadmap - from spreadsheet to predictive model in steps" />
+    <figcaption>Learning roadmap - from spreadsheet to predictive model in steps</figcaption>
+</figure>
+
+<p>At the end of the day, Python isn't about abandoning Excel. It's about stopping being a spreadsheet hostage. It's about having a single ecosystem that connects data, thermodynamics, simulation, and artificial intelligence. The chemical engineer who masters this doesn't become a data scientist. They become a chemical engineer with superpowers. And the best part: you don't need IT permission to start. Just open a terminal and run pip install.</p>
+
+<p>What if I told you that soon we'll open the full slurry pipeline notebook, from raw CSV to predictive alarm? Stay tuned.</p>`
+    },
 ];
 
 export default posts;
