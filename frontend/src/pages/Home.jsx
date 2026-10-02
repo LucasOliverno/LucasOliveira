@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Hero from '../components/Hero';
+import { Problem, Method, Proof, ValueStack, FitAndFaq, FinalCta } from '../components/HirePitch';
 import ProjectGrid from '../components/ProjectGrid';
 import rawProjects, { localizeProject } from '../data/projects';
 
@@ -51,6 +52,10 @@ function Home() {
                 </div>
             </section>
 
+            <Problem />
+            <Method />
+            <Proof />
+
             <ProjectGrid
                 projects={featuredProjects}
                 title={t('home.projects_title')}
@@ -64,6 +69,10 @@ function Home() {
                     </Link>
                 </div>
             </section>
+
+            <ValueStack />
+            <FitAndFaq />
+            <FinalCta />
 
             <section className="section contact-section">
                 <div className="container">

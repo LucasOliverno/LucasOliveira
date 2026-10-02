@@ -7,12 +7,20 @@
             "contact": "Contato"
         },
         "hero": {
-            "badge": "Aberto a novas oportunidades",
+            "badge": "Aberto a vagas · Processos, Dados e Software",
             "name": "Lucas Oliveira",
             "role": "Engenheiro de Processos & Desenvolvedor de Software",
-            "pitch": "Construo sistemas digitais para resolver problemas industriais, operacionais e de manufatura.",
+            "pitch": "Para times de processos, automação e dados que têm problema operacional de sobra e ninguém que fale engenharia e código ao mesmo tempo. Eu vou do diagnóstico até a ferramenta funcionando.",
             "btn_projects": "Ver Projetos",
-            "btn_contact": "Entrar em contato"
+            "btn_contact": "Entrar em contato",
+            "headline": "Engenheiro que transforma dados de planta em decisões — e entrega o software que roda isso.",
+            "btn_cta": "Marcar conversa de 20 min",
+            "mail_subject": "Conversa sobre oportunidade",
+            "proof": [
+                "FAR de 0,69% em detecção de anomalias",
+                "92% de precisão no diagnóstico de causa raiz",
+                "8 projetos publicados para você conferir"
+            ]
         },
         "about": {
             "p1": "Sou estudante de Engenharia Química na UFMG e estagiário na BRASS Brasil, onde trabalho com sistemas de detecção de vazamentos em minerodutos. Minha jornada me levou a descobrir o poder da programação como ferramenta para resolver problemas de engenharia de forma mais eficiente.",
@@ -70,6 +78,150 @@
         },
         "footer": {
             "subtitle": "Engenheiro de Processos & Desenvolvedor de Software"
+        },
+        "pitch": {
+            "problem": {
+                "tag": "O problema",
+                "title": "O gargalo não é falta de dados. É falta de quem fale as duas línguas.",
+                "items": [
+                    {
+                        "title": "Quem entende a planta",
+                        "text": "Sabe o que é perda de carga e transiente, mas esbarra em planilhas que não escalam."
+                    },
+                    {
+                        "title": "Quem entende de código",
+                        "text": "Escreve ótimo software, mas não sabe se o número que o modelo cospe faz sentido físico."
+                    },
+                    {
+                        "title": "O resultado",
+                        "text": "Projetos de dados que demoram meses, geram alarmes falsos e perdem a confiança da operação."
+                    }
+                ]
+            },
+            "method": {
+                "tag": "Como eu trabalho",
+                "title": "Processo → Dados → Software",
+                "desc": "Três passos, nesta ordem. Pular o primeiro é o que faz a maioria dos projetos de IA industrial falhar.",
+                "steps": [
+                    {
+                        "title": "Entender o processo",
+                        "text": "Balanço de massa, hidráulica, reologia. Antes de modelar, entendo o fenômeno físico por trás do sinal."
+                    },
+                    {
+                        "title": "Modelar com dados",
+                        "text": "Python, ML e validação contra o comportamento físico real, para o modelo ser confiável e não só preciso."
+                    },
+                    {
+                        "title": "Entregar a ferramenta",
+                        "text": "API, aplicação web ou dashboard que o operador usa no dia a dia, com documentação e relatório técnico."
+                    }
+                ]
+            },
+            "proof": {
+                "tag": "Prova",
+                "title": "Resultados que você pode conferir",
+                "desc": "Cada número abaixo vem de um projeto publicado aqui no portfólio.",
+                "items": [
+                    {
+                        "value": "0,69%",
+                        "label": "taxa de falso alarme",
+                        "detail": "Detecção de anomalias no Tennessee Eastman Process",
+                        "to": "/projeto/tep-sentinel"
+                    },
+                    {
+                        "value": "92%",
+                        "label": "precisão média",
+                        "detail": "Diagnóstico de causa raiz em planta química virtual",
+                        "to": "/projeto/tep-sentinel"
+                    },
+                    {
+                        "value": "horas → ms",
+                        "label": "tempo de resposta",
+                        "detail": "Consultas a dados em linguagem natural (AI Data Bridge)",
+                        "to": "/projeto/ai-data-bridge"
+                    },
+                    {
+                        "value": "↓ falsos alarmes",
+                        "label": "em minerodutos",
+                        "detail": "Calibração de modelos de detecção de vazamentos (LDS)",
+                        "to": "/projeto/lds"
+                    }
+                ]
+            },
+            "stack": {
+                "tag": "O que você leva",
+                "title": "O que muda no seu time quando eu entro",
+                "desc": "Cada item é uma capacidade que normalmente exigiria duas pessoas.",
+                "items": [
+                    {
+                        "title": "Leitura física do problema",
+                        "text": "Menos alarmes falsos porque o modelo respeita a física do processo.",
+                        "proof": "LDS · BRASS Brasil"
+                    },
+                    {
+                        "title": "IA aplicada, não decorativa",
+                        "text": "Deep Learning e Reinforcement Learning ligados a uma decisão operacional.",
+                        "proof": "TEP-Sentinel"
+                    },
+                    {
+                        "title": "Cálculos que viram ferramenta",
+                        "text": "Do modelo em planilha para uma interface web com resultado instantâneo.",
+                        "proof": "HydroCalc Pro · IndustrialEco"
+                    },
+                    {
+                        "title": "Software que dura",
+                        "text": "Arquitetura limpa e DDD: código que outra pessoa consegue manter.",
+                        "proof": "SGCA"
+                    },
+                    {
+                        "title": "Decisão com número",
+                        "text": "Estudo de viabilidade econômica antes de investir em nova linha.",
+                        "proof": "Fábrica de Rações · CCPR"
+                    },
+                    {
+                        "title": "Comunicação técnica",
+                        "text": "Relatórios em PDF e documentação em português e inglês.",
+                        "proof": "Relatório TEP-Sentinel"
+                    }
+                ]
+            },
+            "fit": {
+                "tag": "Fit",
+                "title": "Para quem sou — e para quem não sou",
+                "for_title": "Faz sentido se",
+                "for_items": [
+                    "Seu time tem dados de processo, mas poucas ferramentas em cima deles",
+                    "Você precisa de alguém que converse com operação e com TI",
+                    "Você valoriza quem entrega protótipo funcionando, não só slide"
+                ],
+                "not_title": "Provavelmente não é para você se",
+                "not_items": [
+                    "A vaga não tem nenhum problema técnico ou de processo envolvido",
+                    "Você busca um especialista sênior com 10 anos de planta"
+                ]
+            },
+            "faq": {
+                "title": "Dúvidas comuns",
+                "items": [
+                    {
+                        "q": "Você ainda está na graduação. Vai entregar?",
+                        "a": "Sou estudante de Engenharia Química na UFMG, com estágios em três operações industriais. Os projetos acima estão públicos para você conferir o que eu entrego."
+                    },
+                    {
+                        "q": "Quais tecnologias você usa?",
+                        "a": "Python, FastAPI, React, Next.js, Java, PostgreSQL, LangChain e Power BI. Escolho a ferramenta pelo problema."
+                    },
+                    {
+                        "q": "Como começamos?",
+                        "a": "Um e-mail com três linhas sobre o problema. Em 20 minutos eu digo se consigo ajudar e, se não conseguir, digo isso também."
+                    }
+                ]
+            },
+            "cta": {
+                "title": "Tem um processo que custa horas demais?",
+                "text": "Me conte em três linhas. Sem compromisso, resposta direta.",
+                "btn": "Enviar e-mail"
+            }
         }
     }
 }

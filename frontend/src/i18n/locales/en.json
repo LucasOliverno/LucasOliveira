@@ -7,12 +7,20 @@
             "contact": "Contact"
         },
         "hero": {
-            "badge": "Open to new opportunities",
+            "badge": "Open to roles · Process, Data & Software",
             "name": "Lucas Oliveira",
             "role": "Process Engineer & Software Developer",
-            "pitch": "I build digital systems to solve industrial, operational and manufacturing problems.",
+            "pitch": "For process, automation and data teams with plenty of operational problems and nobody who speaks both engineering and code. I go from diagnosis to a working tool.",
             "btn_projects": "View Projects",
-            "btn_contact": "Get in touch"
+            "btn_contact": "Get in touch",
+            "headline": "An engineer who turns plant data into decisions — and ships the software that runs them.",
+            "btn_cta": "Book a 20-min chat",
+            "mail_subject": "Opportunity conversation",
+            "proof": [
+                "0.69% false alarm rate in anomaly detection",
+                "92% precision in root-cause diagnosis",
+                "8 published projects you can check"
+            ]
         },
         "about": {
             "p1": "I am a Chemical Engineering student at UFMG and an intern at BRASS Brasil, where I work with leak detection systems for slurry pipelines. My journey led me to discover the power of programming as a tool to solve engineering problems more efficiently.",
@@ -70,6 +78,150 @@
         },
         "footer": {
             "subtitle": "Process Engineer & Software Developer"
+        },
+        "pitch": {
+            "problem": {
+                "tag": "The problem",
+                "title": "The bottleneck is not missing data. It is missing someone who speaks both languages.",
+                "items": [
+                    {
+                        "title": "Who understands the plant",
+                        "text": "Knows head loss and transients, but hits spreadsheets that do not scale."
+                    },
+                    {
+                        "title": "Who understands code",
+                        "text": "Writes great software, but cannot tell whether the model output makes physical sense."
+                    },
+                    {
+                        "title": "The result",
+                        "text": "Data projects that take months, trigger false alarms and lose the operators' trust."
+                    }
+                ]
+            },
+            "method": {
+                "tag": "How I work",
+                "title": "Process → Data → Software",
+                "desc": "Three steps, in this order. Skipping the first is why most industrial AI projects fail.",
+                "steps": [
+                    {
+                        "title": "Understand the process",
+                        "text": "Mass balance, hydraulics, rheology. Before modeling, I understand the physics behind the signal."
+                    },
+                    {
+                        "title": "Model with data",
+                        "text": "Python, ML and validation against real physical behavior, so the model is trustworthy, not just accurate."
+                    },
+                    {
+                        "title": "Ship the tool",
+                        "text": "An API, web app or dashboard operators use every day, with documentation and a technical report."
+                    }
+                ]
+            },
+            "proof": {
+                "tag": "Proof",
+                "title": "Results you can verify",
+                "desc": "Every number below comes from a project published in this portfolio.",
+                "items": [
+                    {
+                        "value": "0.69%",
+                        "label": "false alarm rate",
+                        "detail": "Anomaly detection on the Tennessee Eastman Process",
+                        "to": "/projeto/tep-sentinel"
+                    },
+                    {
+                        "value": "92%",
+                        "label": "average precision",
+                        "detail": "Root-cause diagnosis on a virtual chemical plant",
+                        "to": "/projeto/tep-sentinel"
+                    },
+                    {
+                        "value": "hours → ms",
+                        "label": "response time",
+                        "detail": "Natural-language data queries (AI Data Bridge)",
+                        "to": "/projeto/ai-data-bridge"
+                    },
+                    {
+                        "value": "↓ false alarms",
+                        "label": "on slurry pipelines",
+                        "detail": "Calibrating leak detection models (LDS)",
+                        "to": "/projeto/lds"
+                    }
+                ]
+            },
+            "stack": {
+                "tag": "What you get",
+                "title": "What changes on your team when I join",
+                "desc": "Each item is a capability that would normally take two people.",
+                "items": [
+                    {
+                        "title": "Physical reading of the problem",
+                        "text": "Fewer false alarms because the model respects process physics.",
+                        "proof": "LDS · BRASS Brasil"
+                    },
+                    {
+                        "title": "Applied AI, not decorative",
+                        "text": "Deep Learning and Reinforcement Learning tied to an operational decision.",
+                        "proof": "TEP-Sentinel"
+                    },
+                    {
+                        "title": "Calculations that become tools",
+                        "text": "From a spreadsheet model to a web interface with instant results.",
+                        "proof": "HydroCalc Pro · IndustrialEco"
+                    },
+                    {
+                        "title": "Software that lasts",
+                        "text": "Clean architecture and DDD: code someone else can maintain.",
+                        "proof": "SGCA"
+                    },
+                    {
+                        "title": "Decisions backed by numbers",
+                        "text": "Economic feasibility study before investing in a new line.",
+                        "proof": "Feed Mill · CCPR"
+                    },
+                    {
+                        "title": "Technical communication",
+                        "text": "PDF reports and documentation in Portuguese and English.",
+                        "proof": "TEP-Sentinel report"
+                    }
+                ]
+            },
+            "fit": {
+                "tag": "Fit",
+                "title": "Who I am for — and who I am not",
+                "for_title": "It makes sense if",
+                "for_items": [
+                    "Your team has process data but few tools built on top of it",
+                    "You need someone who can talk to operations and to IT",
+                    "You value people who ship working prototypes, not just slides"
+                ],
+                "not_title": "It probably is not for you if",
+                "not_items": [
+                    "The role has no technical or process problem involved",
+                    "You are looking for a senior specialist with 10 years on the plant floor"
+                ]
+            },
+            "faq": {
+                "title": "Common questions",
+                "items": [
+                    {
+                        "q": "You are still in university. Will you deliver?",
+                        "a": "I am a Chemical Engineering student at UFMG, with internships in three industrial operations. The projects above are public so you can check what I deliver."
+                    },
+                    {
+                        "q": "What technologies do you use?",
+                        "a": "Python, FastAPI, React, Next.js, Java, PostgreSQL, LangChain and Power BI. I pick the tool for the problem."
+                    },
+                    {
+                        "q": "How do we start?",
+                        "a": "An email with three lines about the problem. In 20 minutes I tell you whether I can help, and if I cannot, I say so."
+                    }
+                ]
+            },
+            "cta": {
+                "title": "Got a process that costs too many hours?",
+                "text": "Tell me in three lines. No commitment, straight answer.",
+                "btn": "Send an email"
+            }
         }
     }
 }
