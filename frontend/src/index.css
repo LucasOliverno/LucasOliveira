@@ -188,7 +188,7 @@ h3 { font-size: clamp(1.1rem, 2vw, 1.3rem); }
 
 /* ===== HERO SECTION ===== */
 .hero {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1207,8 +1207,13 @@ h3 { font-size: clamp(1.1rem, 2vw, 1.3rem); }
 }
 
 .hero-proof li::before {
-  content: '✓ ';
-  color: var(--accent-primary);
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--accent-primary);
 }
 
 .pitch-alt {
@@ -1292,9 +1297,11 @@ a.pitch-card:hover {
   color: var(--text-secondary);
 }
 
-.pitch-fit li::before { margin-right: 8px; }
-.pitch-fit--yes li::before { content: '✓'; color: var(--accent-primary); }
-.pitch-fit--no li::before { content: '✕'; color: var(--text-muted); }
+.pitch-fit li {
+  padding-left: 16px;
+  border-left: 2px solid var(--border-color);
+}
+.pitch-fit--yes li { border-left-color: var(--accent-primary); }
 
 .pitch-faq-title {
   margin: 72px 0 24px;
@@ -1351,4 +1358,76 @@ a.pitch-card:hover {
 
 @media (max-width: 640px) {
   .pitch-grid--2, .pitch-grid--3, .pitch-grid--4 { grid-template-columns: 1fr; }
+}
+
+/* editorial rows (problem, value stack) — avoids repeated equal cards */
+.pitch-rows {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border-color);
+}
+
+.pitch-row {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) 2fr;
+  gap: 8px 48px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pitch-row--stack {
+  grid-template-columns: minmax(200px, 1fr) 2fr minmax(160px, 0.8fr);
+}
+
+.pitch-row h3 {
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.pitch-row p {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 65ch;
+}
+
+.pitch-row .pitch-proof-tag {
+  margin-top: 0;
+  align-self: start;
+}
+
+.pitch-step-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 2px solid var(--accent-primary);
+}
+
+.pitch-step-col h3 { font-size: 1.05rem; letter-spacing: -0.02em; }
+.pitch-step-col p {
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.pitch-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 20px;
+  border-left: 1px solid var(--border-accent);
+}
+
+.pitch-stat p {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 900px) {
+  .pitch-row, .pitch-row--stack { grid-template-columns: 1fr; }
 }

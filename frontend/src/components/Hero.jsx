@@ -25,10 +25,9 @@ function Hero() {
                 <div className="hero-buttons">
                     <a href={mailto} className="btn btn-primary">
                         {t('hero.btn_cta')}
-                        <span>↗</span>
                     </a>
                     <Link to="/projetos" className="btn btn-secondary">
-                        {t('hero.btn_projects')} →
+                        {t('hero.btn_projects')}
                     </Link>
                 </div>
 

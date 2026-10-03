@@ -19,9 +19,9 @@ export function Problem() {
         <section className="section">
             <div className="container">
                 <SectionHead tag={t('pitch.problem.tag')} title={t('pitch.problem.title')} />
-                <div className="pitch-grid pitch-grid--3">
+                <div className="pitch-rows">
                     {items.map((item) => (
-                        <div className="pitch-card" key={item.title} data-animate>
+                        <div className="pitch-row" key={item.title} data-animate>
                             <h3>{item.title}</h3>
                             <p>{item.text}</p>
                         </div>
@@ -46,7 +46,7 @@ export function Method() {
                 />
                 <div className="pitch-grid pitch-grid--3">
                     {steps.map((step, i) => (
-                        <div className="pitch-card" key={step.title} data-animate>
+                        <div className="pitch-step-col" key={step.title} data-animate>
                             <span className="pitch-step">0{i + 1}</span>
                             <h3>{step.title}</h3>
                             <p>{step.text}</p>
@@ -72,7 +72,7 @@ export function Proof() {
                 />
                 <div className="pitch-grid pitch-grid--4">
                     {items.map((item) => (
-                        <Link to={item.to} className="pitch-card pitch-stat" key={item.value + item.detail} data-animate>
+                        <Link to={item.to} className="pitch-stat" key={item.value + item.detail} data-animate>
                             <strong className="pitch-stat-value">{item.value}</strong>
                             <span className="pitch-stat-label">{item.label}</span>
                             <p>{item.detail}</p>
@@ -96,9 +96,9 @@ export function ValueStack() {
                     title={t('pitch.stack.title')}
                     desc={t('pitch.stack.desc')}
                 />
-                <div className="pitch-grid pitch-grid--3">
+                <div className="pitch-rows">
                     {items.map((item) => (
-                        <div className="pitch-card" key={item.title} data-animate>
+                        <div className="pitch-row pitch-row--stack" key={item.title} data-animate>
                             <h3>{item.title}</h3>
                             <p>{item.text}</p>
                             <span className="pitch-proof-tag">{item.proof}</span>
@@ -159,14 +159,14 @@ export function FinalCta() {
                 <h2>{t('pitch.cta.title')}</h2>
                 <p>{t('pitch.cta.text')}</p>
                 <div className="hero-buttons">
-                    <a href={mailto} className="btn btn-primary">{t('pitch.cta.btn')} ↗</a>
+                    <a href={mailto} className="btn btn-primary">{t('pitch.cta.btn')}</a>
                     <a
                         href="https://www.linkedin.com/in/lucas-oliveira-a369ab208/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn btn-secondary"
                     >
-                        LinkedIn ↗
+                        LinkedIn
                     </a>
                 </div>
             </div>
