@@ -17,7 +17,7 @@ e a vazão. Se o modelo ignora isso, ele grita lobo toda semana e a operação
 para de confiar.
 
 Calibrar o modelo com reologia, perda de carga e transiente fez o sistema
-[reduzir os falsos alarmes em X%].
+reduzir em 80% os falsos alarmes de desvio de pressão.
 
 Quem opera duto sabe o custo de um alarme que ninguém acredita mais.
 

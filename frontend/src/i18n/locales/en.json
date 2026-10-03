@@ -17,8 +17,8 @@
             "btn_cta": "Book a 20-min chat",
             "mail_subject": "Opportunity conversation",
             "proof": [
-                "0.69% false alarm rate in anomaly detection",
-                "92% precision in root-cause diagnosis",
+                "80% fewer false pressure alarms on slurry pipelines",
+                "0.69% false alarm rate in anomaly detection (TEP-Sentinel)",
                 "8 published projects you can check"
             ]
         },
@@ -141,9 +141,9 @@
                         "to": "/projeto/ai-data-bridge"
                     },
                     {
-                        "value": "↓ false alarms",
-                        "label": "on slurry pipelines",
-                        "detail": "Calibrating leak detection models (LDS)",
+                        "value": "-80%",
+                        "label": "false pressure alarms",
+                        "detail": "Pressure deviations on slurry pipelines, after calibrating the LDS models",
                         "to": "/projeto/lds"
                     }
                 ]

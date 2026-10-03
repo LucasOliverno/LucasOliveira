@@ -17,8 +17,8 @@
             "btn_cta": "Marcar conversa de 20 min",
             "mail_subject": "Conversa sobre oportunidade",
             "proof": [
-                "FAR de 0,69% em detecção de anomalias",
-                "92% de precisão no diagnóstico de causa raiz",
+                "80% menos falsos alarmes de pressão em minerodutos",
+                "FAR de 0,69% em detecção de anomalias (TEP-Sentinel)",
                 "8 projetos publicados para você conferir"
             ]
         },
@@ -141,9 +141,9 @@
                         "to": "/projeto/ai-data-bridge"
                     },
                     {
-                        "value": "↓ falsos alarmes",
-                        "label": "em minerodutos",
-                        "detail": "Calibração de modelos de detecção de vazamentos (LDS)",
+                        "value": "-80%",
+                        "label": "falsos alarmes de pressão",
+                        "detail": "Desvios de pressão em minerodutos, após calibrar os modelos do LDS",
                         "to": "/projeto/lds"
                     }
                 ]
