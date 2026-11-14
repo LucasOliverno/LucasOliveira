@@ -25,6 +25,43 @@ Adding a project means adding an entry to `frontend/src/data/projects.js`
 (`localizeProject` handles the `_en` suffix fields automatically) — pages
 render from that data, nothing else needs to change.
 
+## MANDATO (jogo — página independente)
+
+Jogo de deck building + construção de cidade, definido em `MANDATO/` (documentos 00–11).
+É uma **aplicação separada do portfólio**: tem o próprio HTML (`frontend/mandato/index.html`), CSS, fontes e
+identidade visual, sem o header/footer do portfólio. Em desenvolvimento abre em `http://localhost:5173/mandato/`;
+no build vira `dist/mandato/` (Vite multi-page).
+
+```
+frontend/
+├── mandato/index.html          ← entrada própria do jogo
+├── public/mandato/art/         ← arte das cartas (recortada de MANDATO/images)
+└── src/mandato/
+    ├── data.js                 ← cartas, terrenos, metas, rodadas, exploração (transcritos de MANDATO/02–07)
+    ├── engine.js               ← motor de regras puro (roda no navegador e no Node)
+    ├── bot.js                  ← GreedyBot (preenche assentos e roda simulações)
+    └── ui/ + mandato.css       ← interface no estilo do guia visual (MANDATO/11)
+```
+
+Modos: **Solo contra o Rival** (doc 10) e **partida local** de 2 a 6 prefeitos (humanos com cortina de
+privacidade + bots). Multiplayer online (doc 09, fases 3+) ainda não existe.
+
+Decisões de implementação onde o texto dos documentos é ambíguo:
+- RD-03 (Onda de Calor): Deserto e Planície perdem 💧3 (o doc cita −2 no evento e −3 no terreno Planície).
+- Rival (solo): ao tomar a vaga Ouro de uma Meta ele não ganha o ⭐1 extra, para respeitar o ritmo da tabela
+  de dificuldades (sem isso o Veterano/Mestre terminam por volta da rodada 6).
+- Balsa Rápida liga a ilha onde foi construída à Ilha Principal (ou, na principal, à próxima ilha ainda isolada).
+- "Req 👥" de Obras-Prima é requisito para construir; nos demais edifícios, deixa o edifício inativo.
+- Só os 17 edifícios dos Tiers I e II têm arte final; as demais cartas usam ilustração SVG provisória.
+
+Testes e simulação (a partir de `frontend/`):
+
+```bash
+npm run test:mandato                      # 13 cenários de regras (construção, Fiscalização, Intrigas, Facções, Metas…)
+npm run sim:mandato -- 300 4              # 300 partidas só com bots, 4 jogadores (métricas do doc 08 §5)
+npm run sim:mandato -- 100 1 solo veterano   # modo solo contra o Rival
+```
+
 ## Setup & Running
 
 ```bash
