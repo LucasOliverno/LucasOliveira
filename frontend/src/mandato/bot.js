@@ -249,21 +249,37 @@ export function advance(state, maxSteps = 5000) {
   return s;
 }
 
+// Uma ação do bot que está na vez (decisão pendente, escolha de terreno ou turno inteiro).
+function botAct(s) {
+  if (s.pending.length) {
+    const e = E.exec(s, decide(s, s.pending[0]));
+    if (e) { // decisão impossível: tenta uma opção segura para não travar
+      E.exec(s, { t: 'choose', i: 0, f: 'tec', tile: s.pending[0].data.tiles ? s.pending[0].data.tiles[0] : 0, hi: 0, use: false });
+    }
+  } else if (s.phase === 'draft') {
+    const pool = s.draft.pool;
+    E.exec(s, { t: 'pick', terrain: pool[Math.floor(Math.random() * pool.length)] });
+  } else botTurn(s);
+}
+
 export function runBots(s, maxSteps = 5000) {
   for (let n = 0; n < maxSteps && !s.over; n++) {
     const who = E.actor(s);
     if (who == null || !s.players[who].bot) return s;
-    if (s.pending.length) {
-      const e = E.exec(s, decide(s, s.pending[0]));
-      if (e) { // decisão impossível: tenta uma opção segura para não travar
-        E.exec(s, { t: 'choose', i: 0, f: 'tec', tile: s.pending[0].data.tiles ? s.pending[0].data.tiles[0] : 0, hi: 0, use: false });
-      }
-    } else if (s.phase === 'draft') {
-      const pool = s.draft.pool;
-      E.exec(s, { t: 'pick', terrain: pool[Math.floor(Math.random() * pool.length)] });
-    } else botTurn(s);
+    botAct(s);
   }
   return s;
+}
+
+// A vez de UM bot (até o jogo passar para outro jogador). A UI usa isto para os bots jogarem um de cada vez, à vista da mesa.
+export function botStep(state) {
+  const s = structuredClone(state);
+  const who = E.actor(s);
+  if (who == null || !s.players[who].bot) return { state: s, who: null, lines: [] };
+  const last = s.log[s.log.length - 1];
+  for (let n = 0; n < 400 && !s.over && E.actor(s) === who; n++) botAct(s);
+  const from = last ? s.log.lastIndexOf(last) + 1 : 0;
+  return { state: s, who, lines: s.log.slice(from).filter((l) => l.pid === who && l.kind !== 'round') };
 }
 
 // Comando do humano + resposta automática dos bots.

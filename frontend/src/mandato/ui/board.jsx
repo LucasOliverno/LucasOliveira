@@ -1,4 +1,4 @@
-import { CARDS, ZONES, TILE_NAMES, TILE_HINT, FACTIONS, FAC_KEYS, CARGOS } from '../data.js';
+import { ZONES, TILE_NAMES, TILE_HINT, FACTIONS, FAC_KEYS, CARGOS, GOALS } from '../data.js';
 import { calc, def, tmax } from '../engine.js';
 import { Ico, Rich } from './icons.jsx';
 import { artUrl } from './cardutil.js';
@@ -121,12 +121,12 @@ export function Meters({ s, p }) {
   );
 }
 
-export function ResPool({ pool }) {
+export function ResPool({ pool, size = 26 }) {
   return (
     <div className="pool" aria-label="Recursos do turno">
-      <span className="pool-i" title="Verba"><Ico n="v" s={26} /><b>{pool.v}</b></span>
-      <span className="pool-i" title="Obra"><Ico n="o" s={26} /><b>{pool.o}</b></span>
-      <span className="pool-i" title="Articulação"><Ico n="a" s={26} /><b>{pool.a}</b></span>
+      <span className="pool-i" title="Verba"><Ico n="v" s={size} /><b>{pool.v}</b></span>
+      <span className="pool-i" title="Obra"><Ico n="o" s={size} /><b>{pool.o}</b></span>
+      <span className="pool-i" title="Articulação"><Ico n="a" s={size} /><b>{pool.a}</b></span>
     </div>
   );
 }
@@ -187,6 +187,107 @@ export function FactionTracks({ s, me }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- mesa principal
+
+// Linha compacta de medidores de uma cidade (visível para todos na mesa).
+export function MetersMini({ s, p }) {
+  const c = calc(s, p);
+  const e = c.sur.e;
+  const w = c.sur.w;
+  return (
+    <div className="mm">
+      <span className={e < 0 ? 'bad' : ''} title="⚡ Energia: consumo / capacidade"><Ico n="e" s={15} />{c.cons.e}/{c.cap.e}</span>
+      <span className={w < 0 ? 'bad' : ''} title="💧 Água: consumo / capacidade"><Ico n="w" s={15} />{c.cons.w}/{c.cap.w}</span>
+      <span title="👥 População"><Ico n="pop" s={15} />{c.pop}</span>
+      <span className={c.poll >= 6 ? 'bad' : ''} title="☁️ Poluição"><Ico n="poll" s={15} />{c.poll}</span>
+      <span className={p.approval <= 2 ? 'bad' : p.approval >= 8 ? 'good' : ''} title="😊 Aprovação"><Ico n="appr" s={15} />{p.approval}</span>
+      <span title="Tesouro"><Ico n="v" s={15} />{p.treasury}/{tmax(s, p)}</span>
+      <span className={p.cubesBag >= 3 ? 'bad' : ''} title="Cubos de suspeita no Saco"><Ico n="cube" s={15} />{p.cubesBag}</span>
+      <span title="Selos (2 = ⭐1)"><Ico n="seal" s={15} />{p.seals}</span>
+    </div>
+  );
+}
+
+// Ordem de turnos da rodada: quem já jogou, quem joga agora e quem vem depois.
+export function TurnStrip({ s, act }) {
+  if (!s.order.length) return null;
+  return (
+    <ol className="turns" aria-label="Ordem de jogo da rodada">
+      {s.order.map((pid, i) => {
+        const p = s.players[pid];
+        const done = i < s.turnIdx;
+        const now = act === pid;
+        return (
+          <li key={pid} className={`${done ? 'done' : ''}${now ? ' now' : ''}`} style={{ '--pc': p.color }}>
+            <i className="disc" style={{ background: p.color }} />
+            <span>{p.name}</span>
+            {now ? <em>jogando</em> : done ? <em>✓</em> : <em>{i + 1}º</em>}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+// Centro da mesa: Metas (quem pegou o quê) e Facções (posição de todos) — tudo público.
+export function CenterBoard({ s, onGoals }) {
+  return (
+    <div className="center">
+      <section className="c-sec" aria-label="Metas da partida">
+        <h3 className="h">Metas <small>Ouro ⭐2 · Prata ⭐1 · clique para reivindicar</small></h3>
+        <div className="c-goals">
+          {s.goals.slots.map((sl, i) => {
+            const g = GOALS.find((x) => x.id === sl.id);
+            const who = (k) => (sl[k] === 'R' ? { n: 'Rival', c: '#1B2A41' } : sl[k] != null ? { n: s.players[sl[k]].name, c: s.players[sl[k]].color } : null);
+            const gold = who('gold');
+            const silver = who('silver');
+            return (
+              <button type="button" key={sl.id + i} className="cg" onClick={onGoals} title={`${g.name}: ${g.t}`}>
+                <span className="cg-h"><span className="gid">{g.id}</span><b>{g.name}</b></span>
+                <span className="cg-t"><Rich t={g.t} s={12} /></span>
+                <span className="cg-m">
+                  <span className={`cg-medal${gold ? ' got' : ''}`}>🥇 {gold ? <><i className="disc sm" style={{ background: gold.c }} />{gold.n}</> : 'livre'}</span>
+                  <span className={`cg-medal${silver ? ' got' : ''}`}>🥈 {silver ? <><i className="disc sm" style={{ background: silver.c }} />{silver.n}</> : 'livre'}</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+      <section className="c-sec" aria-label="Facções">
+        <h3 className="h">Facções <small>marco 3 = ⭐1 · Aliança: ≥5 e único mais alto</small></h3>
+        <div className="c-facs">
+          {FAC_KEYS.map((f) => {
+            const F = FACTIONS[f];
+            const holder = s.tokens[f] != null ? s.players[s.tokens[f]] : null;
+            return (
+              <div key={f} className="cf" style={{ '--fc': F.color }}>
+                <div className="cf-h"><Ico n={f} s={20} /><b>{F.name}</b></div>
+                <div className="cf-rows">
+                  {s.players.map((p) => (
+                    <div key={p.id} className="cf-r" title={`${p.name}: ${p.fac[f]}`}>
+                      <i className="disc sm" style={{ background: p.color }} />
+                      <span className="cf-bar">{[1, 2, 3, 4, 5, 6].map((n) => <u key={n} className={`${p.fac[f] >= n ? 'on' : ''}${n === 3 ? ' mk' : ''}${n === 5 ? ' al' : ''}`} />)}</span>
+                      <b>{p.fac[f]}</b>
+                    </div>
+                  ))}
+                </div>
+                <div className="cf-f">{holder ? <span className="fac-token" style={{ background: holder.color }}>Aliança: {holder.name}</span> : <span className="fac-free">Aliança livre</span>}</div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+      {s.solo && (
+        <section className="c-sec c-rival" aria-label="O Rival">
+          <h3 className="h"><i className="disc rival">R</i> O Rival <small>avança sozinho no fim de cada rodada</small></h3>
+          <p>⭐ <b>{s.rival.merit}</b> · selos {s.rival.seals}</p>
+        </section>
+      )}
     </div>
   );
 }

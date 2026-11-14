@@ -46,6 +46,12 @@ frontend/
 Modos: **Solo contra o Rival** (doc 10) e **partida local** de 2 a 6 prefeitos (humanos com cortina de
 privacidade + bots). Multiplayer online (doc 09, fases 3+) ainda não existe.
 
+**Mesa principal:** a tela de jogo é uma mesa compartilhada. No centro ficam as Metas (com quem pegou Ouro/Prata)
+e as Facções (posição de todos os jogadores); abaixo, a cidade de **todos** os prefeitos ao mesmo tempo, com
+medidores, Gabinete, Mérito e os recursos de quem está na vez. A ordem de turnos da rodada aparece no topo e os
+bots jogam **um de cada vez**, à vista, com um resumo da jogada. Cada jogador age só na sua cidade; clicar num
+edifício de outro jogador mostra a carta no Inspetor.
+
 Decisões de implementação onde o texto dos documentos é ambíguo:
 - RD-03 (Onda de Calor): Deserto e Planície perdem 💧3 (o doc cita −2 no evento e −3 no terreno Planície).
 - Rival (solo): ao tomar a vaga Ouro de uma Meta ele não ganha o ⭐1 extra, para respeitar o ritmo da tabela

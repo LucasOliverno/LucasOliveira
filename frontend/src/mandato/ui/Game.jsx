@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CARDS, GOALS, ROUNDS, TERRAINS, LOT_OPTS, STANDARD, FACTIONS, FAC_KEYS, RIVAL, ZONES } from '../data.js';
 import * as E from '../engine.js';
-import { step } from '../bot.js';
+import { botStep } from '../bot.js';
 import { Ico, Rich, TerrainGlyph } from './icons.jsx';
 import { Card, ExploreCard, CostChip } from './cards.jsx';
-import { City, MiniCity, Meters, ResPool, MeritTrack, FactionTracks } from './board.jsx';
+import { City, MetersMini, ResPool, MeritTrack, TurnStrip, CenterBoard } from './board.jsx';
 import { Draft, Curtain, Rules, GameOver } from './screens.jsx';
 
 const SIMPLE = (id) => CARDS[id].type === 'basic' || id === 'P-02' || id === 'P-04';
@@ -35,7 +35,7 @@ function Bag({ s }) {
 
 // ---------------------------------------------------------------- barra superior
 
-function RoundBanner({ s }) {
+function RoundBanner({ s, act }) {
   const rd = ROUNDS.find((r) => r.id === s.card);
   return (
     <div className="banner">
@@ -51,50 +51,11 @@ function RoundBanner({ s }) {
         </div>
       )}
       <Bag s={s} />
+      <TurnStrip s={s} act={act} />
     </div>
   );
 }
 
-// ---------------------------------------------------------------- jogadores
-
-function Players({ s, viewer, viewing, setViewing }) {
-  const act = E.actor(s);
-  return (
-    <div className="players">
-      {s.players.map((p) => {
-        const c = E.calc(s, p);
-        return (
-          <button type="button" key={p.id} className={`pl${act === p.id ? ' turn' : ''}${viewing === p.id ? ' view' : ''}`} onClick={() => setViewing(p.id)} style={{ '--pc': p.color }}>
-            <span className="pl-top">
-              <i className="disc" style={{ background: p.color }} />
-              <b>{p.name}{p.id === viewer ? ' (você)' : ''}</b>
-              {p.bot && <small className="botk">bot</small>}
-              <span className="pl-merit"><Ico n="star" s={16} />{p.merit}</span>
-            </span>
-            <span className="pl-sub"><TerrainGlyph id={p.terrain} s={16} /> {TERRAINS[p.terrain].name} · {CARGO(p.merit)}</span>
-            <span className="pl-row">
-              <span title="Aprovação"><Ico n="appr" s={14} />{p.approval}</span>
-              <span title="População"><Ico n="pop" s={14} />{c.pop}</span>
-              <span title="Poluição"><Ico n="poll" s={14} />{c.poll}</span>
-              <span title="Tesouro"><Ico n="v" s={14} />{p.treasury}</span>
-              <span title="Suspeitas no Saco"><Ico n="cube" s={14} />{p.cubesBag}</span>
-              <span title="Selos"><Ico n="seal" s={14} />{p.seals}</span>
-            </span>
-            <MiniCity p={p} />
-            <span className="pl-cards">mão {p.hand.length} · deck {p.deck.length} · desc. {p.discard.length}</span>
-          </button>
-        );
-      })}
-      {s.solo && (
-        <div className="pl rival-pl">
-          <span className="pl-top"><i className="disc rival">R</i><b>O Rival</b><small className="botk">{RIVAL[s.level].name}</small><span className="pl-merit"><Ico n="star" s={16} />{s.rival.merit}</span></span>
-          <span className="pl-sub">Avança sozinho a cada fim de rodada</span>
-          <span className="pl-row"><span><Ico n="seal" s={14} />{s.rival.seals}</span></span>
-        </div>
-      )}
-    </div>
-  );
-}
 function CARGO(m) { return m >= 10 ? 'Ministro' : m >= 8 ? 'Governador' : m >= 6 ? 'Deputado' : m >= 4 ? 'Secretário' : m >= 2 ? 'Reeleito' : 'Novato'; }
 
 // ---------------------------------------------------------------- Metas
@@ -225,7 +186,6 @@ export default function Game({ game, setGame, onExit }) {
   const humans = s.players.filter((p) => !p.bot);
   const act = E.actor(s);
   const [shown, setShown] = useState(humans[0].id);
-  const [viewing, setViewing] = useState(humans[0].id);
   const [sel, setSel] = useState(null);
   const [placing, setPlacing] = useState(null);
   const [lot, setLot] = useState('RES');
@@ -240,23 +200,40 @@ export default function Game({ game, setGame, onExit }) {
   const viewer = humans.length === 1 ? humans[0].id : shown;
   const me = s.players[viewer];
   const myTurn = !s.over && s.phase === 'play' && act === viewer && !s.pending.length;
-  const shownPlayer = s.players[viewing] || me;
-  const isOwnView = shownPlayer.id === viewer;
 
   const say = useCallback((m) => { setToast(m); clearTimeout(tt.current); tt.current = setTimeout(() => setToast(''), 3600); }, []);
   useEffect(() => () => clearTimeout(tt.current), []);
-  const switchTo = (id) => { setShown(id); setViewing(id); setSel(null); setPlacing(null); };
+  const switchTo = (id) => { setShown(id); setSel(null); setPlacing(null); };
   const goTab = (k) => {
     setMtab(k);
     if (k === 'market') setTab('mercado'); else if (k === 'goals') setTab('metas'); else if (k === 'log') setTab('diario');
   };
 
   const run = useCallback((cmd) => {
-    const r = step(s, cmd);
+    const r = E.apply(s, cmd);
     if (r.error) { say(r.error); return false; }
     setGame(r.state);
     return true;
   }, [s, setGame, say]);
+
+  // Bots jogam um de cada vez, à vista de todos na mesa.
+  const botWho = !s.over && act != null && s.players[act].bot ? act : null;
+  const [botNote, setBotNote] = useState(null);
+  useEffect(() => {
+    if (botWho == null) return undefined;
+    const h = setTimeout(() => {
+      const r = botStep(s);
+      if (r.who == null) return;
+      setBotNote({ who: r.who, lines: r.lines.slice(-4).map((l) => l.msg) });
+      setGame(r.state);
+    }, 950);
+    return () => clearTimeout(h);
+  }, [s, botWho, setGame]);
+  useEffect(() => {
+    if (!botNote) return undefined;
+    const h = setTimeout(() => setBotNote(null), 4200);
+    return () => clearTimeout(h);
+  }, [botNote]);
 
   // ---- seleção / construção
   const selCard = useMemo(() => {
@@ -265,9 +242,9 @@ export default function Game({ game, setGame, onExit }) {
     if (sel.k === 'pile') return { id: sel.id };
     if (sel.k === 'row') return s.market.row[sel.i] ? { id: s.market.row[sel.i] } : null;
     if (sel.k === 'wonder') return s.market.vit[sel.i] ? { id: s.market.vit[sel.i] } : null;
-    if (sel.k === 'tile') { const t = me.tiles[sel.i]; return t && t.b ? { id: t.b.id, inst: t.b } : null; }
+    if (sel.k === 'tile') { const t = s.players[sel.pid ?? viewer].tiles[sel.i]; return t && t.b ? { id: t.b.id, inst: t.b } : null; }
     return null;
-  }, [sel, me, s.market]);
+  }, [sel, me, s.market, s.players, viewer]);
 
   const placeSpec = placing;
   const validity = useMemo(() => {
@@ -285,12 +262,16 @@ export default function Game({ game, setGame, onExit }) {
       say(why);
       return;
     }
-    setViewing(viewer);
     setPlacing(spec);
     setMtab('city');
   };
 
-  const onTile = (i) => {
+  const onTile = (pid, i) => {
+    if (pid !== viewer) { // cidade de outro jogador: só inspeciona
+      setPlacing(null);
+      setSel(s.players[pid].tiles[i].b ? { k: 'tile', i, pid } : null);
+      return;
+    }
     if (placing) {
       const r = validity[i];
       if (r.err) { say(r.err); return; }
@@ -301,7 +282,7 @@ export default function Game({ game, setGame, onExit }) {
       if (run(cmd)) { setPlacing(null); setSel(null); }
       return;
     }
-    if (isOwnView && me.tiles[i].b) setSel({ k: 'tile', i }); else setSel(null);
+    if (me.tiles[i].b) setSel({ k: 'tile', i, pid }); else setSel(null);
   };
 
   const hoverPreview = useMemo(() => {
@@ -336,7 +317,7 @@ export default function Game({ game, setGame, onExit }) {
       const pl = st.players[viewer];
       const hi = pl.hand.findIndex(SIMPLE);
       if (hi < 0) break;
-      const r = step(st, { t: 'play', hi });
+      const r = E.apply(st, { t: 'play', hi });
       if (r.error) break;
       st = r.state;
       n++;
@@ -408,6 +389,8 @@ export default function Game({ game, setGame, onExit }) {
     } else if (sel.k === 'wonder') {
       acts.push(<button key="w" type="button" className="btn btn-primary" disabled={!myTurn} onClick={() => startPlacing({ src: 'wonder', hi: sel.i })}>Construir Obra-Prima… (escolha a casa)</button>);
       acts.push(<p key="wn" className="hint">Custo total: <CostChip cost={c.cost} /> · ⭐2 (só 2 por jogador pontuam).</p>);
+    } else if (sel.k === 'tile' && (sel.pid ?? viewer) !== viewer) {
+      acts.push(<p key="ot" className="hint">Edifício de <b>{s.players[sel.pid].name}</b>.</p>);
     } else if (sel.k === 'tile') {
       acts.push(<button key="d" type="button" className="btn btn-ghost" disabled={!myTurn || c.id === 'PREF'} onClick={() => { run({ t: 'demolish', tile: sel.i }); setSel(null); }}>Demolir (🔨1){me.t.freeDemolish ? ' — grátis' : ''}</button>);
       if (c.id === 'PREF') acts.push(<p key="np" className="hint">A Prefeitura não pode ser demolida.</p>);
@@ -450,15 +433,15 @@ export default function Game({ game, setGame, onExit }) {
     </div>
   );
 
-  const cabinet = (
-    <div className="cabinet">
+  const cabinetOf = (p) => (
+    <div className={`cabinet${p.id === viewer ? '' : ' cab-mini'}`}>
       <span className="cab-l">Gabinete</span>
-      {me.cabinet.map((id, i) => (
+      {p.cabinet.map((id, i) => (
         <div key={i} className={`cab-slot${id ? ' on' : ''}`} title={id ? `${CARDS[id].name}: ${CARDS[id].t} ${CARDS[id].penalty || ''}` : 'Espaço vazio'}>
-          {id ? (<><b>{CARDS[id].name}</b><small><Rich t={CARDS[id].t} s={12} /></small></>) : <small>Decreto {i + 1} — vazio</small>}
+          {id ? (<><b>{CARDS[id].name}</b>{p.id === viewer && <small><Rich t={CARDS[id].t} s={12} /></small>}</>) : <small>vazio</small>}
         </div>
       ))}
-      {me.terrain === 'ilha' && myTurn && (
+      {p.id === viewer && p.terrain === 'ilha' && myTurn && (
         <div className="rota" title="Rota Marítima (1×/turno)">
           <button type="button" className="btn sm" onClick={() => run({ t: 'ability', id: 'rota', dir: 'v2a' })}>💰2 → 🗳️1</button>
           <button type="button" className="btn sm" onClick={() => run({ t: 'ability', id: 'rota', dir: 'a2v' })}>🗳️1 → 💰2</button>
@@ -466,6 +449,51 @@ export default function Game({ game, setGame, onExit }) {
       )}
     </div>
   );
+
+  const placingBar = placing && (
+    <div className="placing" role="status">
+      <div>
+        Escolha uma casa para <b>{placing.src === 'wonder' ? CARDS[s.market.vit[placing.hi]]?.name : placing.src === 'row' ? CARDS[s.market.row[placing.hi]]?.name : (CARDS[me.hand[placing.hi]]?.lot ? `Loteamento (${LOT_OPTS[placing.v].label})` : CARDS[me.hand[placing.hi]]?.name)}</b>
+        {hoverPreview ? (
+          <span className="prev">
+            Custo <Rich t={`🔨${hoverPreview.ob}`} s={14} />{hoverPreview.aq && (hoverPreview.aq.v || hoverPreview.aq.a) ? <> + <Rich t={`${hoverPreview.aq.v ? `💰${hoverPreview.aq.v}` : ''} ${hoverPreview.aq.a ? `🗳️${hoverPreview.aq.a}` : ''}`} s={14} /></> : null}
+            {hoverPreview.desmate ? ' · desmata (+1 🕵️)' : ''}{hoverPreview.upgrade ? ' · melhoria' : ''}
+            {' — '}
+            {[['pop', '👥'], ['poll', '☁️'], ['e', '⚡'], ['w', '💧'], ['v', '💰'], ['o', '🔨'], ['a', '🗳️']].filter(([k]) => hoverPreview.d[k]).map(([k, ic]) => <span key={k} className={`dl ${(k === 'poll' ? hoverPreview.d[k] > 0 : hoverPreview.d[k] < 0) ? 'neg' : 'pos'}`}><Rich t={ic} s={13} />{hoverPreview.d[k] > 0 ? '+' : ''}{hoverPreview.d[k]}</span>)}
+          </span>
+        ) : <span className="prev">passe o mouse numa casa para ver o efeito.</span>}
+      </div>
+      <button type="button" className="m-link" onClick={() => setPlacing(null)}>cancelar (Esc)</button>
+    </div>
+  );
+
+  // Um lugar à mesa: a cidade de cada jogador, sempre à vista de todos.
+  const seat = (p) => {
+    const mine = p.id === viewer;
+    const turn = !s.over && act === p.id;
+    const T = TERRAINS[p.terrain];
+    return (
+      <article key={p.id} className={`seat${mine ? ' mine' : ''}${turn ? ' turn' : ''}`} style={{ '--pc': p.color }} aria-label={`Cidade de ${p.name}`}>
+        <header className="seat-h">
+          <i className="disc" style={{ background: p.color }} />
+          <b>{p.name}{mine ? ' (você)' : ''}</b>
+          {p.bot && <small className="botk">bot</small>}
+          <span className="seat-sub"><TerrainGlyph id={p.terrain} s={16} /> {T.name} · {CARGO(p.merit)}</span>
+          {turn && <span className="seat-turn">{botWho === p.id ? 'jogando…' : 'na vez'}</span>}
+          <span className="pl-merit" title="Mérito"><Ico n="star" s={18} />{p.merit}</span>
+        </header>
+        {mine && <p className="tnote"><b>▲ {T.trait}:</b> <Rich t={T.traitT} s={13} /> <b>▼ {T.weak}:</b> <Rich t={T.weakT} s={13} /></p>}
+        <City s={s} p={p} placing={mine && !!placing} validity={mine ? validity : null} onTile={(i) => onTile(p.id, i)} selected={sel && sel.k === 'tile' && (sel.pid ?? viewer) === p.id ? sel.i : null} onHover={mine ? setHover : undefined} />
+        {mine && placingBar}
+        <MetersMini s={s} p={p} />
+        {turn && s.phase === 'play' && (
+          <div className="seat-pool"><span>Em jogo agora</span><ResPool pool={p.pool} size={18} /></div>
+        )}
+        {cabinetOf(p)}
+        <p className="seat-cards">mão {p.hand.length} · deck {p.deck.length} · descarte {p.discard.length}</p>
+      </article>
+    );
+  };
 
   const hasSimple = me.hand.some(SIMPLE);
   const hand = (
@@ -486,7 +514,7 @@ export default function Game({ game, setGame, onExit }) {
   );
 
   const pe = s.pending[0];
-  const mtabs = [['city', 'Cidade'], ['market', 'Mercado'], ['goals', 'Metas'], ['others', 'Rivais'], ['log', 'Diário']];
+  const mtabs = [['city', 'Cidade'], ['market', 'Mercado'], ['goals', 'Metas'], ['log', 'Diário']];
 
   if (s.phase === 'draft') {
     return (
@@ -511,51 +539,26 @@ export default function Game({ game, setGame, onExit }) {
           <button type="button" className="btn btn-ghost sm" onClick={onExit}>Sair</button>
         </div>
       </div>
-      <RoundBanner s={s} />
+      <RoundBanner s={s} act={act} />
 
       <div className="grid">
-        <aside className="pane pane-others" data-pane="others">
-          <h3 className="h">Prefeitos</h3>
-          <Players s={s} viewer={viewer} viewing={viewing} setViewing={(id) => { setViewing(id); goTab('city'); }} />
-        </aside>
-
-        <section className="pane pane-city" data-pane="city">
-          <div className="city-head">
-            <h3 className="h"><TerrainGlyph id={shownPlayer.terrain} s={22} /> Cidade de {shownPlayer.name}{!isOwnView && <button type="button" className="m-link" onClick={() => setViewing(viewer)}>voltar à minha</button>}</h3>
-            <p className="tnote"><b>▲ {TERRAINS[shownPlayer.terrain].trait}:</b> <Rich t={TERRAINS[shownPlayer.terrain].traitT} s={13} /> <b>▼ {TERRAINS[shownPlayer.terrain].weak}:</b> <Rich t={TERRAINS[shownPlayer.terrain].weakT} s={13} /></p>
+        <section className="pane pane-board" data-pane="city" aria-label="Mesa principal">
+          <CenterBoard s={s} onGoals={() => { setTab('metas'); goTab('goals'); }} />
+          <div className={`cities c${s.players.length}`}>
+            {s.players.map(seat)}
           </div>
-          <City s={s} p={shownPlayer} placing={!!placing && isOwnView} validity={validity} onTile={onTile} selected={sel && sel.k === 'tile' ? sel.i : null} interactive={isOwnView} onHover={setHover} />
-          {placing && isOwnView && (
-            <div className="placing" role="status">
-              <div>
-                Escolha uma casa para <b>{placing.src === 'wonder' ? CARDS[s.market.vit[placing.hi]]?.name : placing.src === 'row' ? CARDS[s.market.row[placing.hi]]?.name : (CARDS[me.hand[placing.hi]]?.lot ? `Loteamento (${LOT_OPTS[placing.v].label})` : CARDS[me.hand[placing.hi]]?.name)}</b>
-                {hoverPreview ? (
-                  <span className="prev">
-                    Custo <Rich t={`🔨${hoverPreview.ob}`} s={14} />{hoverPreview.aq && (hoverPreview.aq.v || hoverPreview.aq.a) ? <> + <Rich t={`${hoverPreview.aq.v ? `💰${hoverPreview.aq.v}` : ''} ${hoverPreview.aq.a ? `🗳️${hoverPreview.aq.a}` : ''}`} s={14} /></> : null}
-                    {hoverPreview.desmate ? ' · desmata (+1 🕵️)' : ''}{hoverPreview.upgrade ? ' · melhoria' : ''}
-                    {' — '}
-                    {[['pop', '👥'], ['poll', '☁️'], ['e', '⚡'], ['w', '💧'], ['v', '💰'], ['o', '🔨'], ['a', '🗳️']].filter(([k]) => hoverPreview.d[k]).map(([k, ic]) => <span key={k} className={`dl ${(k === 'poll' ? hoverPreview.d[k] > 0 : hoverPreview.d[k] < 0) ? 'neg' : 'pos'}`}><Rich t={ic} s={13} />{hoverPreview.d[k] > 0 ? '+' : ''}{hoverPreview.d[k]}</span>)}
-                  </span>
-                ) : <span className="prev">passe o mouse numa casa para ver o efeito.</span>}
-              </div>
-              <button type="button" className="m-link" onClick={() => setPlacing(null)}>cancelar (Esc)</button>
-            </div>
-          )}
-          <Meters s={s} p={shownPlayer} />
-          {isOwnView && cabinet}
         </section>
 
         <aside className="pane pane-side">
           <div className="pane pane-insp" data-pane="city">{inspector()}</div>
           <div className="tabs" role="tablist">
-            {[['mercado', 'Mercado'], ['metas', 'Metas'], ['facc', 'Facções'], ['diario', 'Diário']].map(([k, l]) => (
+            {[['mercado', 'Mercado'], ['metas', 'Metas'], ['diario', 'Diário']].map(([k, l]) => (
               <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>
             ))}
           </div>
           <div className="tabbody">
             <div className="pane" data-pane="market" hidden={tab !== 'mercado'}>{market}</div>
             <div className="pane" data-pane="goals" hidden={tab !== 'metas'}><Goals s={s} me={me} myTurn={myTurn} run={run} /></div>
-            <div className="pane" data-pane="facc" hidden={tab !== 'facc'}><FactionTracks s={s} me={me} /></div>
             <div className="pane" data-pane="log" hidden={tab !== 'diario'}><Log s={s} viewer={viewer} /></div>
           </div>
         </aside>
@@ -579,6 +582,12 @@ export default function Game({ game, setGame, onExit }) {
         {mtabs.map(([k, l]) => <button key={k} type="button" className={mtab === k ? 'on' : ''} onClick={() => goTab(k)}>{l}</button>)}
       </nav>
 
+      {botNote && !s.over && (
+        <div className="botnote" role="status" style={{ '--pc': s.players[botNote.who].color }}>
+          <b><i className="disc" style={{ background: s.players[botNote.who].color }} /> {s.players[botNote.who].name} jogou</b>
+          {botNote.lines.map((m, i) => <span key={i}><Rich t={m} s={13} /></span>)}
+        </div>
+      )}
       {toast && <div className="toast" role="status">{toast}</div>}
       {pe && <PendingModal s={s} pe={pe} viewer={viewer} run={run} />}
       {showRules && <Rules onClose={() => setShowRules(false)} />}
