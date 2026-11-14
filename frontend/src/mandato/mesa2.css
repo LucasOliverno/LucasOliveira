@@ -1,0 +1,65 @@
+/* ====================================================== MESA: refinos de UX (multiplayer) ====================================================== */
+/* centro da mesa recolhível */
+.center-toggle { display: flex; align-items: baseline; gap: 8px; justify-self: start; padding: 2px 10px 2px 6px; font-family: var(--font-title); font-weight: 700; font-size: .95rem; color: var(--ink); border-radius: 8px; }
+.center-toggle span { width: 1em; text-align: center; }
+.center-toggle small { font-family: var(--font-body); font-weight: 400; font-size: .74rem; color: #4d5a70; }
+.center-toggle:hover { background: rgba(243, 235, 221, .6); }
+.pane-board { gap: 10px; }
+.cg-t { -webkit-line-clamp: 1; }
+
+/* última jogada de cada prefeito */
+.seat-last { font-size: .74rem; line-height: 1.3; color: #33425a; background: rgba(255, 250, 240, .8); border-left: 3px solid var(--pc); padding: 2px 8px; border-radius: 0 6px 6px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seat.mine { box-shadow: 0 0 0 2px var(--pc), var(--shadow); }
+.seat.mine.turn { box-shadow: 0 0 0 4px var(--mustard), var(--shadow); }
+
+/* alguém está decidindo (sem tapar a tela de todos) */
+.waitbar { position: fixed; z-index: 120; left: 50%; top: 72px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: .45em 1.1em; background: var(--paper); border: 2px solid var(--ink); border-radius: 99px; box-shadow: var(--shadow-lift); font-weight: 600; font-size: .9rem; animation: pop2 .2s ease-out; }
+
+/* abas: contador de mensagens novas */
+.tabs .badge { display: inline-grid; place-items: center; min-width: 1.4em; height: 1.4em; margin-left: 4px; padding: 0 .3em; border-radius: 99px; background: var(--brick); color: #fff; font: 600 .7rem var(--font-mono); font-style: normal; vertical-align: 1px; }
+
+/* conversa */
+.chat { display: grid; gap: 8px; }
+.chat-list { max-height: 52vh; min-height: 140px; overflow: auto; display: grid; gap: 4px; align-content: start; padding: 6px 8px; background: #fffaf0; border: 2px solid var(--ink); border-radius: 10px; }
+.chat-compact .chat-list { max-height: 220px; min-height: 90px; }
+.cm { font-size: .86rem; line-height: 1.35; overflow-wrap: anywhere; }
+.cm b { font-family: var(--font-title); margin-right: 6px; }
+.cm.sys { font-family: var(--font-stamp); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--teal); }
+.cm.me span { color: var(--ink); font-weight: 500; }
+.chat-form { display: flex; gap: 6px; }
+.chat-form .inp { padding: .35em .6em; }
+
+/* fim de jogo */
+.over-acts { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.over-back { position: fixed; z-index: 130; right: 20px; top: 74px; }
+
+/* centro da mesa mais baixo: Facções sempre em 4 colunas */
+@media (min-width: 1241px) {
+  .c-facs { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .center { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+}
+.c-sec { padding: 8px 10px 10px; }
+.cg { padding: 5px 7px; }
+
+/* mão recolhida fora da sua vez (mais espaço para a mesa) */
+.handwrap.closed .hand { display: none; }
+.handwrap.closed .hand-head .h { font-size: .95rem; }
+.hand-head .m-link { margin-left: auto; }
+
+/* topo da mesa: centro recolhível + ordem de turnos na mesma linha */
+.board-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.board-top .turns { margin-left: auto; padding: 4px 8px; box-shadow: none; }
+.board-top .turns li { font-size: .88rem; padding: 2px 9px 2px 6px; }
+@media (min-width: 1061px) {
+  .cg-t { display: none; }
+  .cf-f { display: none; }
+  .c-sec .h { margin-bottom: 4px; }
+  .c-sec .h small { display: none; }
+  .c-goals { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .b-card.has-art { grid-template-columns: 64px 1fr; }
+  .b-art { width: 64px; height: 64px; }
+  .b-ev, .b-au { padding: 4px 12px; }
+  .b-round { padding: 4px 14px; }
+  .b-round b { font-size: 1.8rem; }
+  .banner { padding-top: 8px; }
+}

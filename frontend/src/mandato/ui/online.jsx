@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { PLAYER_COLORS } from '../data.js';
 import { useOnline, loadName, savedRoom, recentRooms, forgetRoom } from '../online/useOnline.js';
 import Game from './Game.jsx';
+import { Chat } from './chat.jsx';
+import { Rules } from './screens.jsx';
 
 const inviteLink = (code) => `${location.origin}/mandato/?sala=${code}`;
 
@@ -88,6 +90,7 @@ function Entry({ o, onExit, initialCode }) {
 function Lobby({ o }) {
   const L = o.lobby;
   const [done, setDone] = useState('');
+  const [rules, setRules] = useState(false);
   const isHost = L.you === L.host;
   const flash = (k) => { setDone(k); setTimeout(() => setDone(''), 1800); };
   const share = async () => {
@@ -149,6 +152,14 @@ function Lobby({ o }) {
         </div>
       </section>
 
+      <section className="sec">
+        <label className="lab">Conversa <small>combine com a turma antes de começar</small></label>
+        <Chat list={o.chat} you={L.you} onSend={o.sendChat} compact />
+      </section>
+
+      <p className="hint"><button type="button" className="m-link" onClick={() => setRules(true)}>Como jogar (regras resumidas)</button></p>
+      {rules && <Rules onClose={() => setRules(false)} />}
+
       {isHost ? (
         <>
           <button type="button" className="btn btn-primary go" disabled={L.seats.length < 2} onClick={() => o.act('start')}>Iniciar partida</button>
@@ -161,16 +172,12 @@ function Lobby({ o }) {
 
 export default function Online({ initialCode, onExit }) {
   const o = useOnline();
-  // link de convite de uma sala em que você já tinha lugar: volta direto à mesma cadeira
-  useEffect(() => {
-    if (initialCode && !savedRoom() && recentRooms().some((r) => r.code === initialCode)) o.resume(initialCode);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   if (o.state) {
     const st = o.state;
     const online = {
       viewer: st.you, send: o.send, botNote: o.botNote, presence: st.presence, host: st.host, code: st.code,
       error: o.error, connected: o.conn === 'open', botify: (seat) => o.act('botify', { seat }),
+      chat: o.chat, sendChat: o.sendChat, rematch: () => o.act('rematch'),
     };
     return <Game game={st.view} online={online} onExit={() => { o.leave(); onExit(); }} />;
   }

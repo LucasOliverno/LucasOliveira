@@ -36,6 +36,7 @@ export function useOnline() {
   const [botNote, setBotNote] = useState(null);
   const [error, setError] = useState(null);
   const [gone, setGone] = useState(null);
+  const [chat, setChat] = useState([]);
   const ws = useRef(null);
   const queue = useRef([]);
   const alive = useRef(true);
@@ -80,12 +81,18 @@ export function useOnline() {
           clearTimeout(timers.current.note);
           timers.current.note = setTimeout(() => setBotNote(null), 4200);
         }
-      } else if (m.t === 'error') fail(m.msg);
+      } else if (m.t === 'chat') setChat((c) => [...c, m.msg].slice(-60));
+      else if (m.t === 'chatlog') setChat(Array.isArray(m.list) ? m.list : []);
+      else if (m.t === 'error') fail(m.msg);
       else if (m.t === 'gone') { forgetRoom(tryCode.current); forgetRoom((loadSession() || {}).code); saveSession(null); setLobby(null); setState(null); setGone(m.msg); }
     };
-    s.onclose = () => {
+    s.onclose = (ev) => {
       if (ws.current === s) ws.current = null;
       if (!alive.current) return;
+      if (ev && ev.code === 4001) { // o mesmo lugar foi aberto em outra aba/aparelho: não briga por ele
+        saveSession(null); setLobby(null); setState(null);
+        setGone('Seu lugar nesta sala foi aberto em outra aba ou aparelho. Para jogar aqui, use "Voltar para a sala".');
+      }
       setConn('down');
       tries.current += 1;
       timers.current.retry = setTimeout(() => openRef.current && openRef.current(), Math.min(1000 * tries.current, 8000));
@@ -114,6 +121,7 @@ export function useOnline() {
     setLobby(null);
     setState(null);
     setGone(null);
+    setChat([]);
   }, [raw]);
   // volta à cadeira guardada neste navegador (depois de fechar a aba, trocar de aparelho do mesmo navegador etc.)
   const resume = useCallback((code) => {
@@ -125,6 +133,7 @@ export function useOnline() {
   }, [raw]);
   const act = useCallback((action, extra = {}) => raw({ t: 'lobby', action, ...extra }), [raw]);
   const send = useCallback((cmd) => raw({ t: 'cmd', cmd }), [raw]);
+  const sendChat = useCallback((text) => raw({ t: 'chat', text }), [raw]);
 
-  return { conn, lobby, state, botNote, error, gone, create, join, leave, resume, act, send, clearGone: () => setGone(null) };
+  return { conn, lobby, state, botNote, error, gone, create, join, leave, resume, act, send, chat, sendChat, clearGone: () => setGone(null) };
 }

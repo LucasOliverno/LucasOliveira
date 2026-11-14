@@ -18,16 +18,17 @@
 
 A ideia: quem escolhe por último **vê tudo o que os outros escolheram** (vantagem de informação) mas tem **menos opções de terreno**. O pacote compensa a perda de opções, mas deve ser pequeno o bastante para que a *primeira escolha* continue desejável.
 
-| Ordem de escolha | Pacote |
-|---|---|
-| 1 | — (escolhe primeiro) |
-| 2 | Tesouro inicial **+💰1** |
-| 3 | Tesouro **+💰2** |
-| 4 | Tesouro **+💰2** e **+1 😊** |
-| 5 | Tesouro **+💰3**, **+1 😊** e escolha 1 entre 2 cartas de Admin do Tier I (vai ao descarte) |
-| 6 | Tesouro **+💰3**, **+1 😊** e escolha 1 entre 3 cartas do Tier I (qualquer tipo) para o descarte |
+**Ajuste v1.1 (simulação):** jogar primeiro na rodada 1 já vale ~10 pp de vitória, então o pacote original compensava em dobro o último assento (e +😊 o levava rápido ao bônus de 😊8). O pacote agora é só Tesouro e depende do número de jogadores:
 
-*Para N jogadores, use as N primeiras linhas.* Além disso, o **último a escolher joga primeiro na rodada 1**.
+| Jogadores | Assento 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| 2 | — | +💰2 | | | | |
+| 3 | — | +💰2 | +💰1 | | | |
+| 4 | +💰2 | +💰1 | — | +💰1 | | |
+| 5 | — | +💰1 | +💰2 | — | — | |
+| 6 | — | +💰2 | +💰2 | — | — | +💰1 |
+
+O **último a escolher continua jogando primeiro na rodada 1**. Valores calibrados com o GreedyBot (draft por preferência de terreno); confirme em mesa com humanos.
 
 > **Por que "singela"?** 💰3 equivale a uma compra pequena; 1 😊 equivale a ~1,5 PU; uma carta Tier I vale ≈ 3 PU. Em conjunto, ≈ 8–9 PU, aproximadamente **uma rodada de desvantagem** acumulada que o último jogador estaria perdendo ao ter menos terrenos para escolher.
 

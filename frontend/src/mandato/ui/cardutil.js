@@ -1,7 +1,11 @@
 import { ZONES } from '../data.js';
 
-export const HAS_ART = new Set(['E1-01', 'E1-02', 'E1-03', 'E1-04', 'E1-05', 'E1-06', 'E1-07', 'E1-08', 'E2-01', 'E2-02', 'E2-03', 'E2-04', 'E2-05', 'E2-06', 'E2-07', 'E2-08', 'E2-09']);
+import { ART_IDS, TERRAIN_ART } from '../artManifest.js';
+
+// Arte gerada por scripts/slice-art.mjs (public/mandato/art/<ID>.webp). Sem arte, as cartas caem na ilustração SVG provisória.
+export const HAS_ART = ART_IDS;
 export const artUrl = (id) => `${import.meta.env.BASE_URL}mandato/art/${id}.webp`;
+export const terrainMap = (key) => (TERRAIN_ART.includes(key) ? `${import.meta.env.BASE_URL}mandato/art/T-${key}.webp` : null);
 
 export const TYPE_BAND = {
   basic: { bg: '#CFCABD', fg: '#1B2A41', label: 'Básica' },

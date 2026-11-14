@@ -3,7 +3,7 @@
 Cada jogador recebe um **tabuleiro de terreno** com uma grade **4x4 (16 casas)**, um **Traço** (vantagem), uma **Fraqueza** (custo) e um **deck de Exploração** próprio de 10 cartas.
 
 **Início comum a todos:** a *Prefeitura* (**P**) e uma *Moradia Popular* (**H**) já estão construídas; 😊5; Tesouro 0; ☁️0; mesmo deck inicial (`05`).
-- **Prefeitura:** Renda 💰1; 👥+2 (base).
+- **Prefeitura:** Renda 💰1 e 🔨1; 👥+2 (base). *(ajuste de balanceamento v1.1)*
 - **Moradia Popular:** RES, 👥+2, Cons ⚡1💧1.
 
 **Legenda das casas:** `·` plano · `O` Orla/Costa (água) · `E` Encosta (+🔨1 para construir, exceto INF hidro) · `J` Jazida (✦) · `R` Rio (água) · `D` Duna (+🔨1) · `A` Oásis (água) · `F` Floresta (precisa **Desmatar**).
@@ -25,7 +25,7 @@ Cada jogador recebe um **tabuleiro de terreno** com uma grade **4x4 (16 casas)**
 | | |
 |---|---|
 | **Capacidade inicial** | ⚡3 · 💧3 |
-| **Traço — Turismo Sazonal** | Cada **COM** em Orla rende **+💰1**. Cada **VER** em Orla tem **☁️ −1 adicional** |
+| **Traço — Turismo Sazonal** | Cada **COM ou VER** em Orla rende **+💰1**. Cada **VER** em Orla tem **☁️ −1 adicional** *(ajuste de balanceamento v1.1)* |
 | **Fraqueza — Maré Alta** | Quando você sofrer ≥1 hit de Fiscalização, **1 edifício em Orla** fica inativo até seu próximo turno (1×/rodada) |
 | **Estilo** | Economia de turismo e comércio; Verde costeiro |
 | **Meta Regional (⭐2, privada)** | **Cartão-Postal:** 3 COM/VER na Orla e 😊 ≥ 7 |
@@ -67,8 +67,8 @@ Cada jogador recebe um **tabuleiro de terreno** com uma grade **4x4 (16 casas)**
 
 | | |
 |---|---|
-| **Capacidade inicial** | ⚡4 · 💧3 |
-| **Traço — Riqueza Mineral** | Edifícios IND em **Jazida (J)** rendem **+🔨1**. Hidrelétricas em **Rio/Encosta** custam −🔨1 |
+| **Capacidade inicial** | ⚡3 · 💧3 *(ajuste de balanceamento v1.1)* |
+| **Traço — Riqueza Mineral** | Edifícios IND em **Jazida (J)** rendem **+💰1**. Hidrelétricas em **Rio/Encosta** custam −🔨1 *(ajuste de balanceamento v1.1)* |
 | **Fraqueza — Encostas** | 5 casas Encosta (+🔨1 para construir). Poucas casas planas |
 | **Estilo** | Indústria pesada, energia barata, construção cara |
 | **Meta Regional (⭐2)** | **Veia Metálica:** 2 IND ativos em Jazida e ☁️ ≤ 4 |
@@ -110,9 +110,9 @@ Cada jogador recebe um **tabuleiro de terreno** com uma grade **4x4 (16 casas)**
 
 | | |
 |---|---|
-| **Capacidade inicial** | ⚡2 · 💧3 |
-| **Traço — Terra Barata** | *Loteamento* custa **💰1** e *Licitação* custa **💰2** para você |
-| **Fraqueza — Poucas Riquezas** | Capacidade de ⚡ inicial menor (2) e nenhuma casa especial além do Rio; Seca (Onda de Calor) corta **−3** de 💧 |
+| **Capacidade inicial** | ⚡3 · 💧3 *(ajuste de balanceamento v1.1)* |
+| **Traço — Terra Barata** | *Loteamento* custa **💰1**; *Licitação* e *Explorar* custam **💰2** para você *(ajuste de balanceamento v1.1)* |
+| **Fraqueza — Poucas Riquezas** | Nenhuma casa especial além do Rio; Seca (Onda de Calor) corta **−3** de 💧 |
 | **Estilo** | Expansão rápida e barata; precisa de Infra cedo |
 | **Meta Regional (⭐2)** | **Cidade Jardim:** 👥 ≥ 15, 😊 ≥ 8 e ☁️ ≤ 2 |
 

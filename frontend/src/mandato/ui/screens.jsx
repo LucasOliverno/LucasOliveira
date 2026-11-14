@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { TERRAINS, RIVAL, ZONES, PLAYER_COLORS, FACTIONS, FAC_KEYS, CARGOS } from '../data.js';
+import { TERRAINS, RIVAL, ZONES, PLAYER_COLORS, FACTIONS, FAC_KEYS, CARGOS, packageFor } from '../data.js';
 import { calc, MAX_ROUNDS, actor } from '../engine.js';
 import { Ico, Rich, TerrainGlyph } from './icons.jsx';
-import { artUrl } from './cardutil.js';
+import { artUrl, terrainMap } from './cardutil.js';
 
 const SHOWCASE = ['E1-01', 'E1-02', 'E1-03', 'E1-06', 'E1-05', 'E1-07'];
 
@@ -158,8 +158,9 @@ export function TerrainPreview({ id }) {
       </div>
     );
   }
+  const map = terrainMap(id);
   return (
-    <div className="tp" aria-hidden="true">
+    <div className={`tp${map ? ' tp-map' : ''}`} style={map ? { '--map': `url(${map})` } : undefined} aria-hidden="true">
       {T.grid.map((k, i) => <i key={i} className={`mt k-${k === 'P' || k === 'H' ? '.' : k}`}>{k === 'P' || k === 'H' ? k : ''}</i>)}
     </div>
   );
@@ -171,7 +172,7 @@ export function Draft({ s, viewer, onPick }) {
   const act = actor(s);
   const picker = s.players[act];
   const mine = !!picker && !picker.bot && picker.id === viewer;
-  const pk = (seat) => ({ 0: 'Sem pacote', 1: '+💰1 no Tesouro', 2: '+💰2 no Tesouro', 3: '+💰2 e +1 😊', 4: '+💰3, +1 😊 e 1 carta Admin Tier I', 5: '+💰3, +1 😊 e 1 carta Tier I' }[seat]);
+  const pk = (seat) => { const k = packageFor(s.players.length, seat); const parts = [k.treasury && `+💰${k.treasury} no Tesouro`, k.appr && `+${k.appr} 😊`].filter(Boolean); return parts.length ? parts.join(' e ') : 'Sem pacote'; };
   return (
     <main className="draft">
       <h2>Draft de terrenos</h2>
@@ -290,7 +291,7 @@ export function Rules({ onClose }) {
 
 // ---------------------------------------------------------------- fim de jogo
 
-export function GameOver({ s, onAgain }) {
+export function GameOver({ s, onAgain, againLabel = 'Jogar de novo', onView, extra }) {
   const ranked = [...s.players].sort((a, b) => b.merit - a.merit || b.approval - a.approval);
   const win = s.winners.length > 0;
   const src = Object.entries(s.stats.src).sort((a, b) => b[1] - a[1]);
@@ -327,7 +328,11 @@ export function GameOver({ s, onAgain }) {
           </div>
         )}
         <p className="over-s">Fiscalizações: {s.stats.fisc} · Investigações: {s.stats.invest} · Crises de Governo: {s.stats.crises}{you ? ` · suas Crises: ${you.crises}` : ''}</p>
-        <button type="button" className="btn btn-primary" onClick={onAgain}>Jogar de novo</button>
+        <div className="over-acts">
+          {extra}
+          {onView && <button type="button" className="btn" onClick={onView}>Ver a mesa</button>}
+          <button type="button" className={`btn${extra ? ' btn-ghost' : ' btn-primary'}`} onClick={onAgain}>{againLabel}</button>
+        </div>
       </div>
     </div>
   );

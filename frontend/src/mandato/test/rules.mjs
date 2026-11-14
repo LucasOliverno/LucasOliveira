@@ -24,7 +24,7 @@ const give = (p, ...ids) => { p.hand.unshift(...ids); };
   const c = E.calc(s, p);
   ok(c.pop === 4 && c.cap.e === 3 && c.cap.w === 3 && c.sur.e === 2, `Litoral inicial: 👥4, ⚡3/💧3, sobra ⚡2 (got pop ${c.pop} e ${c.sur.e})`);
   const m = s.players[1];
-  ok(E.calc(s, m).cap.e === 4, 'Montanha ⚡4');
+  ok(E.calc(s, m).cap.e === 3, 'Montanha ⚡3 (ajuste de balanceamento)');
   ok(m.tiles.filter((t) => t.k === 'E').length === 5, 'Montanha tem 5 Encostas');
   ok(s.players[1].treasury === 1 || s.players[1].treasury >= 0, 'pacote de posição aplicado');
   ok(p.hand.length === 5 && p.deck.length === 5, 'mão de 5 e deck de 5');

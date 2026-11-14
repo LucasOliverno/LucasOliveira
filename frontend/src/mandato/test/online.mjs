@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import WebSocket from 'ws';
 import { start } from '../../../server/index.mjs';
 import * as E from '../engine.js';
+import { decide } from '../bot.js';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -211,6 +212,56 @@ await run('salas sobrevivem a reiniciar o servidor (e o jogador volta pelo token
     back.w.close();
     s2.close();
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+await run('partida online completa até o fim, conversa e revanche na mesma sala', async () => {
+  const H = client('H');
+  const G = client('G');
+  await Promise.all([H.open, G.open]);
+  H.send({ t: 'create', name: 'Hana' });
+  const j = await H.next((m) => m.t === 'joined');
+  G.send({ t: 'join', code: j.code, name: 'Gil' });
+  await G.next((m) => m.t === 'joined');
+  G.send({ t: 'chat', text: 'bora!' });
+  const c = await H.next((m) => m.t === 'chat');
+  assert.equal(c.msg.text, 'bora!');
+  assert.equal(c.msg.name, 'Gil');
+  H.send({ t: 'lobby', action: 'addBot' });
+  await H.next((m) => m.t === 'lobby' && m.seats.length === 3);
+  H.send({ t: 'lobby', action: 'opts', target: 8 });
+  H.send({ t: 'lobby', action: 'start' });
+  await H.next((m) => m.t === 'state');
+  const by = { Hana: H, Gil: G };
+  let last = '';
+  for (let guard = 0; guard < 4000; guard++) {
+    const st = H.latest.state;
+    const v = st.view;
+    if (v.over) break;
+    const who = E.actor(v);
+    const p = v.players[who];
+    const key = JSON.stringify([v.round, v.turnIdx, v.pending.length, v.phase, p.hand.length, v.log.length]);
+    if (p.bot || key === last) { await new Promise((r) => setTimeout(r, 8)); continue; }
+    last = key;
+    const cl = by[p.name];
+    if (!cl.latest.state || cl.latest.state.view.log.length !== v.log.length) { last = ''; await new Promise((r) => setTimeout(r, 8)); continue; }
+    const mine = cl.latest.state.view; // a visão de quem joga (mão real)
+    const pe = mine.pending[0];
+    if (v.phase === 'draft' && !pe) cl.send({ t: 'cmd', cmd: { t: 'pick', terrain: mine.draft.pool[0] } });
+    else if (pe) cl.send({ t: 'cmd', cmd: decide(mine, pe) });
+    else { cl.send({ t: 'cmd', cmd: { t: 'playSimple' } }); cl.send({ t: 'cmd', cmd: { t: 'end' } }); }
+    await new Promise((r) => setTimeout(r, 15));
+  }
+  const fin = await H.until((m) => m.view.over, 8000);
+  assert.ok(fin.view.winners.length >= 1, 'há vencedor');
+  G.inbox.length = 0; H.inbox.length = 0;
+  G.send({ t: 'lobby', action: 'rematch' });
+  await G.next((m) => m.t === 'error'); // só o anfitrião
+  H.send({ t: 'lobby', action: 'rematch' });
+  const lob = await G.next((m) => m.t === 'lobby' && !m.started);
+  assert.equal(lob.seats.length, 3);
+  const sys = await H.next((m) => m.t === 'chat' && m.msg.seat == null);
+  assert.match(sys.msg.text, /Revanche/);
+  H.ws.close(); G.ws.close();
 });
 
 A.ws.close();

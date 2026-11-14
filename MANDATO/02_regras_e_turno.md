@@ -61,7 +61,7 @@ PREPARAÇÃO (08) → [ RODADA ] × N → FIM
 ### 5.2 O Turno
 
 **Fase 1: Início**
-1. **Renda:** some na sua reserva de turno: Prefeitura (💰1) + Renda de cada edifício ativo + Decretos + Tesouro guardado.
+1. **Renda:** some na sua reserva de turno: Prefeitura (💰1 🔨1) + Renda de cada edifício ativo + Decretos + Tesouro guardado.
 2. **Déficits:** aplique −😊 por ⚡/💧 faltantes.
 3. **Popularidade:** se 😊 ≥ 8, +🗳️1.
 

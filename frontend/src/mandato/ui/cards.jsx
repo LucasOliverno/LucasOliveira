@@ -3,6 +3,14 @@ import { exploreCard } from '../engine.js';
 import { Ico, Rich } from './icons.jsx';
 import { HAS_ART, artUrl, bandFor, TYPE_BAND, costText, describeOps } from './cardutil.js';
 
+// Emblema da Facção / da Meta (arte gerada; sem arte, cai no ícone SVG)
+export function FacEmblem({ f, s = 28 }) {
+  return HAS_ART.has(`F-${f}`) ? <img className="emb" src={artUrl(`F-${f}`)} width={s} height={s} alt="" draggable="false" /> : <Ico n={f} s={s} />;
+}
+export function GoalEmblem({ id, s = 32 }) {
+  return HAS_ART.has(id) ? <img className="emb goal-emb" src={artUrl(id)} width={s} height={s} alt="" draggable="false" /> : null;
+}
+
 // Fallback de arte: maquete isométrica com a cor da Zona (ou do tipo).
 function Art({ card }) {
   const z = card.zones && card.zones[0];
@@ -99,7 +107,7 @@ export function Card({ id, size = 'md', selected, disabled, onClick, footer, tag
         <span className="c-name">{eff.name || card.name}</span>
         {cost && Object.keys(cost).length > 0 && <span className="c-cost"><CostChip cost={cost} /></span>}
       </span>
-      <span className="c-art">
+      <span className={`c-art${card.type === 'admin' || card.type === 'intrigue' ? ' c-art-sq' : ''}`}>
         {HAS_ART.has(id) ? <img src={artUrl(id)} alt="" loading="lazy" draggable="false" /> : <Art card={eff} />}
         {card.fac && card.fac.length > 0 && <span className="c-fac">{card.fac.map((f) => <Ico key={f} n={f} s={size === 'sm' ? 16 : 20} title={FACTIONS[f].name} />)}</span>}
         {card.alert && <span className="c-alert" title="🔔 Alerta: dispara uma Fiscalização ao entrar na Fila Especial"><Ico n="alert" s={size === 'sm' ? 15 : 18} /></span>}
@@ -129,11 +137,15 @@ export function ExploreCard({ id, onClick, selected }) {
   const key = { LIT: 'litoral', MON: 'montanha', PLA: 'planicie', DES: 'deserto', FLO: 'floresta', ILH: 'ilha' }[tid];
   const color = TERRAINS[key].color;
   const lines = c.type === 'Sítio' ? [`Receba: ${CARDS[c.ops[0].id].name}`, CARDS[c.ops[0].id].t] : null;
+  const art = HAS_ART.has(id) ? artUrl(id) : null;
   return (
     <button type="button" className={`xcard${selected ? ' is-sel' : ''}`} onClick={onClick} style={{ '--band': color }}>
-      <span className="xc-top"><span className="xc-type">{c.type}</span><span className="xc-name">{c.name}</span></span>
-      <span className="xc-body">
-        {lines ? lines.map((l, i) => <span key={i}><Rich t={l} /></span>) : <span><Rich t={describeOps(c.ops)} /></span>}
+      {art && <img className="xc-art" src={art} alt="" loading="lazy" draggable="false" />}
+      <span className="xc-main">
+        <span className="xc-top"><span className="xc-type">{c.type}</span><span className="xc-name">{c.name}</span></span>
+        <span className="xc-body">
+          {lines ? lines.map((l, i) => <span key={i}><Rich t={l} /></span>) : <span><Rich t={describeOps(c.ops)} /></span>}
+        </span>
       </span>
     </button>
   );

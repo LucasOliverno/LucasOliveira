@@ -2,10 +2,11 @@
 // Fonte das regras: MANDATO/02…10. Todo sorteio usa PRNG com semente guardada no estado.
 import {
   CARDS, STARTER, STANDARD, STD_QTY, LOT_OPTS, SPECIAL_TIERS, WONDERS, GOALS, ROUNDS, TERRAINS, TERRAIN_IDS,
-  EXPLORE, SETUP, PACKAGES, FAC_KEYS, WATER_KINDS, RIVAL, rivalGain, PLAYER_COLORS,
+  EXPLORE, SETUP, packageFor, FAC_KEYS, WATER_KINDS, RIVAL, rivalGain, PLAYER_COLORS,
 } from './data.js';
 
 export const HAND = 5;
+export const ROUND1_REVERSE = globalThis.process?.env?.R1REV !== '0'; // rodada 1 em ordem inversa (regra do 08); R1REV=0 só para testes
 export const MAX_ROUNDS = 12;
 const EX_BY_ID = Object.fromEntries(Object.values(EXPLORE).flat().map((c) => [c.id, c]));
 export const exploreCard = (id) => EX_BY_ID[id];
@@ -152,8 +153,8 @@ export function calc(s, p) {
       else if (it.minorIsland) n = tile.isl !== 'M' ? it.n : 0;
       inc[it.r] += n;
     });
-    if (p.terrain === 'litoral' && c.zones.includes('COM') && tile.k === 'O') inc.v += 1;
-    if (p.terrain === 'montanha' && c.zones.includes('IND') && tile.k === 'J') inc.o += 1;
+    if (p.terrain === 'litoral' && (c.zones.includes('COM') || c.zones.includes('VER')) && tile.k === 'O') inc.v += 1;
+    if (p.terrain === 'montanha' && c.zones.includes('IND') && tile.k === 'J') inc.v += 1;
     if (p.terrain === 'floresta' && (c.zones.includes('VER') || c.zones.includes('COM')) && tile.adj.some((j) => tiles[j].k === 'F' && !tiles[j].cleared)) inc.v += 1;
     if (m.fair && c.zones.includes('COM')) inc.v += (p.terrain === 'litoral' && tile.k === 'O') || (p.terrain === 'ilha') ? 2 : 1;
   });
@@ -716,6 +717,7 @@ function refillRow(s, slot, by) {
 export function buyCost(s, p, id) {
   const c = { ...CARDS[id].cost };
   if (id === 'P-01' && p.terrain === 'planicie') c.v = 1;
+  if (id === 'P-03' && p.terrain === 'planicie') c.v = 2;
   if (id === 'P-02') { if (p.terrain === 'planicie') c.v = 2; if (s.mods.strike) c.v = (c.v || 0) + 1; }
   return c;
 }
@@ -1002,7 +1004,7 @@ function startRound(s) {
   s.players.forEach((p) => p.tiles.forEach((t) => { if (t.b && t.b.off && t.b.off.k === 'round' && s.round > t.b.off.r) t.b.off = null; }));
   const N = s.players.length;
   // rodada 1: ordem inversa (N→1); depois, o token anda no sentido horário a partir do assento 1
-  s.order = s.round === 1 ? [...Array(N).keys()].reverse() : [...Array(N).keys()].map((i) => (s.firstIdx + i) % N);
+  s.order = s.round === 1 && ROUND1_REVERSE ? [...Array(N).keys()].reverse() : [...Array(N).keys()].map((i) => (s.firstIdx + i) % N);
   s.turnIdx = 0;
   const rd = ROUNDS.find((r) => r.id === s.card);
   log(s, `—— Rodada ${s.round} ——`, 'round');
@@ -1088,7 +1090,7 @@ function pickTerrain(s, p, tid) {
   p.ex.deck = shuffle(s, EXPLORE[tid].map((c) => c.id));
   log(s, `${nm(p)} escolhe ${TERRAINS[tid].name}.`, '', p.id);
   if (!s.solo) {
-    const pk = PACKAGES[p.seat] || {};
+    const pk = packageFor(s.players.length, p.seat);
     if (pk.treasury) p.treasury += pk.treasury;
     if (pk.appr) p.approval += pk.appr;
     if (pk.pick) {
@@ -1119,7 +1121,7 @@ function startPlay(s) {
   s.goals.deck = gd;
   s.roundDeck = shuffle(s, ROUNDS.map((r) => r.id));
   s.players.forEach((p) => draw(s, p, HAND));
-  s.firstIdx = N - 1; // após a rodada 1 (ordem inversa) o token vai para o assento 1
+  s.firstIdx = ROUND1_REVERSE ? N - 1 : 0; // a rodada 1 começa pelo assento 1; o token anda a cada rodada
   log(s, 'Todos os terrenos foram escolhidos. Começa a Rodada 1 (ordem inversa).', 'round');
   startRound(s);
 }

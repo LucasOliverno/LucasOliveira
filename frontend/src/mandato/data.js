@@ -83,7 +83,7 @@ export const LOT_OPTS = {
 };
 
 // ---- Construções iniciais
-add({ id: 'PREF', name: 'Prefeitura', type: 'building', zones: ['SER'], cost: {}, obra: 0, pop: 2, inc: [{ r: 'v', n: 1 }], fixed: true, t: 'Renda 💰1; 👥+2 (base).' });
+add({ id: 'PREF', name: 'Prefeitura', type: 'building', zones: ['SER'], cost: {}, obra: 0, pop: 2, inc: [{ r: 'v', n: 1 }, { r: 'o', n: 1 }], fixed: true, t: 'Renda 💰1 🔨1; 👥+2 (base).' });
 add({ id: 'HOME', name: 'Moradia Popular', type: 'building', zones: ['RES'], cost: {}, obra: 0, pop: 2, cons: { e: 1, w: 1 }, fixed: false, t: 'RES, 👥+2, Cons ⚡1💧1.' });
 
 // ---- Edificações do Deck Especial (07 §2)
@@ -247,26 +247,26 @@ export const TERRAINS = {
   litoral: {
     id: 'litoral', name: 'Litoral', sub: 'Costa Dourada', icon: '🌊', color: '#5E9CC4', cap: { e: 3, w: 3 },
     grid: rows('OOOO', '.PH.', '....', '....'),
-    trait: 'Turismo Sazonal', traitT: 'Cada COM em Orla rende +💰1. Cada VER em Orla tem ☁️ −1 adicional.',
+    trait: 'Turismo Sazonal', traitT: 'Cada COM ou VER em Orla rende +💰1. Cada VER em Orla tem ☁️ −1 adicional.',
     weak: 'Maré Alta', weakT: 'Quando você sofrer ≥1 hit de Fiscalização, 1 edifício em Orla fica inativo até seu próximo turno (1×/rodada).',
     style: 'Economia de turismo e comércio; Verde costeiro.', stars: { eco: 4, con: 3, inf: 3 }, risk: 'Média', cx: 'Baixa',
     regionalGoal: { id: 'RG-LIT', name: 'Cartão-Postal', t: '3 COM/VER na Orla e 😊 ≥ 7.' },
     regional: ['R-LIT-1', 'R-LIT-2', 'R-LIT-3'],
   },
   montanha: {
-    id: 'montanha', name: 'Montanha', sub: 'Serra Alta', icon: '⛰️', color: '#6C7A89', cap: { e: 4, w: 3 },
+    id: 'montanha', name: 'Montanha', sub: 'Serra Alta', icon: '⛰️', color: '#6C7A89', cap: { e: 3, w: 3 },
     grid: rows('EEEE', 'EPH.', '..JR', '.J..'),
-    trait: 'Riqueza Mineral', traitT: 'Edifícios IND em Jazida (J) rendem +🔨1. Hidrelétricas em Rio/Encosta custam −🔨1.',
+    trait: 'Riqueza Mineral', traitT: 'Edifícios IND em Jazida (J) rendem +💰1. Hidrelétricas em Rio/Encosta custam −🔨1.',
     weak: 'Encostas', weakT: '5 casas Encosta (+🔨1 para construir). Poucas casas planas.',
     style: 'Indústria pesada, energia barata, construção cara.', stars: { eco: 3, con: 2, inf: 4 }, risk: 'Alta (Minas)', cx: 'Média',
     regionalGoal: { id: 'RG-MON', name: 'Veia Metálica', t: '2 IND ativos em Jazida e ☁️ ≤ 4.' },
     regional: ['R-MON-1', 'R-MON-2', 'R-MON-3'],
   },
   planicie: {
-    id: 'planicie', name: 'Planície', sub: 'Campos Verdes', icon: '🌾', color: '#B5C66E', cap: { e: 2, w: 3 },
+    id: 'planicie', name: 'Planície', sub: 'Campos Verdes', icon: '🌾', color: '#B5C66E', cap: { e: 3, w: 3 },
     grid: rows('....', '.PHR', '...R', '....'),
-    trait: 'Terra Barata', traitT: 'Loteamento custa 💰1 e Licitação custa 💰2 para você.',
-    weak: 'Poucas Riquezas', weakT: 'Capacidade de ⚡ inicial menor (2) e nenhuma casa especial além do Rio; Seca (Onda de Calor) corta −3 de 💧.',
+    trait: 'Terra Barata', traitT: 'Loteamento custa 💰1; Licitação e Explorar custam 💰2 para você.',
+    weak: 'Poucas Riquezas', weakT: 'Nenhuma casa especial além do Rio; Seca (Onda de Calor) corta −3 de 💧.',
     style: 'Expansão rápida e barata; precisa de Infra cedo.', stars: { eco: 3, con: 4, inf: 2 }, risk: 'Baixa', cx: 'Baixa',
     regionalGoal: { id: 'RG-PLA', name: 'Cidade Jardim', t: '👥 ≥ 15, 😊 ≥ 8 e ☁️ ≤ 2.' },
     regional: ['R-PLA-1', 'R-PLA-2', 'R-PLA-3'],
@@ -410,9 +410,18 @@ export const PACKAGES = [
   { treasury: 1 },
   { treasury: 2 },
   { treasury: 2, appr: 1 },
-  { treasury: 3, appr: 1, pick: { n: 2, only: 'admin' } },
-  { treasury: 3, appr: 1, pick: { n: 3, only: 'any' } },
+  { treasury: 3 },
+  { treasury: 3, appr: 1 },
 ];
+// Pacote de Posição calibrado por nº de jogadores (simulação com draft por preferência; ver README)
+export const PACKAGES_BY_N = {
+  2: [{}, { treasury: 2 }],
+  3: [{}, { treasury: 2 }, { treasury: 1 }],
+  4: [{ treasury: 2 }, { treasury: 1 }, {}, { treasury: 1 }],
+  5: [{}, { treasury: 1 }, { treasury: 2 }, {}, {}],
+  6: [{}, { treasury: 2 }, { treasury: 2 }, {}, {}, { treasury: 1 }],
+};
+export const packageFor = (n, seat) => ((PACKAGES_BY_N[n] || PACKAGES)[seat] || {});
 
 export const RIVAL = {
   aprendiz: { name: 'Aprendiz', t: '+1 ⭐ nas rodadas pares (2, 4, 6…). Praticamente nunca chega a ⭐10.', ref: 4 },

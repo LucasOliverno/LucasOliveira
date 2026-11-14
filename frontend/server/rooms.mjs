@@ -43,7 +43,7 @@ export class Rooms {
     clearTimeout(this.saveTimer);
     this.saveTimer = null;
     const rooms = [...this.rooms.values()].map((r) => ({
-      code: r.code, opts: r.opts, game: r.game, touched: r.touched,
+      code: r.code, opts: r.opts, game: r.game, touched: r.touched, chat: r.chat || [],
       seats: r.seats.map((s) => ({ name: s.name, bot: s.bot, token: s.token, host: s.host })),
     }));
     try {
@@ -60,7 +60,7 @@ export class Rooms {
       const d = JSON.parse(readFileSync(this.file, 'utf8'));
       for (const x of d.rooms || []) {
         if (!x || !x.code || !Array.isArray(x.seats) || !x.seats.length) continue;
-        const r = { code: x.code, opts: x.opts || { target: 10, noIntrigues: false }, game: x.game || null, touched: x.touched || Date.now(), botTimer: null, seats: x.seats.map((s) => ({ ...s, ws: null })) };
+        const r = { code: x.code, opts: x.opts || { target: 10, noIntrigues: false }, game: x.game || null, touched: x.touched || Date.now(), botTimer: null, chat: Array.isArray(x.chat) ? x.chat.slice(-60) : [], seats: x.seats.map((s) => ({ ...s, ws: null })) };
         this.rooms.set(r.code, r);
       }
       for (const r of this.rooms.values()) this.pump(r); // bots retomam a vez
@@ -132,6 +132,7 @@ export class Rooms {
       case 'leave': return this.leave(ws);
       case 'lobby': return ctx ? this.lobbyAction(ws, ctx, msg) : send(ws, { t: 'error', msg: 'Entre numa sala primeiro.' });
       case 'cmd': return ctx ? this.command(ws, ctx, msg.cmd) : send(ws, { t: 'error', msg: 'Entre numa sala primeiro.' });
+      case 'chat': return ctx ? this.chat(ws, ctx, msg.text) : undefined;
       default: return undefined;
     }
   }
@@ -142,10 +143,11 @@ export class Rooms {
     const code = this.newCode();
     if (!code) return send(ws, { t: 'error', msg: 'Não foi possível criar a sala.' });
     const token = randomBytes(16).toString('hex');
-    const r = { code, seats: [{ name: clean(msg.name) || 'Prefeito(a) 1', bot: false, token, ws: null, host: true }], opts: { target: 10, noIntrigues: false }, game: null, botTimer: null, touched: Date.now() };
+    const r = { code, seats: [{ name: clean(msg.name) || 'Prefeito(a) 1', bot: false, token, ws: null, host: true }], opts: { target: 10, noIntrigues: false }, game: null, botTimer: null, touched: Date.now(), chat: [] };
     this.rooms.set(code, r);
     this.attach(r, 0, ws);
     send(ws, { t: 'joined', code, token, seat: 0 });
+    send(ws, { t: 'chatlog', list: r.chat });
     this.broadcast(r);
   }
 
@@ -160,6 +162,7 @@ export class Rooms {
     r.seats.push({ name, bot: false, token, ws: null, host: false });
     this.attach(r, r.seats.length - 1, ws);
     send(ws, { t: 'joined', code: r.code, token, seat: r.seats.length - 1 });
+    send(ws, { t: 'chatlog', list: r.chat || [] });
     this.broadcast(r);
   }
 
@@ -169,6 +172,7 @@ export class Rooms {
     if (!r || seat < 0) return send(ws, { t: 'gone', msg: 'Sala ou assento não existe mais.' });
     this.attach(r, seat, ws);
     send(ws, { t: 'joined', code: r.code, token: r.seats[seat].token, seat });
+    send(ws, { t: 'chatlog', list: r.chat || [] });
     this.broadcast(r);
     this.pump(r);
   }
@@ -241,6 +245,14 @@ export class Rooms {
         r.game.players[i].bot = true;
         break;
       }
+      case 'rematch': { // depois do fim: volta todos para a sala de espera, com os mesmos assentos
+        if (!r.game || !r.game.over) return err('A partida ainda não terminou.');
+        clearTimeout(r.botTimer);
+        r.botTimer = null;
+        r.game = null;
+        this.say(r, null, 'Revanche! O anfitrião abriu a sala de novo.');
+        break;
+      }
       case 'start': {
         if (r.game) return err('A partida já começou.');
         if (r.seats.length < MIN_SEATS) return err('Precisa de pelo menos 2 prefeitos (adicione bots se quiser).');
@@ -253,6 +265,29 @@ export class Rooms {
     this.broadcast(r);
     if (r.game) this.pump(r);
     return undefined;
+  }
+
+  say(r, seat, text) {
+    const s = seat == null ? null : r.seats[seat];
+    const m = { seat, name: s ? s.name : 'Mesa', text, ts: Date.now() };
+    r.chat = r.chat || [];
+    r.chat.push(m);
+    if (r.chat.length > 60) r.chat.splice(0, r.chat.length - 60);
+    r.seats.forEach((x) => send(x.ws, { t: 'chat', msg: m }));
+    this.dirty();
+  }
+
+  chat(ws, ctx, text) {
+    const r = this.rooms.get(ctx.code);
+    if (!r || !r.seats[ctx.seat]) return;
+    const msg = String(text ?? '').replace(/[ -]/g, ' ').trim().slice(0, 240);
+    if (!msg) return;
+    const now = Date.now();
+    ws.chatT = (ws.chatT || []).filter((x) => now - x < 10000);
+    if (ws.chatT.length >= 8) return send(ws, { t: 'error', msg: 'Calma: muitas mensagens seguidas.' });
+    ws.chatT.push(now);
+    r.touched = now;
+    this.say(r, ctx.seat, msg);
   }
 
   start(r) {

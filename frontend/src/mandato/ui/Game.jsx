@@ -3,7 +3,10 @@ import { CARDS, GOALS, ROUNDS, TERRAINS, LOT_OPTS, STANDARD, FACTIONS, FAC_KEYS,
 import * as E from '../engine.js';
 import { botStep } from '../bot.js';
 import { Ico, Rich, TerrainGlyph } from './icons.jsx';
-import { Card, ExploreCard, CostChip } from './cards.jsx';
+import { Card, ExploreCard, CostChip, FacEmblem, GoalEmblem } from './cards.jsx';
+import { HAS_ART, artUrl } from './cardutil.js';
+import { Chat } from './chat.jsx';
+import { chime, loadMuted, saveMuted } from './sound.js';
 import { City, MetersMini, ResPool, MeritTrack, TurnStrip, CenterBoard } from './board.jsx';
 import { Draft, Curtain, Rules, GameOver } from './screens.jsx';
 
@@ -35,7 +38,7 @@ function Bag({ s }) {
 
 // ---------------------------------------------------------------- barra superior
 
-function RoundBanner({ s, act }) {
+function RoundBanner({ s }) {
   const rd = ROUNDS.find((r) => r.id === s.card);
   return (
     <div className="banner">
@@ -45,13 +48,13 @@ function RoundBanner({ s, act }) {
         {s.finalRound && <span className="b-final">Rodada final</span>}
       </div>
       {rd && (
-        <div className="b-card">
+        <div className={`b-card${HAS_ART.has(rd.id) ? ' has-art' : ''}`}>
+          {HAS_ART.has(rd.id) && <img className="b-art" src={artUrl(rd.id)} alt="" draggable="false" />}
           <div className="b-ev"><span className="tagk">Evento</span><b>{rd.name}</b><span><Rich t={rd.ev} s={14} /></span></div>
           <div className="b-au"><span className="tagk au">Auditoria</span><span><Rich t={rd.au} s={14} /></span></div>
         </div>
       )}
       <Bag s={s} />
-      <TurnStrip s={s} act={act} />
     </div>
   );
 }
@@ -76,7 +79,7 @@ function Goals({ s, me, myTurn, run }) {
         const avail = (sl.gold == null && sl.silver !== me.id) || (sl.silver == null && sl.gold !== me.id);
         return (
           <article key={sl.id + i} className={`goal${ok ? ' ready' : ''}`}>
-            <header><span className="gid">{g.id}</span><b>{g.name}</b><small>{g.cat} {'★'.repeat(g.d)}</small></header>
+            <header><GoalEmblem id={g.id} s={40} /><span className="gid">{g.id}</span><b>{g.name}</b><small>{g.cat} {'★'.repeat(g.d)}</small></header>
             <p><Rich t={g.t} s={14} /></p>
             <div className="medals">
               <span className={`medal gold${gold ? ' got' : ''}`}><Ico n="star" s={14} /> Ouro ⭐2 {gold ? `· ${gold}` : ''}</span>
@@ -130,7 +133,7 @@ function PendingModal({ s, pe, viewer, run }) {
       <div className="choices">
         {FAC_KEYS.map((f) => (
           <button type="button" key={f} className="choice" disabled={!mine || d.excl.includes(f)} onClick={() => run({ t: 'choose', f })} style={{ '--fc': FACTIONS[f].color }}>
-            <Ico n={f} s={34} /><b>{FACTIONS[f].name}</b><span>{p.fac[f]} → {Math.min(6, p.fac[f] + d.n)}</span>
+            <FacEmblem f={f} s={46} /><b>{FACTIONS[f].name}</b><span>{p.fac[f]} → {Math.min(6, p.fac[f] + d.n)}</span>
           </button>
         ))}
       </div>
@@ -195,6 +198,11 @@ export default function Game({ game, setGame, onExit, online }) {
   const [toast, setToast] = useState('');
   const [hover, setHover] = useState(null);
   const [showRules, setShowRules] = useState(false);
+  const [centerOpen, setCenterOpen] = useState(() => { try { return localStorage.getItem('mandato:center') !== '0'; } catch { return true; } });
+  const [muted, setMuted] = useState(loadMuted);
+  const [seenChat, setSeenChat] = useState(0);
+  const [hideOver, setHideOver] = useState(false);
+  const [peek, setPeek] = useState(false); // ver a mão fora da sua vez
   const tt = useRef(null);
 
   const needCurtain = !online && humans.length > 1 && act != null && !s.players[act].bot && act !== shown && !s.over;
@@ -208,6 +216,15 @@ export default function Game({ game, setGame, onExit, online }) {
     if (myTurn) document.title = '▶ Sua vez! — MANDATO';
     return () => { document.title = base; };
   }, [online, myTurn]);
+  useEffect(() => { if (online && myTurn && !muted) chime(); }, [online, myTurn, muted]);
+  const toggleCenter = () => setCenterOpen((v) => { try { localStorage.setItem('mandato:center', v ? '0' : '1'); } catch { /* sem armazenamento */ } return !v; });
+  const chatLen = online && online.chat ? online.chat.length : 0;
+  const unread = tab === 'chat' ? 0 : Math.max(0, chatLen - seenChat);
+  const pickTab = (k) => { if (k === 'chat' || tab === 'chat') setSeenChat(chatLen); setTab(k); };
+  const exit = () => {
+    if (online && !s.over && !window.confirm('Sair da partida? Seu lugar fica guardado: dá para voltar pela tela "Jogar online".')) return;
+    onExit();
+  };
 
   const say = useCallback((m) => { setToast(m); clearTimeout(tt.current); tt.current = setTimeout(() => setToast(''), 3600); }, []);
   useEffect(() => () => clearTimeout(tt.current), []);
@@ -224,6 +241,13 @@ export default function Game({ game, setGame, onExit, online }) {
     setGame(r.state);
     return true;
   }, [s, setGame, say, online]);
+
+  const hasSimple = me.hand.some(SIMPLE);
+  const endTurn = useCallback(() => {
+    if (!myTurn) return;
+    if (hasSimple && !window.confirm('Você ainda tem cartas de recurso na mão (elas vão para o descarte sem render nada). Encerrar o turno mesmo assim?')) return;
+    setPlacing(null); setSel(null); run({ t: 'end' });
+  }, [myTurn, hasSimple, run]);
 
   // Bots jogam um de cada vez, à vista de todos na mesa.
   const botWho = !s.over && act != null && s.players[act].bot ? act : null;
@@ -314,12 +338,12 @@ export default function Game({ game, setGame, onExit, online }) {
     const onKey = (e) => {
       if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
       if (e.key === 'Escape') { setPlacing(null); setSel(null); }
-      else if ((e.key === 'e' || e.key === 'E') && myTurn) run({ t: 'end' });
+      else if ((e.key === 'e' || e.key === 'E') && myTurn) endTurn();
       else if (/^[1-9]$/.test(e.key) && me.hand[+e.key - 1]) { setSel({ k: 'hand', hi: +e.key - 1 }); setPlacing(null); }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [myTurn, me, run]);
+  }, [myTurn, me, endTurn]);
 
   const playAllSimple = () => {
     if (online) { online.send({ t: 'playSimple' }); setSel(null); return; }
@@ -480,10 +504,12 @@ export default function Game({ game, setGame, onExit, online }) {
   );
 
   // Um lugar à mesa: a cidade de cada jogador, sempre à vista de todos.
+  const lastOf = (p) => { for (let i = s.log.length - 1; i >= 0; i--) { const l = s.log[i]; if (l.pid === p.id && l.kind !== 'turn' && l.kind !== 'round') return l.msg; } return null; };
   const seat = (p) => {
     const mine = p.id === viewer;
     const turn = !s.over && act === p.id;
     const T = TERRAINS[p.terrain];
+    const last = lastOf(p);
     return (
       <article key={p.id} className={`seat${mine ? ' mine' : ''}${turn ? ' turn' : ''}`} style={{ '--pc': p.color }} aria-label={`Cidade de ${p.name}`}>
         <header className="seat-h">
@@ -500,6 +526,7 @@ export default function Game({ game, setGame, onExit, online }) {
           {turn && <span className="seat-turn">{botWho === p.id ? 'jogando…' : 'na vez'}</span>}
           <span className="pl-merit" title="Mérito"><Ico n="star" s={18} />{p.merit}</span>
         </header>
+        {last && <p className="seat-last" title="Última jogada"><Rich t={last} s={12} /></p>}
         {mine && <p className="tnote"><b>▲ {T.trait}:</b> <Rich t={T.traitT} s={13} /> <b>▼ {T.weak}:</b> <Rich t={T.weakT} s={13} /></p>}
         <City s={s} p={p} placing={mine && !!placing} validity={mine ? validity : null} onTile={(i) => onTile(p.id, i)} selected={sel && sel.k === 'tile' && (sel.pid ?? viewer) === p.id ? sel.i : null} onHover={mine ? setHover : undefined} />
         {mine && placingBar}
@@ -513,12 +540,13 @@ export default function Game({ game, setGame, onExit, online }) {
     );
   };
 
-  const hasSimple = me.hand.some(SIMPLE);
+  const handOpen = myTurn || peek || !!placing || s.over;
   const hand = (
-    <div className={`handwrap${myTurn ? '' : ' waiting'}`}>
+    <div className={`handwrap${myTurn ? '' : ' waiting'}${handOpen ? '' : ' closed'}`}>
       <div className="hand-head">
         <h3 className="h">{myTurn ? 'Sua mão' : 'Sua próxima mão'} <small>{me.hand.length} cartas · deck {me.deck.length} · descarte {me.discard.length}</small></h3>
         {myTurn && <button type="button" className="btn sm" onClick={playAllSimple} disabled={!hasSimple}>Jogar recursos simples</button>}
+        {!myTurn && <button type="button" className="m-link" onClick={() => setPeek((v) => !v)}>{handOpen ? 'recolher a mão' : 'ver a mão'}</button>}
       </div>
       <div className="hand">
         {me.hand.map((id, hi) => (
@@ -533,13 +561,18 @@ export default function Game({ game, setGame, onExit, online }) {
 
   const pe = s.pending[0];
   const mtabs = [['city', 'Cidade'], ['market', 'Mercado'], ['goals', 'Metas'], ['log', 'Diário']];
+  const PEND = { faction: 'avançar numa Facção', option: 'escolher um efeito', explore: 'explorar', hand: 'escolher uma carta da mão', pick: 'escolher o Pacote de Posição', reaction: 'reagir a uma Intriga', tile: 'escolher uma casa' };
+  const waitbar = pe && pe.pid !== viewer && !needCurtain && (
+    <div className="waitbar" role="status"><i className="disc" style={{ background: s.players[pe.pid].color }} /> {s.players[pe.pid].name} está decidindo: {PEND[pe.kind] || 'uma escolha'}…</div>
+  );
 
   if (s.phase === 'draft') {
     return (
       <>
-        <div className="topbar"><Brand />{online && <span className="roomchip" title="Código da sala">Sala <b>{online.code}</b></span>}<div className="tb-r"><button type="button" className="btn btn-ghost sm" onClick={() => setShowRules(true)}>Regras</button><button type="button" className="btn btn-ghost sm" onClick={onExit}>Sair</button></div></div>
+        <div className="topbar"><Brand />{online && <span className="roomchip" title="Código da sala">Sala <b>{online.code}</b></span>}<div className="tb-r"><button type="button" className="btn btn-ghost sm" onClick={() => setShowRules(true)}>Regras</button><button type="button" className="btn btn-ghost sm" onClick={exit}>Sair</button></div></div>
         <Draft s={s} viewer={viewer} onPick={(terrain) => run({ t: 'pick', terrain })} />
-        {pe && <PendingModal s={s} pe={pe} viewer={viewer} run={run} />}
+        {pe && pe.pid === viewer && <PendingModal s={s} pe={pe} viewer={viewer} run={run} />}
+        {waitbar}
         {(toast || onlineErr) && <div className="toast" role="status">{toast || onlineErr}</div>}
         {showRules && <Rules onClose={() => setShowRules(false)} />}
         {needCurtain && <Curtain name={s.players[act].name} color={s.players[act].color} why="É a vez de escolher o terreno." onOk={() => switchTo(act)} />}
@@ -553,31 +586,39 @@ export default function Game({ game, setGame, onExit, online }) {
         <Brand />{online && <span className="roomchip" title="Código da sala">Sala <b>{online.code}</b></span>}
         <MeritTrack s={s} />
         <div className="tb-r">
+          {online && <button type="button" className="btn btn-ghost sm" onClick={() => setMuted((m) => { saveMuted(!m); return !m; })} title={muted ? 'Ligar o aviso sonoro da sua vez' : 'Silenciar o aviso da sua vez'} aria-pressed={!muted}>{muted ? '🔕' : '🔔'}</button>}
           <button type="button" className="btn btn-ghost sm" onClick={() => setShowRules(true)}>Regras</button>
-          <button type="button" className="btn btn-ghost sm" onClick={onExit}>Sair</button>
+          <button type="button" className="btn btn-ghost sm" onClick={exit}>Sair</button>
         </div>
       </div>
-      <RoundBanner s={s} act={act} />
+      <RoundBanner s={s} />
 
       <div className="grid">
         <section className="pane pane-board" data-pane="city" aria-label="Mesa principal">
-          <CenterBoard s={s} onGoals={() => { setTab('metas'); goTab('goals'); }} />
+          <div className="board-top">
+            <button type="button" className="center-toggle" onClick={toggleCenter} aria-expanded={centerOpen}>
+              <span>{centerOpen ? '▾' : '▸'}</span> Centro da mesa <small>Metas e Facções{centerOpen ? '' : ' — abrir'}</small>
+            </button>
+            <TurnStrip s={s} act={act} />
+          </div>
+          {centerOpen && <CenterBoard s={s} onGoals={() => { pickTab('metas'); goTab('goals'); }} />}
           <div className={`cities c${s.players.length}`}>
-            {s.players.map(seat)}
+            {[...s.players.slice(viewer), ...s.players.slice(0, viewer)].map(seat)}
           </div>
         </section>
 
         <aside className="pane pane-side">
           <div className="pane pane-insp" data-pane="city">{inspector()}</div>
           <div className="tabs" role="tablist">
-            {[['mercado', 'Mercado'], ['metas', 'Metas'], ['diario', 'Diário']].map(([k, l]) => (
-              <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>
+            {[['mercado', 'Mercado'], ['metas', 'Metas'], ['diario', 'Diário'], ...(online ? [['chat', 'Conversa']] : [])].map(([k, l]) => (
+              <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => pickTab(k)}>{l}{k === 'chat' && unread > 0 && <i className="badge">{unread}</i>}</button>
             ))}
           </div>
           <div className="tabbody">
             <div className="pane" data-pane="market" hidden={tab !== 'mercado'}>{market}</div>
             <div className="pane" data-pane="goals" hidden={tab !== 'metas'}><Goals s={s} me={me} myTurn={myTurn} run={run} /></div>
             <div className="pane" data-pane="log" hidden={tab !== 'diario'}><Log s={s} viewer={viewer} /></div>
+            {online && <div className="pane" data-pane="chat" hidden={tab !== 'chat'}><Chat list={online.chat || []} you={viewer} colors={s.players.map((p) => p.color)} onSend={online.sendChat} /></div>}
           </div>
         </aside>
       </div>
@@ -590,7 +631,7 @@ export default function Game({ game, setGame, onExit, online }) {
               <span>Renda/turno: <Rich t={(() => { const c = E.calc(s, me); return `💰${c.inc.v} 🔨${c.inc.o} 🗳️${c.inc.a}`; })()} s={14} /></span>
               <span className="who">{myTurn ? 'É a sua vez' : s.over ? 'Fim de jogo' : `Vez de ${s.players[act]?.name || '…'}`}</span>
             </div>
-            <button type="button" className="btn btn-primary end" disabled={!myTurn} onClick={() => { setPlacing(null); setSel(null); run({ t: 'end' }); window.scrollTo({ top: 0 }); }}>Encerrar turno <kbd>E</kbd></button>
+            <button type="button" className="btn btn-primary end" disabled={!myTurn} onClick={endTurn}>Encerrar turno <kbd>E</kbd></button>
           </div>
           {hand}
         </div>
@@ -607,10 +648,22 @@ export default function Game({ game, setGame, onExit, online }) {
         </div>
       )}
       {(toast || onlineErr) && <div className="toast" role="status">{toast || onlineErr}</div>}
-      {pe && <PendingModal s={s} pe={pe} viewer={viewer} run={run} />}
+      {pe && pe.pid === viewer && <PendingModal s={s} pe={pe} viewer={viewer} run={run} />}
+      {waitbar}
       {online && !online.connected && <div className="reconn" role="alert">Conexão perdida — reconectando…</div>}
       {showRules && <Rules onClose={() => setShowRules(false)} />}
-      {s.over && <GameOver s={s} onAgain={onExit} />}
+      {s.over && !hideOver && (
+        <GameOver
+          s={s}
+          onAgain={onExit}
+          againLabel={online ? 'Sair da sala' : 'Jogar de novo'}
+          onView={() => setHideOver(true)}
+          extra={online && (online.host === online.viewer
+            ? <button type="button" className="btn btn-primary" onClick={online.rematch}>Revanche na mesma sala</button>
+            : <p className="hint">O anfitrião pode abrir uma revanche com a mesma turma.</p>)}
+        />
+      )}
+      {s.over && hideOver && <button type="button" className="btn btn-primary over-back" onClick={() => setHideOver(false)}>Ver o resultado</button>}
       {needCurtain && <Curtain name={s.players[act].name} color={s.players[act].color} why={pe ? 'Há uma decisão para você.' : 'É a sua vez de jogar. Ninguém mais deve ver a tela.'} onOk={() => switchTo(act)} />}
     </div>
   );

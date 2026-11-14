@@ -3,6 +3,10 @@ import * as E from './engine.js';
 import { LOT_OPTS, STANDARD, FAC_KEYS, GOALS, TERRAINS } from './data.js';
 
 const { CARDS } = E;
+// Ordem de preferência no draft (medida em simulação; ver test/sim.mjs)
+export const DRAFT_RANK = ['montanha', 'ilha', 'floresta', 'deserto', 'litoral', 'planicie'];
+// draft: 'rank' (padrão) ou 'random' (simulação para medir a força de cada terreno sem o efeito da ordem)
+export const BOT_OPTS = { draft: 'rank' };
 const W = { v: 1, o: 1.2, a: 1.5 };
 
 // ------------------------------------------------------------------ avaliação
@@ -101,7 +105,7 @@ const costPU = (c) => (c.v || 0) + 1.5 * (c.a || 0);
 
 // ------------------------------------------------------------------ decisões pendentes
 
-function decide(s, pe) {
+export function decide(s, pe) {
   const p = s.players[pe.pid];
   const d = pe.data;
   switch (pe.kind) {
@@ -257,8 +261,10 @@ function botAct(s) {
       E.exec(s, { t: 'choose', i: 0, f: 'tec', tile: s.pending[0].data.tiles ? s.pending[0].data.tiles[0] : 0, hi: 0, use: false });
     }
   } else if (s.phase === 'draft') {
+    // escolhe pelo ranking de força (quem escolhe antes leva vantagem, como numa mesa real)
     const pool = s.draft.pool;
-    E.exec(s, { t: 'pick', terrain: pool[Math.floor(Math.random() * pool.length)] });
+    const pick = BOT_OPTS.draft === 'random' ? E.shuffle(s, pool)[0] : (DRAFT_RANK.find((t) => pool.includes(t)) || pool[0]);
+    E.exec(s, { t: 'pick', terrain: pick });
   } else botTurn(s);
 }
 

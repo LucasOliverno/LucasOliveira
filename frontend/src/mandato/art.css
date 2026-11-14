@@ -1,0 +1,46 @@
+/* ====================================================== ARTE (cartas, emblemas, mapas) ====================================================== */
+/* formato de carta (63×88) com moldura: a arte fica numa janela com borda própria, recortada (cover + zoom leve),
+   então sobras de fundo e de células vizinhas nas bordas da imagem ficam escondidas */
+.card { aspect-ratio: 63 / 88; }
+.card .c-art { aspect-ratio: 6 / 5; margin: .4em .4em .4em; border: .15em solid var(--ink); border-radius: .6em; box-shadow: inset 0 0 0 .1em rgba(243, 235, 221, .55); }
+.card .c-art img { transform: scale(1.13); transform-origin: 50% 45%; }
+.card .c-art .c-fac, .card .c-art .c-alert { z-index: 2; }
+.c-admin .c-art img { object-position: 50% 6%; transform-origin: 50% 20%; }
+.c-intrigue .c-art img { object-position: 50% 0%; transform: scale(1.32); transform-origin: 50% 6%; } /* esconde os cantos cremes da forma em V */
+.c-band { flex-wrap: wrap; row-gap: .1em; }
+.c-name { flex: 1 1 5em; }
+.c-cost { margin-left: auto; }
+.cstrip { margin-top: -.1em; }
+
+/* emblemas de Facção e de Meta: os recortes têm cantos cremes, o multiply funde com o papel */
+.emb { display: inline-block; flex: none; vertical-align: middle; mix-blend-mode: multiply; }
+.goal-emb { mix-blend-mode: normal; }
+.cg-h .emb { margin-right: 2px; }
+.goal header .emb { align-self: center; }
+.choice .emb { margin-bottom: 2px; }
+
+/* carta de Rodada no banner */
+.b-card.has-art { grid-template-columns: 92px 1fr; }
+.b-art { grid-row: 1 / span 2; align-self: center; width: 92px; height: 92px; object-fit: contain; mix-blend-mode: multiply; padding: 2px 0 2px 6px; }
+
+/* carta de Exploração com a arte em arco */
+.xcard { display: flex; gap: 10px; width: 300px; align-items: flex-start; }
+.xc-art { flex: none; width: 88px; mix-blend-mode: multiply; margin: -2px 0 -4px; }
+.xc-main { display: grid; gap: 6px; align-content: start; min-width: 0; }
+
+/* mapa do terreno por baixo da grade da cidade */
+.city.city-map { background: var(--map) center / cover; padding: 8px; border: 2px solid var(--ink); border-radius: 10px; }
+.seat .city-map { padding: 5px; }
+.city-map .tile.k-\. { background: rgba(243, 235, 221, .52); }
+.city-map .tile.k-O, .city-map .tile.k-C { background-color: rgba(188, 217, 234, .66); }
+.city-map .tile.k-E { background-color: rgba(227, 211, 174, .68); }
+.city-map .tile.k-J { background-color: rgba(234, 217, 168, .68); }
+.city-map .tile.k-R { background-color: rgba(197, 223, 233, .68); }
+.city-map .tile.k-D { background-color: rgba(236, 212, 160, .68); }
+.city-map .tile.k-A { background-color: rgba(215, 232, 208, .68); }
+.city-map .tile.k-F { background-color: rgba(188, 209, 174, .68); }
+.city-map .tile.k-F.cleared { background: rgba(243, 235, 221, .55); }
+
+/* pré-visualização na escolha de terreno */
+.tp.tp-map { background: var(--map) center / cover; padding: 6px; border: 2px solid var(--ink); border-radius: 8px; width: min(100%, 240px); }
+.tp-map .mt { background-color: rgba(243, 235, 221, .55); }

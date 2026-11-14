@@ -1,17 +1,17 @@
 import { ZONES, TILE_NAMES, TILE_HINT, FACTIONS, FAC_KEYS, CARGOS, GOALS } from '../data.js';
 import { calc, def, tmax } from '../engine.js';
 import { Ico, Rich } from './icons.jsx';
-import { artUrl } from './cardutil.js';
-
-const HAS_ART = (id) => /^E[12]-0\d$/.test(id);
+import { HAS_ART, artUrl, terrainMap } from './cardutil.js';
+import { FacEmblem, GoalEmblem } from './cards.jsx';
 
 // ---------------------------------------------------------------- cidade (grade 4×4 ou arquipélago)
 
 export function City({ s, p, validity, placing, onTile, selected, interactive = true, onHover }) {
   const c = calc(s, p);
   const island = p.tiles.some((t) => t.isl !== 'M');
+  const map = !island ? terrainMap(p.terrain) : null; // mapa do terreno por baixo da grade (o arquipélago tem layout próprio)
   return (
-    <div className={`city${island ? ' city-island' : ''}`} role="grid" aria-label={`Cidade de ${p.name}`}>
+    <div className={`city${island ? ' city-island' : ''}${map ? ' city-map' : ''}`} style={map ? { '--map': `url(${map})` } : undefined} role="grid" aria-label={`Cidade de ${p.name}`}>
       {island && <span className="isl-label isl-M">Ilha Principal</span>}
       {island && <span className="isl-label isl-N">Ilha Norte</span>}
       {island && <span className="isl-label isl-L">Ilha Leste</span>}
@@ -52,7 +52,7 @@ export function City({ s, p, validity, placing, onTile, selected, interactive = 
           >
             {b ? (
               <>
-                {HAS_ART(b.id) && <img className="t-img" src={artUrl(b.id)} alt="" draggable="false" />}
+                {HAS_ART.has(b.id) && <img className="t-img" src={artUrl(b.id)} alt="" draggable="false" />}
                 <span className="t-zone"><Ico n={zone} s={16} /></span>
                 <span className="t-name">{d.name}</span>
                 {!isOn && <span className="t-state">{off ? 'inativo' : 'Req 👥'}</span>}
@@ -168,7 +168,7 @@ export function FactionTracks({ s, me }) {
         const holder = s.tokens[f] != null ? s.players[s.tokens[f]] : null;
         return (
           <div key={f} className="fac" style={{ '--fc': F.color }}>
-            <div className="fac-head"><Ico n={f} s={26} /><b>{F.name}</b></div>
+            <div className="fac-head"><FacEmblem f={f} s={30} /><b>{F.name}</b></div>
             <div className="fac-track">
               {[6, 5, 4, 3, 2, 1, 0].map((n) => (
                 <div key={n} className={`fac-step${n === 3 ? ' mark' : ''}${n === 5 ? ' ally' : ''}`}>
@@ -247,7 +247,7 @@ export function CenterBoard({ s, onGoals }) {
             const silver = who('silver');
             return (
               <button type="button" key={sl.id + i} className="cg" onClick={onGoals} title={`${g.name}: ${g.t}`}>
-                <span className="cg-h"><span className="gid">{g.id}</span><b>{g.name}</b></span>
+                <span className="cg-h"><GoalEmblem id={g.id} s={34} /><span className="gid">{g.id}</span><b>{g.name}</b></span>
                 <span className="cg-t"><Rich t={g.t} s={12} /></span>
                 <span className="cg-m">
                   <span className={`cg-medal${gold ? ' got' : ''}`}>🥇 {gold ? <><i className="disc sm" style={{ background: gold.c }} />{gold.n}</> : 'livre'}</span>
@@ -266,7 +266,7 @@ export function CenterBoard({ s, onGoals }) {
             const holder = s.tokens[f] != null ? s.players[s.tokens[f]] : null;
             return (
               <div key={f} className="cf" style={{ '--fc': F.color }}>
-                <div className="cf-h"><Ico n={f} s={20} /><b>{F.name}</b></div>
+                <div className="cf-h"><FacEmblem f={f} s={26} /><b>{F.name}</b></div>
                 <div className="cf-rows">
                   {s.players.map((p) => (
                     <div key={p.id} className="cf-r" title={`${p.name}: ${p.fac[f]}`}>

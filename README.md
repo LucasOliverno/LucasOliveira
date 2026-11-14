@@ -76,6 +76,32 @@ Deploy (Railway): o serviço precisa rodar o **servidor Node**, não só arquivo
 (em `frontend/`); Start Command: `npm start` (em `frontend/`; a partir da raiz do repositório, `npm start` também
 funciona). O WebSocket usa a mesma porta e o mesmo domínio do site (`wss://lucasoliverno.com/mandato/ws`).
 
+**Na mesa online:** o centro da mesa (Metas e Facções) recolhe com um clique, a sua cidade aparece primeiro e cada
+prefeito mostra a última jogada. A decisão de outro jogador vira um aviso no topo, sem modal, e só quem decide vê a
+janela de escolha. Fora da sua vez a mão recolhe para sobrar espaço para a mesa. Há aviso sonoro de "sua vez" (🔔 no
+topo), conversa da sala (na sala de espera e na aba Conversa), revanche na mesma sala e confirmação ao sair. Se o
+mesmo lugar for aberto em outra aba, a aba antiga para de reconectar em vez de disputar o lugar.
+
+**Balanceamento v1.1** (medido com `npm run sim:mandato -- <partidas> <jogadores>`; `DRAFT=random` mede só os terrenos):
+- Prefeitura rende 💰1 **e 🔨1**: sem isso as obras travavam o começo (0,2 edifício por jogador na rodada 3).
+- Pacote de Posição só com Tesouro e calibrado por número de jogadores (`PACKAGES_BY_N` em `data.js`). Jogar primeiro
+  na rodada 1 já vale ~10 pp; com o pacote antigo (😊 e cartas extras) o último assento chegava a 43% de vitória.
+- Montanha: ⚡ inicial 4→3 e Jazida rende 💰1 em vez de 🔨1. Planície: ⚡ inicial 2→3 e Explorar por 💰2.
+  Litoral: VER na Orla também rende 💰1.
+- Os bots escolhem terreno por preferência (`DRAFT_RANK` em `bot.js`), como numa mesa real.
+- Resultado com o GreedyBot (300–500 partidas): vitória por assento 2p 51/49, 3p 37/29/34, 4p 22/21/31/27,
+  6p entre 13% e 22%; terrenos entre 0,8× e 1,3× a média; o vencedor termina com ⭐8 em média.
+- Ainda abaixo da meta do doc 08: Fiscalizações (~3 por partida, meta 6–9), peso das Obras-Prima (~37% do mérito,
+  meta 20–25%) e Crises (~1,4 por partida). Vale confirmar tudo com partidas de humanos.
+
+**Arte das cartas:** as folhas geradas por IA ficam em `MANDATO/images/` (ordem e prompts em
+`MANDATO/12_guia_de_prompts_ia.md`). `frontend/scripts/slice-art.mjs` recorta cada folha em uma imagem por ID
+(`public/mandato/art/<ID>.webp`: edificações, regionais, administração, básicas/padrão, decretos, intrigas,
+obras-prima, 60 cartas de exploração, Metas, Rodada, emblemas das Facções e os mapas dos terrenos `T-*`) e gera
+`src/mandato/artManifest.js`. Para refazer: `cd frontend && npm i --no-save sharp && node scripts/slice-art.mjs`.
+O retrato extra do Tier III (homem da tesoura) e os ícones gerados ficam de fora (os ícones do jogo são SVG).
+O favicon do jogo também sai desse script (`public/mandato/favicon.png`).
+
 Decisões de implementação onde o texto dos documentos é ambíguo:
 - RD-03 (Onda de Calor): Deserto e Planície perdem 💧3 (o doc cita −2 no evento e −3 no terreno Planície).
 - Rival (solo): ao tomar a vaga Ouro de uma Meta ele não ganha o ⭐1 extra, para respeitar o ritmo da tabela
