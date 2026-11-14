@@ -433,6 +433,7 @@ export default function Game({ game, setGame, onExit, online }) {
     }
     return (
       <div className="insp">
+        <button type="button" className="insp-x" onClick={() => { setSel(null); setPlacing(null); }} aria-label="Fechar">×</button>
         <Card id={c.id} instance={selCard.inst} />
         <div className="insp-acts">{acts}</div>
       </div>
@@ -511,7 +512,7 @@ export default function Game({ game, setGame, onExit, online }) {
     const T = TERRAINS[p.terrain];
     const last = lastOf(p);
     return (
-      <article key={p.id} className={`seat${mine ? ' mine' : ''}${turn ? ' turn' : ''}`} style={{ '--pc': p.color }} aria-label={`Cidade de ${p.name}`}>
+      <article key={p.id} className={`seat${mine ? ' mine' : ' compact'}${turn ? ' turn' : ''}`} style={{ '--pc': p.color }} aria-label={`Cidade de ${p.name}`}>
         <header className="seat-h">
           <i className="disc" style={{ background: p.color }} />
           <b>{p.name}{mine ? ' (você)' : ''}</b>
@@ -526,16 +527,27 @@ export default function Game({ game, setGame, onExit, online }) {
           {turn && <span className="seat-turn">{botWho === p.id ? 'jogando…' : 'na vez'}</span>}
           <span className="pl-merit" title="Mérito"><Ico n="star" s={18} />{p.merit}</span>
         </header>
-        {last && <p className="seat-last" title="Última jogada"><Rich t={last} s={12} /></p>}
-        {mine && <p className="tnote"><b>▲ {T.trait}:</b> <Rich t={T.traitT} s={13} /> <b>▼ {T.weak}:</b> <Rich t={T.weakT} s={13} /></p>}
-        <City s={s} p={p} placing={mine && !!placing} validity={mine ? validity : null} onTile={(i) => onTile(p.id, i)} selected={sel && sel.k === 'tile' && (sel.pid ?? viewer) === p.id ? sel.i : null} onHover={mine ? setHover : undefined} />
-        {mine && placingBar}
-        <MetersMini s={s} p={p} />
-        {turn && s.phase === 'play' && (
-          <div className="seat-pool"><span>Em jogo agora</span><ResPool pool={p.pool} size={18} /></div>
-        )}
-        {cabinetOf(p)}
-        <p className="seat-cards">mão {p.hand.length} · deck {p.deck.length} · descarte {p.discard.length}</p>
+        {last && <p className="seat-last" key={last} title="Última jogada"><Rich t={last} s={12} /></p>}
+        <div className="seat-body">
+          <div className="seat-city">
+            <City s={s} p={p} placing={mine && !!placing} validity={mine ? validity : null} onTile={(i) => onTile(p.id, i)} selected={sel && sel.k === 'tile' && (sel.pid ?? viewer) === p.id ? sel.i : null} onHover={mine ? setHover : undefined} />
+            {mine && placingBar}
+          </div>
+          <div className="seat-info">
+            <MetersMini s={s} p={p} />
+            {turn && s.phase === 'play' && (
+              <div className="seat-pool"><span>Em jogo agora</span><ResPool pool={p.pool} size={18} /></div>
+            )}
+            {cabinetOf(p)}
+            {mine && (
+              <details className="tnote-d">
+                <summary>Terreno: ▲ {T.trait} · ▼ {T.weak}</summary>
+                <p className="tnote"><b>▲ {T.trait}:</b> <Rich t={T.traitT} s={13} /> <b>▼ {T.weak}:</b> <Rich t={T.weakT} s={13} /></p>
+              </details>
+            )}
+            <p className="seat-cards">mão {p.hand.length} · deck {p.deck.length} · descarte {p.discard.length}</p>
+          </div>
+        </div>
       </article>
     );
   };
@@ -601,9 +613,12 @@ export default function Game({ game, setGame, onExit, online }) {
             </button>
             <TurnStrip s={s} act={act} />
           </div>
-          {centerOpen && <CenterBoard s={s} onGoals={() => { pickTab('metas'); goTab('goals'); }} />}
           <div className={`cities c${s.players.length}`}>
-            {[...s.players.slice(viewer), ...s.players.slice(0, viewer)].map(seat)}
+            <div className="seat-main">{seat(me)}</div>
+            <div className="board-rest">
+              {centerOpen && <CenterBoard s={s} onGoals={() => { pickTab('metas'); goTab('goals'); }} />}
+              {s.players.length > 1 && <div className="others">{[...s.players.slice(viewer + 1), ...s.players.slice(0, viewer)].map(seat)}</div>}
+            </div>
           </div>
         </section>
 

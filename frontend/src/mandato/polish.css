@@ -1,0 +1,171 @@
+/* ====================================================== ACABAMENTO VISUAL ====================================================== */
+
+/* ---------- cidades: a sua em destaque, as dos outros compactas ---------- */
+.table .cities { display: grid; gap: 12px; align-items: start; grid-template-columns: minmax(0, 1fr); }
+.others { display: grid; gap: 10px; align-items: start; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.seat-body { display: grid; gap: 8px; }
+.seat-info { display: grid; gap: 7px; align-content: start; min-width: 0; }
+.seat-city { display: grid; gap: 7px; min-width: 0; }
+.seat .city { width: 100%; }
+
+@media (min-width: 1061px) {
+  .table .cities { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); }
+  .table .cities.c1 { grid-template-columns: minmax(0, 1fr); }
+  .table .cities.c2 .others { grid-template-columns: minmax(0, 1fr); }
+  .seat.mine .seat-body { grid-template-columns: minmax(0, 1fr) minmax(170px, 200px); gap: 12px; align-items: start; }
+  .seat.mine .city { max-width: 470px; }
+}
+@media (min-width: 1061px) and (max-width: 1400px) {
+  .seat.mine .seat-body { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* sua cidade: letra maior nos lotes e medidores em grade legível */
+.seat.mine .t-name { font-size: .72rem; padding: 3px 5px; }
+.seat.mine .t-kind { font-size: .62rem; }
+.seat.mine .t-zone { transform: none; }
+.seat.mine .mm { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 8px; font-size: .86rem; padding: 7px 9px; }
+.seat.mine .mm span { gap: 4px; }
+.seat.mine .cabinet { display: grid; gap: 5px; }
+.seat.mine .cab-slot { flex: none; min-height: 0; padding: 5px 8px; }
+.seat.mine .tnote { font-size: .74rem; line-height: 1.4; }
+
+/* cidades dos outros: só o essencial */
+.seat.compact { padding: 6px 8px 8px; gap: 5px; border-top-width: 6px; }
+.seat.compact .seat-h > b { font-size: 1rem; }
+.seat.compact .seat-sub { font-size: .7rem; flex-basis: 100%; order: 5; }
+.seat.compact .city { max-width: 300px; margin: 0 auto; gap: 3px; }
+.seat.compact .city-map { padding: 4px; }
+.seat.compact .t-name, .seat.compact .t-kind, .seat.compact .t-bonus { display: none; }
+.seat.compact .t-zone { transform: scale(.7); }
+.seat.compact .t-state { font-size: .5rem; padding: 0 .25em; }
+.seat.compact .mm { font-size: .72rem; gap: 2px 7px; padding: 3px 6px; }
+.seat.compact .cab-mini .cab-slot { font-size: .66rem; padding: 2px 5px; }
+.seat.compact .cab-mini .cab-l { display: none; }
+.seat.compact .seat-pool { font-size: .6rem; }
+.seat.compact .seat-pool .pool-i b { font-size: .9rem; }
+.seat.compact .seat-last { font-size: .7rem; }
+
+/* ---------- barra da mão: recursos à esquerda, cartas à direita ---------- */
+@media (min-width: 1061px) {
+  .dock-main { display: grid; grid-template-columns: minmax(210px, 250px) minmax(0, 1fr); gap: 4px 16px; align-items: start; padding: 8px 14px 10px; }
+  .dock-res { flex-direction: column; align-items: stretch; margin: 0; gap: 8px; }
+  .dock-res .pool { justify-content: space-between; }
+  .dock-res .end { margin-left: 0; width: 100%; }
+  .hand { --cw: 116px; padding: 4px 4px 2px; gap: 8px; }
+  .hand .card { --cw: 116px; }
+  .hand-head .h { font-size: 1rem; }
+  .handwrap.closed .hand-head { min-height: 0; }
+}
+
+/* ---------- movimento: obra nova e jogada de outro prefeito ---------- */
+.t-in { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; animation: built .6s cubic-bezier(.2, .9, .3, 1.2); }
+@keyframes built {
+  0% { transform: translateY(-14px) scale(.7); opacity: 0; }
+  60% { transform: translateY(2px) scale(1.04); opacity: 1; }
+  100% { transform: none; }
+}
+.seat-last { animation: lastflash 2.4s ease-out; }
+@keyframes lastflash { 0%, 25% { background: #fbeab8; } 100% { background: rgba(255, 250, 240, .8); } }
+.seat.turn .seat-h { position: relative; }
+.card { transition: transform .14s, box-shadow .14s, outline-color .14s; }
+
+/* ---------- celular ---------- */
+@media (max-width: 1060px) {
+  .table .pane-side { display: block; }
+  .table.mt-city .pane-side, .table.mt-city .tabs, .table.mt-city .tabbody { display: none; }
+  .table.mt-market .pane-board, .table.mt-goals .pane-board, .table.mt-log .pane-board { display: none; }
+  .table.mt-market .pane-insp { display: block; }
+  .board-top .turns { margin-left: 0; }
+  .center { grid-template-columns: 1fr; }
+  .c-goals { grid-template-columns: 1fr 1fr; }
+  .c-facs { grid-template-columns: 1fr 1fr; }
+  .others { grid-template-columns: 1fr 1fr; }
+  .seat.compact .city { max-width: 100%; }
+  .seat.mine .mm { grid-template-columns: repeat(4, auto); justify-content: start; }
+  .waitbar { top: auto; bottom: 120px; font-size: .8rem; max-width: 92vw; }
+  .botnote { bottom: 130px; right: 8px; }
+  .dock-res .end { width: auto; }
+}
+@media (max-width: 560px) {
+  .others { grid-template-columns: 1fr; }
+  .c-goals { grid-template-columns: 1fr; }
+  .banner { gap: 8px; padding: 8px 8px 0; }
+  .bag { flex: 1 1 auto; }
+}
+
+/* compactas: só decretos assinados, sem rodapé de cartas */
+.seat.compact .cab-slot:not(.on) { display: none; }
+.seat.compact .seat-cards { font-size: .62rem; }
+.seat.compact .seat-h { gap: 2px 6px; }
+.seat.compact .seat-turn { font-size: .58rem; padding: 0 6px; }
+
+/* inspetor: botão de fechar; no celular vira uma folha fixa acima da navegação */
+.insp { position: relative; }
+.insp-x { position: absolute; top: 6px; right: 8px; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); font-weight: 700; line-height: 1; z-index: 2; }
+@media (max-width: 1060px) {
+  .table .pane-side .pane-insp { display: block; }
+  .table .pane-insp:has(.insp.empty) { display: none !important; }
+  .table .pane-insp:has(.insp:not(.empty)) { position: fixed; left: 8px; right: 8px; bottom: 58px; z-index: 75; max-height: 62vh; overflow: auto; box-shadow: var(--shadow-lift); border-radius: 12px; }
+  .table.mt-city .pane-side { display: block; }
+  .pane-insp .insp .card { --cw: 180px; }
+}
+
+/* ---------- mesa em duas colunas: a sua cidade inteira à esquerda; centro + outros à direita ---------- */
+.board-rest { display: grid; gap: 10px; align-content: start; min-width: 0; }
+@media (min-width: 1061px) {
+  .table .cities, .table .cities.c1 { grid-template-columns: minmax(0, 1fr); }
+  .board-rest .center { grid-template-columns: minmax(0, 1fr) !important; }
+}
+@media (min-width: 1400px) {
+  .table .cities { grid-template-columns: minmax(540px, 640px) minmax(0, 1fr); align-items: start; }
+  .table .cities.c1 { grid-template-columns: minmax(540px, 640px); }
+  .seat-main { position: sticky; top: 0; z-index: 2; }
+  .seat.mine .seat-body { grid-template-columns: minmax(0, 1fr) 176px; }
+  .seat.mine .city { max-width: 400px; }
+  .board-rest .c-goals { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .board-rest .c-facs { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+}
+@media (min-width: 1400px) {
+  .seat.mine .seat-body { grid-template-columns: minmax(0, 380px) minmax(0, 1fr); }
+  .seat.mine .city { max-width: 380px; }
+}
+.seat-pool, .seat-pool .pool, .rota { flex-wrap: wrap; }
+.seat-info .rota .btn { flex: 1 1 auto; }
+
+.tnote-d summary { cursor: pointer; font: 600 .74rem var(--font-title); color: #33425a; list-style: none; }
+.tnote-d summary::before { content: "ⓘ "; }
+.tnote-d[open] summary { margin-bottom: 4px; }
+
+/* nomes longos nos lotes estreitos (arquipélago) não cortam */
+.t-name { overflow-wrap: anywhere; hyphens: auto; }
+.seat.mine .city-island .t-name { font-size: .6rem; letter-spacing: 0; }
+/* botão de jogar recursos logo depois do título da mão */
+.hand-head { justify-content: flex-start; gap: 14px; }
+/* sua cidade sempre inteira na altura da tela (a barra da mão ocupa o rodapé na sua vez) */
+@media (min-width: 1400px) {
+  .seat.mine .city { max-width: clamp(260px, calc(100vh - 500px), 380px); }
+  .seat.mine .city-island { max-width: clamp(300px, calc(100vh - 470px), 400px); }
+}
+
+/* fora da sua vez: barra de baixo vira uma faixa fina com de quem é a vez */
+@media (min-width: 1061px) {
+  .dock-main:has(.handwrap.closed) { display: flex; align-items: center; gap: 18px; padding: 6px 14px; }
+  .dock-main:has(.handwrap.closed) .dock-res { flex-direction: row; align-items: center; gap: 16px; }
+  .dock-main:has(.handwrap.closed) .end { display: none; }
+  .dock-main:has(.handwrap.closed) .handwrap { flex: 1; }
+  .dock-main:has(.handwrap.closed) .hand-head { margin: 0; }
+  .dock-main:has(.handwrap.closed) .dock-meta .who { font-size: .95rem; color: var(--ink); background: #fbeab8; border: 1.5px solid var(--ink); border-radius: 99px; padding: 1px 10px; justify-self: start; }
+}
+
+/* sala de espera em duas colunas na tela grande (conversa ao lado) */
+@media (min-width: 1061px) {
+  .setup.online.lobby { max-width: 1180px; }
+  .lobby-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); gap: 18px; align-items: start; }
+  .lobby-side { position: sticky; top: 16px; }
+  .lobby-side .chat-compact .chat-list { max-height: 46vh; min-height: 220px; }
+}
+/* sua cidade inteira também na sua vez (barra da mão aberta) */
+@media (min-width: 1400px) {
+  .seat.mine .city { max-width: clamp(250px, calc(100vh - 540px), 380px); }
+  .seat.mine .city-island { max-width: clamp(290px, calc(100vh - 510px), 400px); }
+}

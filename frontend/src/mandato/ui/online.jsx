@@ -99,12 +99,14 @@ function Lobby({ o }) {
     flash(await copy(url) ? 'link' : '');
   };
   return (
-    <main className="setup online">
+    <main className="setup online lobby">
       <button type="button" className="back" onClick={() => o.leave()}>← Sair da sala</button>
       <h2>Sala de espera</h2>
       <ConnBadge conn={o.conn} />
       {o.error && <p className="warn" role="alert">{o.error.msg}</p>}
 
+      <div className="lobby-grid">
+      <div className="lobby-main">
       <section className="sec invite">
         <label className="lab">Código de convite</label>
         <div className="code-box" aria-live="polite">
@@ -152,13 +154,6 @@ function Lobby({ o }) {
         </div>
       </section>
 
-      <section className="sec">
-        <label className="lab">Conversa <small>combine com a turma antes de começar</small></label>
-        <Chat list={o.chat} you={L.you} onSend={o.sendChat} compact />
-      </section>
-
-      <p className="hint"><button type="button" className="m-link" onClick={() => setRules(true)}>Como jogar (regras resumidas)</button></p>
-      {rules && <Rules onClose={() => setRules(false)} />}
 
       {isHost ? (
         <>
@@ -166,6 +161,17 @@ function Lobby({ o }) {
           {L.seats.length < 2 && <p className="hint">Espere um amigo entrar ou adicione um bot.</p>}
         </>
       ) : <p className="lead">Aguardando o anfitrião iniciar a partida…</p>}
+      </div>
+      <aside className="lobby-side">
+      <section className="sec">
+        <label className="lab">Conversa <small>combine com a turma antes de começar</small></label>
+        <Chat list={o.chat} you={L.you} onSend={o.sendChat} compact />
+      </section>
+
+      <p className="hint"><button type="button" className="m-link" onClick={() => setRules(true)}>Como jogar (regras resumidas)</button></p>
+      {rules && <Rules onClose={() => setRules(false)} />}
+      </aside>
+      </div>
     </main>
   );
 }

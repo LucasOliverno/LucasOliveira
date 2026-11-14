@@ -51,13 +51,14 @@ export function City({ s, p, validity, placing, onTile, selected, interactive = 
             title={tip}
           >
             {b ? (
-              <>
+              // a chave muda quando o edifício muda: o conteúdo remonta e a animação de obra toca
+              <span className="t-in" key={`${b.id}-${b.v || ''}`}>
                 {HAS_ART.has(b.id) && <img className="t-img" src={artUrl(b.id)} alt="" draggable="false" />}
                 <span className="t-zone"><Ico n={zone} s={16} /></span>
                 <span className="t-name">{d.name}</span>
                 {!isOn && <span className="t-state">{off ? 'inativo' : 'Req 👥'}</span>}
                 {b.popBonus ? <span className="t-bonus">+{b.popBonus}👥</span> : null}
-              </>
+              </span>
             ) : (
               <span className="t-kind">{t.k === '.' ? '' : TILE_NAMES[t.k]}{t.k === 'F' && t.cleared ? 'desmatada' : ''}</span>
             )}
