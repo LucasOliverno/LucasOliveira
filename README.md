@@ -52,6 +52,30 @@ medidores, Gabinete, Mérito e os recursos de quem está na vez. A ordem de turn
 bots jogam **um de cada vez**, à vista, com um resumo da jogada. Cada jogador age só na sua cidade; clicar num
 edifício de outro jogador mostra a carta no Inspetor.
 
+**Online com amigos (salas e convite):** na home, *Jogar online* → *Criar sala*. A sala tem um código de 6
+caracteres e um link de convite (`/mandato/?sala=ABC123`); o anfitrião adiciona bots, escolhe a duração e inicia.
+O servidor (`frontend/server/`, Node + `ws`) é autoritativo: roda o mesmo motor de regras, só aceita comando de
+quem está na vez e envia a cada jogador apenas o que ele pode ver (mãos dos outros, ordem dos decks, baralhos de
+mercado/metas/rodadas e a semente ficam no servidor — ver `src/mandato/online/view.js`). Quem cai volta ao mesmo
+assento sozinho (recarregar a página, queda de rede); quem fecha a aba volta pelo botão **Voltar para a sala**
+(o lugar fica guardado no navegador por 7 dias) ou abrindo de novo o link de convite. Se alguém sumir de vez,
+o anfitrião troca o lugar por um bot.
+
+As salas são gravadas em arquivo (`MANDATO_DATA_FILE`, padrão `frontend/data/rooms.json`) e restauradas quando o
+servidor sobe, e os jogadores reconectam sozinhos. Para sobreviver a **novos deploys** na Railway, anexe um
+**Volume** ao serviço (ex.: montado em `/data`) e defina `MANDATO_DATA_FILE=/data/rooms.json`; sem volume, o
+arquivo some a cada deploy (reinícios simples do mesmo contêiner ainda restauram).
+
+```
+npm run build && npm start      # produção: serve o site + o WebSocket (/mandato/ws) na porta PORT
+npm run server                  # desenvolvimento: só o WebSocket (porta 8787); rode junto com `npm run dev`
+npm run test:online             # teste de integração com clientes WebSocket de verdade
+```
+
+Deploy (Railway): o serviço precisa rodar o **servidor Node**, não só arquivos estáticos. Build: `npm run build`
+(em `frontend/`); Start Command: `npm start` (em `frontend/`; a partir da raiz do repositório, `npm start` também
+funciona). O WebSocket usa a mesma porta e o mesmo domínio do site (`wss://lucasoliverno.com/mandato/ws`).
+
 Decisões de implementação onde o texto dos documentos é ambíguo:
 - RD-03 (Onda de Calor): Deserto e Planície perdem 💧3 (o doc cita −2 no evento e −3 no terreno Planície).
 - Rival (solo): ao tomar a vaga Ouro de uma Meta ele não ganha o ⭐1 extra, para respeitar o ritmo da tabela

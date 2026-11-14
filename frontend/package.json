@@ -9,7 +9,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test:mandato": "node src/mandato/test/rules.mjs",
-    "sim:mandato": "node src/mandato/test/sim.mjs"
+    "sim:mandato": "node src/mandato/test/sim.mjs",
+    "start": "node server/index.mjs",
+    "server": "node server/index.mjs",
+    "test:online": "node src/mandato/test/online.mjs"
   },
   "dependencies": {
     "i18next": "^25.8.1",
@@ -17,7 +20,8 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-i18next": "^16.5.4",
-    "react-router-dom": "^7.13.0"
+    "react-router-dom": "^7.13.0",
+    "ws": "^8.23.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

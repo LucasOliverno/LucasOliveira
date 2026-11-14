@@ -34,3 +34,6 @@ Thumbs.db
 # Coverage
 coverage/
 
+
+# MANDATO online: salas salvas pelo servidor (contêm tokens de assento)
+frontend/data/

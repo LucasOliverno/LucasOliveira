@@ -8,7 +8,7 @@ const SHOWCASE = ['E1-01', 'E1-02', 'E1-03', 'E1-06', 'E1-05', 'E1-07'];
 
 // ---------------------------------------------------------------- abertura
 
-export function Home({ onSolo, onLocal, onRules, saved, onContinue }) {
+export function Home({ onSolo, onLocal, onOnline, onRules, saved, onContinue }) {
   return (
     <main className="home">
       <div className="home-sheet">
@@ -32,6 +32,9 @@ export function Home({ onSolo, onLocal, onRules, saved, onContinue }) {
           </button>
           <button type="button" className="btn btn-primary alt" onClick={onLocal}>
             <b>Partida local</b><span>2 a 6 prefeitos · humanos e bots</span>
+          </button>
+          <button type="button" className="btn btn-primary online" onClick={onOnline}>
+            <b>Jogar online</b><span>crie uma sala e convide amigos</span>
           </button>
           {saved && (
             <button type="button" className="btn" onClick={onContinue}>

@@ -167,6 +167,7 @@ function PendingModal({ s, pe, viewer, run }) {
       </div>
     );
   }
+  if (!mine && ['explore', 'pick', 'hand'].includes(pe.kind)) body = null; // informação privada de outro jogador
   return (
     <div className="modal" role="dialog" aria-modal="true" aria-label={title}>
       <div className="modal-card pend">
@@ -181,7 +182,7 @@ function PendingModal({ s, pe, viewer, run }) {
 
 // ---------------------------------------------------------------- mesa
 
-export default function Game({ game, setGame, onExit }) {
+export default function Game({ game, setGame, onExit, online }) {
   const s = game;
   const humans = s.players.filter((p) => !p.bot);
   const act = E.actor(s);
@@ -196,10 +197,17 @@ export default function Game({ game, setGame, onExit }) {
   const [showRules, setShowRules] = useState(false);
   const tt = useRef(null);
 
-  const needCurtain = humans.length > 1 && act != null && !s.players[act].bot && act !== shown && !s.over;
-  const viewer = humans.length === 1 ? humans[0].id : shown;
+  const needCurtain = !online && humans.length > 1 && act != null && !s.players[act].bot && act !== shown && !s.over;
+  const viewer = online ? online.viewer : humans.length === 1 ? humans[0].id : shown;
   const me = s.players[viewer];
   const myTurn = !s.over && s.phase === 'play' && act === viewer && !s.pending.length;
+
+  useEffect(() => {
+    if (!online) return undefined;
+    const base = document.title;
+    if (myTurn) document.title = '▶ Sua vez! — MANDATO';
+    return () => { document.title = base; };
+  }, [online, myTurn]);
 
   const say = useCallback((m) => { setToast(m); clearTimeout(tt.current); tt.current = setTimeout(() => setToast(''), 3600); }, []);
   useEffect(() => () => clearTimeout(tt.current), []);
@@ -210,17 +218,20 @@ export default function Game({ game, setGame, onExit }) {
   };
 
   const run = useCallback((cmd) => {
+    if (online) { online.send(cmd); return true; } // online: o servidor valida e devolve o novo estado
     const r = E.apply(s, cmd);
     if (r.error) { say(r.error); return false; }
     setGame(r.state);
     return true;
-  }, [s, setGame, say]);
+  }, [s, setGame, say, online]);
 
   // Bots jogam um de cada vez, à vista de todos na mesa.
   const botWho = !s.over && act != null && s.players[act].bot ? act : null;
-  const [botNote, setBotNote] = useState(null);
+  const [localNote, setBotNote] = useState(null);
+  const botNote = online ? online.botNote : localNote;
+  const onlineErr = online && online.error ? online.error.msg : '';
   useEffect(() => {
-    if (botWho == null) return undefined;
+    if (online || botWho == null) return undefined; // online: quem joga pelos bots é o servidor
     const h = setTimeout(() => {
       const r = botStep(s);
       if (r.who == null) return;
@@ -228,7 +239,7 @@ export default function Game({ game, setGame, onExit }) {
       setGame(r.state);
     }, 950);
     return () => clearTimeout(h);
-  }, [s, botWho, setGame]);
+  }, [s, botWho, setGame, online]);
   useEffect(() => {
     if (!botNote) return undefined;
     const h = setTimeout(() => setBotNote(null), 4200);
@@ -311,6 +322,7 @@ export default function Game({ game, setGame, onExit }) {
   }, [myTurn, me, run]);
 
   const playAllSimple = () => {
+    if (online) { online.send({ t: 'playSimple' }); setSel(null); return; }
     let st = s;
     let n = 0;
     for (let guard = 0; guard < 12; guard++) {
@@ -478,6 +490,12 @@ export default function Game({ game, setGame, onExit }) {
           <i className="disc" style={{ background: p.color }} />
           <b>{p.name}{mine ? ' (você)' : ''}</b>
           {p.bot && <small className="botk">bot</small>}
+          {online && online.presence && online.presence[p.id] === false && (
+            <>
+              <small className="botk offl">offline</small>
+              {online.host === online.viewer && <button type="button" className="m-link" onClick={() => online.botify(p.id)} title="Um bot assume este lugar para a mesa não travar">trocar por bot</button>}
+            </>
+          )}
           <span className="seat-sub"><TerrainGlyph id={p.terrain} s={16} /> {T.name} · {CARGO(p.merit)}</span>
           {turn && <span className="seat-turn">{botWho === p.id ? 'jogando…' : 'na vez'}</span>}
           <span className="pl-merit" title="Mérito"><Ico n="star" s={18} />{p.merit}</span>
@@ -519,10 +537,10 @@ export default function Game({ game, setGame, onExit }) {
   if (s.phase === 'draft') {
     return (
       <>
-        <div className="topbar"><Brand /><div className="tb-r"><button type="button" className="btn btn-ghost sm" onClick={() => setShowRules(true)}>Regras</button><button type="button" className="btn btn-ghost sm" onClick={onExit}>Sair</button></div></div>
+        <div className="topbar"><Brand />{online && <span className="roomchip" title="Código da sala">Sala <b>{online.code}</b></span>}<div className="tb-r"><button type="button" className="btn btn-ghost sm" onClick={() => setShowRules(true)}>Regras</button><button type="button" className="btn btn-ghost sm" onClick={onExit}>Sair</button></div></div>
         <Draft s={s} viewer={viewer} onPick={(terrain) => run({ t: 'pick', terrain })} />
         {pe && <PendingModal s={s} pe={pe} viewer={viewer} run={run} />}
-        {toast && <div className="toast" role="status">{toast}</div>}
+        {(toast || onlineErr) && <div className="toast" role="status">{toast || onlineErr}</div>}
         {showRules && <Rules onClose={() => setShowRules(false)} />}
         {needCurtain && <Curtain name={s.players[act].name} color={s.players[act].color} why="É a vez de escolher o terreno." onOk={() => switchTo(act)} />}
       </>
@@ -532,7 +550,7 @@ export default function Game({ game, setGame, onExit }) {
   return (
     <div className={`table mt-${mtab}`}>
       <div className="topbar">
-        <Brand />
+        <Brand />{online && <span className="roomchip" title="Código da sala">Sala <b>{online.code}</b></span>}
         <MeritTrack s={s} />
         <div className="tb-r">
           <button type="button" className="btn btn-ghost sm" onClick={() => setShowRules(true)}>Regras</button>
@@ -588,8 +606,9 @@ export default function Game({ game, setGame, onExit }) {
           {botNote.lines.map((m, i) => <span key={i}><Rich t={m} s={13} /></span>)}
         </div>
       )}
-      {toast && <div className="toast" role="status">{toast}</div>}
+      {(toast || onlineErr) && <div className="toast" role="status">{toast || onlineErr}</div>}
       {pe && <PendingModal s={s} pe={pe} viewer={viewer} run={run} />}
+      {online && !online.connected && <div className="reconn" role="alert">Conexão perdida — reconectando…</div>}
       {showRules && <Rules onClose={() => setShowRules(false)} />}
       {s.over && <GameOver s={s} onAgain={onExit} />}
       {needCurtain && <Curtain name={s.players[act].name} color={s.players[act].color} why={pe ? 'Há uma decisão para você.' : 'É a sua vez de jogar. Ninguém mais deve ver a tela.'} onOk={() => switchTo(act)} />}
