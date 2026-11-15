@@ -203,3 +203,19 @@ const give = (p, ...ids) => { p.hand.unshift(...ids); };
 }
 
 console.log(fails ? `\n${fails} FALHAS` : '\ntodos os cenários passaram');
+
+// Balsa Rápida: a Ilha pode comprar 2 (uma para cada ilha menor), os outros projetos só 1
+{
+  const s = game(2, ['ilha', 'litoral']);
+  const p = s.players.find((q) => q.terrain === 'ilha');
+  while (E.actor(s) !== p.id) { settleAll(s); if (E.actor(s) !== p.id) E.exec(s, { t: 'end' }); }
+  settleAll(s);
+  p.pool.v = 20; p.pool.a = 5;
+  const b1 = E.exec(s, { t: 'buy', src: 'regional', key: 'R-ILH-2' });
+  const b2 = E.exec(s, { t: 'buy', src: 'regional', key: 'R-ILH-2' });
+  const b3 = E.exec(s, { t: 'buy', src: 'regional', key: 'R-ILH-2' });
+  ok(!b1 && !b2 && !!b3, `Balsa: 2 cópias permitidas, a 3ª recusada (${b1}|${b2}|${b3})`);
+  const r1 = E.exec(s, { t: 'buy', src: 'regional', key: 'R-ILH-1' });
+  const r2 = E.exec(s, { t: 'buy', src: 'regional', key: 'R-ILH-1' });
+  ok(!r1 && !!r2, 'Resort Insular: só 1 cópia');
+}

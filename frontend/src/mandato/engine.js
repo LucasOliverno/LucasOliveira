@@ -748,13 +748,19 @@ export function regionalOf(p) {
 export function ownsCard(p, id) {
   return [p.deck, p.hand, p.discard, p.exiled || [], p.played || []].some((a) => a.includes(id)) || p.tiles.some((t) => t.b && t.b.id === id);
 }
+// Limite de cópias de cada Projeto Regional: a Balsa Rápida pode ter 2 (são 2 ilhas menores para ligar).
+export const regionalLimit = (id) => (id === 'R-ILH-2' ? 2 : 1);
+export function copiesOf(p, id) {
+  return [p.deck, p.hand, p.discard, p.exiled || [], p.played || []].reduce((n, a) => n + a.filter((x) => x === id).length, 0) + p.tiles.filter((t) => t.b && t.b.id === id).length;
+}
+export const regionalFull = (p, id) => copiesOf(p, id) >= regionalLimit(id);
 
 function doBuy(s, p, cmd) {
   let id;
   if (cmd.src === 'regional') {
     id = cmd.key;
     if (!regionalOf(p).includes(id)) return 'Esse projeto é de outro terreno.';
-    if (ownsCard(p, id)) return 'Você já tem esse projeto.';
+    if (regionalFull(p, id)) return regionalLimit(id) > 1 ? `Você já tem as ${regionalLimit(id)} cópias deste projeto.` : 'Você já tem esse projeto.';
   } else if (cmd.src === 'pile') {
     id = cmd.key;
     if (!STANDARD.includes(id) || s.market.piles[id] <= 0) return 'Pilha esgotada.';

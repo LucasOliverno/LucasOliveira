@@ -208,7 +208,7 @@ function tryBuy(s, p) {
   const opts = [];
   STANDARD.forEach((id) => opts.push({ src: 'pile', key: id, id }));
   s.market.row.forEach((id, i) => opts.push({ src: 'row', key: i, id }));
-  E.regionalOf(p).filter((id) => !E.ownsCard(p, id)).forEach((id) => opts.push({ src: 'regional', key: id, id }));
+  E.regionalOf(p).filter((id) => !E.regionalFull(p, id)).forEach((id) => opts.push({ src: 'regional', key: id, id }));
   const left = Math.max(1, E.MAX_ROUNDS - s.round);
   const scored = [];
   for (const o of opts) {

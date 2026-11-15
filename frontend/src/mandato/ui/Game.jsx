@@ -452,7 +452,7 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
       }
       if (E.calc(s, me).recycle && myTurn) acts.push(<button key="rc" type="button" className="btn btn-ghost" onClick={() => { run({ t: 'ability', id: 'recycle', hi: sel.hi }); setSel(null); }}>♻️ Exilar (Usina de Reciclagem)</button>);
     } else if (sel.k === 'pile' || sel.k === 'row' || sel.k === 'reg') {
-      const why = sel.k === 'reg' && E.ownsCard(me, c.id) ? 'Você já tem esse projeto.' : buyCheck(c.id);
+      const why = sel.k === 'reg' && E.regionalFull(me, c.id) ? 'Você já tem todas as cópias deste projeto.' : buyCheck(c.id);
       const cost = E.buyCost(s, me, c.id);
       acts.push(<button key="buy" type="button" className="btn btn-primary" disabled={!!why} onClick={() => { run(sel.k === 'pile' ? { t: 'buy', src: 'pile', key: c.id } : sel.k === 'reg' ? { t: 'buy', src: 'regional', key: c.id } : { t: 'buy', src: 'row', key: sel.i }); setSel(null); }}>Comprar · <CostChip cost={cost} /></button>);
       if (why) acts.push(<p key="w" className="hint">{why}</p>);
@@ -492,15 +492,17 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
     <div className="market">
       <h3 className="h">Mercado Padrão <small>sempre disponível · não dispara Fiscalização</small></h3>
       <div className="row">{stdCards}</div>
-      <h3 className="h">Seus Projetos Regionais <small>só do seu terreno · 1 de cada · 💰3 + 🗳️1</small></h3>
+      <h3 className="h">Seus Projetos Regionais <small>só do seu terreno · 1 de cada (Balsa: 2) · 💰3 + 🗳️1</small></h3>
       <div className="row">
         {E.regionalOf(me).map((id) => {
-          const owned = E.ownsCard(me, id);
+          const owned = E.regionalFull(me, id);
+          const lim = E.regionalLimit(id);
+          const have = E.copiesOf(me, id);
           return (
             <div key={id} className="stack">
               <button type="button" className="eye" onClick={() => setZoom(id)} title="Ver a carta" aria-label="Ver a carta">👁</button>
               <Card id={id} size="sm" costOverride={E.buyCost(s, me, id)} selected={sel && sel.k === 'reg' && sel.id === id} disabled={owned || !myTurn || buyCheck(id) !== null} onClick={() => { setSel({ k: 'reg', id }); setPlacing(null); }} />
-              <span className="stack-n">{owned ? 'já é seu' : 'disponível'}</span>
+              <span className="stack-n">{owned ? 'já é seu' : lim > 1 ? `${have}/${lim} compradas` : 'disponível'}</span>
             </div>
           );
         })}

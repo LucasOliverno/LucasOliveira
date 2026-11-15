@@ -33,5 +33,5 @@ export const REGIONAL_HOWTO = {
   planicie: 'Chegue a 👥 ≥ 12 com 😊 ≥ 7 e ☁️ ≤ 3: muitas moradias (RES/Loteamento RES), praças VER e pouca indústria.',
   deserto: 'Compre o Poço do Oásis (Projetos Regionais) e construa na casa Oásis; depois tenha sobra de ⚡ e 💧 de 4 ou mais (Fazenda Solar ajuda no ⚡).',
   floresta: 'Mantenha ao menos 4 casas de Floresta intactas (não desmate) e chegue a 👥 ≥ 10. O Santuário pode ser construído em Floresta sem desmatar.',
-  ilha: 'Compre Balsas Rápidas (Projetos Regionais) e ligue as 3 ilhas, e tenha Renda 💰 de 6 ou mais. Cada Balsa liga a ilha onde foi construída a outra.',
+  ilha: 'Compre 2 Balsas Rápidas (Projetos Regionais): cada Balsa construída liga uma ilha menor (Norte ou Leste) à Principal. Com as 3 ilhas ligadas e Renda 💰 de 6 ou mais, a Meta é sua.',
 };
