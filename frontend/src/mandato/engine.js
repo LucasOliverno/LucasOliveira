@@ -154,7 +154,7 @@ export function calc(s, p) {
       inc[it.r] += n;
     });
     if (p.terrain === 'litoral' && (c.zones.includes('COM') || c.zones.includes('VER')) && tile.k === 'O') inc.v += 1;
-    if (p.terrain === 'montanha' && c.zones.includes('IND') && tile.k === 'J') inc.v += 1;
+    if (p.terrain === 'planicie' && c.zones.includes('RES') && tile.adj.some((j) => tiles[j].b && def(tiles[j].b).zones.includes('VER'))) inc.v += 1; // bairro-jardim
     if (p.terrain === 'floresta' && (c.zones.includes('VER') || c.zones.includes('COM')) && tile.adj.some((j) => tiles[j].k === 'F' && !tiles[j].cleared)) inc.v += 1;
     if (m.fair && c.zones.includes('COM')) inc.v += (p.terrain === 'litoral' && tile.k === 'O') || (p.terrain === 'ilha') ? 2 : 1;
   });
@@ -536,7 +536,7 @@ export function regionalOk(s, p) {
   switch (T.regionalGoal.id) {
     case 'RG-LIT': return tiles.filter((t) => t.k === 'O' && (zOn(t, 'COM') || zOn(t, 'VER'))).length >= 3 && p.approval >= 7;
     case 'RG-MON': return tiles.filter((t) => t.k === 'J' && zOn(t, 'IND') && !isOff(s, t.b) && c.act.has(t.id)).length >= 2 && c.poll <= 4;
-    case 'RG-PLA': return c.pop >= 15 && p.approval >= 8 && c.poll <= 2;
+    case 'RG-PLA': return c.pop >= 12 && p.approval >= 7 && c.poll <= 3;
     case 'RG-DES': return tiles.some((t) => t.b && t.b.id === 'R-DES-1') && c.sur.e >= 4 && c.sur.w >= 4;
     case 'RG-FLO': return tiles.filter((t) => t.k === 'F' && !t.cleared).length >= 4 && c.pop >= 10;
     case 'RG-ILH': return p.links.includes('N') && p.links.includes('L') && c.inc.v >= 6;
@@ -676,7 +676,7 @@ function doBuild(s, p, o) {
     if (s.market.wdeck.length) s.market.vit.push(s.market.wdeck.shift());
   } else p.hand.splice(o.hi, 1);
   if (upgrade) { p.discard.push(tile.b.id); log(s, `🏗️ ${nm(p)} melhora o edifício existente.`, '', p.id); }
-  if (desmate) { tile.cleared = true; addCubes(s, p, 1); log(s, `🌲 ${nm(p)} desmata a casa (+1 🕵️).`, '', p.id); }
+  if (desmate) { tile.cleared = true; log(s, `🌲 ${nm(p)} desmata a casa.`, '', p.id); }
   tile.b = { id: card.id };
   if (card.lot) tile.b.v = o.v;
   if (p.nextResPop && eff.zones.includes('RES')) { tile.b.popBonus = p.nextResPop; p.nextResPop = 0; }
@@ -1083,7 +1083,7 @@ function finish(s, reason, winners) {
 function newPlayer(id, cfg) {
   return {
     id, name: cfg.name, bot: !!cfg.bot, color: PLAYER_COLORS[id], seat: id, terrain: null,
-    merit: 0, seals: 0, approval: 5, treasury: 0,
+    merit: 0, seals: 0, approval: 6, treasury: 0,
     deck: [], hand: [], discard: [], exiled: [], played: [],
     tiles: [], cabinet: [null, null], fac: { tec: 0, ver: 0, emp: 0, sin: 0 }, facMark: {},
     cubesSupply: 10, cubesBag: 0, pool: { v: 0, o: 0, a: 0 },

@@ -68,7 +68,7 @@ Cada jogador recebe um **tabuleiro de terreno** com uma grade **4x4 (16 casas)**
 | | |
 |---|---|
 | **Capacidade inicial** | ⚡3 · 💧3 *(ajuste de balanceamento v1.1)* |
-| **Traço — Riqueza Mineral** | Edifícios IND em **Jazida (J)** rendem **+💰1**. Hidrelétricas em **Rio/Encosta** custam −🔨1 *(ajuste de balanceamento v1.1)* |
+| **Traço — Riqueza Mineral** | **Jazidas (J)** aceitam a Mina de Cobre. Hidrelétricas em **Rio/Encosta** custam −🔨1 *(ajuste de balanceamento v1.1)* |
 | **Fraqueza — Encostas** | 5 casas Encosta (+🔨1 para construir). Poucas casas planas |
 | **Estilo** | Indústria pesada, energia barata, construção cara |
 | **Meta Regional (⭐2)** | **Veia Metálica:** 2 IND ativos em Jazida e ☁️ ≤ 4 |
@@ -111,10 +111,10 @@ Cada jogador recebe um **tabuleiro de terreno** com uma grade **4x4 (16 casas)**
 | | |
 |---|---|
 | **Capacidade inicial** | ⚡3 · 💧3 *(ajuste de balanceamento v1.1)* |
-| **Traço — Terra Barata** | *Loteamento* custa **💰1**; *Licitação* e *Explorar* custam **💰2** para você *(ajuste de balanceamento v1.1)* |
+| **Traço — Terra Barata** | *Loteamento* custa **💰1** e −🔨1 para construir; *Licitação* e *Explorar* custam **💰2**; cada RES vizinho de um VER rende **+💰1** (bairro-jardim) *(ajuste de balanceamento v1.1)* |
 | **Fraqueza — Poucas Riquezas** | Nenhuma casa especial além do Rio; Seca (Onda de Calor) corta **−3** de 💧 |
 | **Estilo** | Expansão rápida e barata; precisa de Infra cedo |
-| **Meta Regional (⭐2)** | **Cidade Jardim:** 👥 ≥ 15, 😊 ≥ 8 e ☁️ ≤ 2 |
+| **Meta Regional (⭐2)** | **Cidade Jardim:** 👥 ≥ 12, 😊 ≥ 7 e ☁️ ≤ 3 |
 
 **Cartas Regionais:**
 

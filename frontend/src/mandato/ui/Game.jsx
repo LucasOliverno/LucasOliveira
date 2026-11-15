@@ -547,7 +547,7 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
         {hoverPreview ? (
           <span className="prev">
             Custo <Rich t={`🔨${hoverPreview.ob}`} s={14} />{hoverPreview.aq && (hoverPreview.aq.v || hoverPreview.aq.a) ? <> + <Rich t={`${hoverPreview.aq.v ? `💰${hoverPreview.aq.v}` : ''} ${hoverPreview.aq.a ? `🗳️${hoverPreview.aq.a}` : ''}`} s={14} /></> : null}
-            {hoverPreview.desmate ? ' · desmata (+1 🕵️)' : ''}{hoverPreview.upgrade ? ' · melhoria' : ''}
+            {hoverPreview.desmate ? ' · desmata a Floresta (+🔨1)' : ''}{hoverPreview.upgrade ? ' · melhoria' : ''}
             {' — '}
             {[['pop', '👥'], ['poll', '☁️'], ['e', '⚡'], ['w', '💧'], ['v', '💰'], ['o', '🔨'], ['a', '🗳️']].filter(([k]) => hoverPreview.d[k]).map(([k, ic]) => <span key={k} className={`dl ${(k === 'poll' ? hoverPreview.d[k] > 0 : hoverPreview.d[k] < 0) ? 'neg' : 'pos'}`}><Rich t={ic} s={13} />{hoverPreview.d[k] > 0 ? '+' : ''}{hoverPreview.d[k]}</span>)}
           </span>

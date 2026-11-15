@@ -106,6 +106,11 @@ mesmo lugar for aberto em outra aba, a aba antiga para de reconectar em vez de d
 - Terrenos: Planície com lote −🔨1 e 💧4; Ilha só paga logística em IND; Mina de Cobre rende 🔨1; regionais da
   Floresta, Planície e Deserto ajustados.
 
+**Ajustes v1.3** (simulação, draft aleatório 6p e por preferência 3p/4p): 😊 inicial 5→6 (menos Crises de Governo);
+Montanha perde a renda extra da Jazida (era a causa da força: 1,42× → 1,09×); Planície ganha o bairro-jardim (RES vizinho
+de VER rende +💰1) e Meta Regional mais alcançável (👥12, 😊7, ☁️3), de 0,48× para ~1,0×; desmatar a Floresta não põe mais
+cubo no Saco. Terrenos agora entre 0,73× e 1,27× da média; pacotes de 3p e 4p recalibrados.
+
 **Arte das cartas:** as folhas geradas por IA ficam em `MANDATO/images/` (ordem e prompts em
 `MANDATO/12_guia_de_prompts_ia.md`). `frontend/scripts/slice-art.mjs` recorta cada folha em uma imagem por ID
 (`public/mandato/art/<ID>.webp`: edificações, regionais, administração, básicas/padrão, decretos, intrigas,

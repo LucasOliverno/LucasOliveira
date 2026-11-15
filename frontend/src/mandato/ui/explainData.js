@@ -30,7 +30,7 @@ export const GLOSSARY = [
 export const REGIONAL_HOWTO = {
   litoral: 'Construa 3 edifícios COM ou VER nas casas de Orla (a fileira do mar) e mantenha 😊 ≥ 7. Porto Pesqueiro, Farol e Resort (Projetos Regionais) contam.',
   montanha: 'Construa 2 edifícios IND nas casas de Jazida (J) e mantenha-os ativos, com ☁️ ≤ 4. A Mina de Cobre (Projeto Regional) é IND e vai em Jazida.',
-  planicie: 'Chegue a 👥 ≥ 15 com 😊 ≥ 8 e ☁️ ≤ 2: muitas moradias (RES/Loteamento RES), praças VER e pouca indústria.',
+  planicie: 'Chegue a 👥 ≥ 12 com 😊 ≥ 7 e ☁️ ≤ 3: muitas moradias (RES/Loteamento RES), praças VER e pouca indústria.',
   deserto: 'Compre o Poço do Oásis (Projetos Regionais) e construa na casa Oásis; depois tenha sobra de ⚡ e 💧 de 4 ou mais (Fazenda Solar ajuda no ⚡).',
   floresta: 'Mantenha ao menos 4 casas de Floresta intactas (não desmate) e chegue a 👥 ≥ 10. O Santuário pode ser construído em Floresta sem desmatar.',
   ilha: 'Compre Balsas Rápidas (Projetos Regionais) e ligue as 3 ilhas, e tenha Renda 💰 de 6 ou mais. Cada Balsa liga a ilha onde foi construída a outra.',

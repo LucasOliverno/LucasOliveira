@@ -256,7 +256,7 @@ export const TERRAINS = {
   montanha: {
     id: 'montanha', name: 'Montanha', sub: 'Serra Alta', icon: '⛰️', color: '#6C7A89', cap: { e: 3, w: 3 },
     grid: rows('EEEE', 'EPH.', '..JR', '.J..'),
-    trait: 'Riqueza Mineral', traitT: 'Edifícios IND em Jazida (J) rendem +💰1. Hidrelétricas em Rio/Encosta custam −🔨1.',
+    trait: 'Riqueza Mineral', traitT: 'Jazidas (J) aceitam a Mina de Cobre. Hidrelétricas em Rio/Encosta custam −🔨1.',
     weak: 'Encostas', weakT: '5 casas Encosta (+🔨1 para construir). Poucas casas planas.',
     style: 'Indústria pesada, energia barata, construção cara.', stars: { eco: 3, con: 2, inf: 4 }, risk: 'Alta (Minas)', cx: 'Média',
     regionalGoal: { id: 'RG-MON', name: 'Veia Metálica', t: '2 IND ativos em Jazida e ☁️ ≤ 4.' },
@@ -265,10 +265,10 @@ export const TERRAINS = {
   planicie: {
     id: 'planicie', name: 'Planície', sub: 'Campos Verdes', icon: '🌾', color: '#B5C66E', cap: { e: 3, w: 4 },
     grid: rows('....', '.PHR', '...R', '....'),
-    trait: 'Terra Barata', traitT: 'Loteamento custa 💰1 e −🔨1 para construir; Licitação e Explorar custam 💰2 para você.',
+    trait: 'Terra Barata', traitT: 'Loteamento custa 💰1 e −🔨1 para construir; Licitação e Explorar custam 💰2. Cada RES vizinho de um VER rende +💰1 (bairro-jardim).',
     weak: 'Poucas Riquezas', weakT: 'Nenhuma casa especial além do Rio; Seca (Onda de Calor) corta −3 de 💧.',
     style: 'Expansão rápida e barata; precisa de Infra cedo.', stars: { eco: 3, con: 4, inf: 2 }, risk: 'Baixa', cx: 'Baixa',
-    regionalGoal: { id: 'RG-PLA', name: 'Cidade Jardim', t: '👥 ≥ 15, 😊 ≥ 8 e ☁️ ≤ 2.' },
+    regionalGoal: { id: 'RG-PLA', name: 'Cidade Jardim', t: '👥 ≥ 12, 😊 ≥ 7 e ☁️ ≤ 3.' },
     regional: ['R-PLA-1', 'R-PLA-2', 'R-PLA-3'],
   },
   deserto: {
@@ -284,7 +284,7 @@ export const TERRAINS = {
     id: 'floresta', name: 'Floresta', sub: 'Mata Fechada', icon: '🌲', color: '#3E6B4B', cap: { e: 3, w: 3 },
     grid: rows('FF..', 'FPH.', '...F', '..FF'),
     trait: 'Pulmão Verde', traitT: 'A cada 2 Florestas intactas: ☁️ −1 (máx. −3). VER ou COM adjacente a Floresta intacta rende +💰1 (Ecoturismo).',
-    weak: 'Mata Fechada', weakT: '6 casas Floresta. Desmatar: pague +🔨1 e adicione 1 🕵️ (fiscalização ambiental) antes de construir. A casa deixa de ser Floresta intacta.',
+    weak: 'Mata Fechada', weakT: '6 casas Floresta. Desmatar: pague +🔨1 antes de construir. A casa deixa de ser Floresta intacta.',
     style: 'Ecoturismo, Verde, mas expansão difícil.', stars: { eco: 2, con: 2, inf: 3 }, risk: 'Média', cx: 'Alta',
     regionalGoal: { id: 'RG-FLO', name: 'Guardiões', t: '≥ 4 Florestas intactas no fim do turno e 👥 ≥ 10.' },
     regional: ['R-FLO-1', 'R-FLO-2', 'R-FLO-3'],
@@ -307,7 +307,7 @@ reg('R-LIT-1', 'Porto Pesqueiro', 'COM', 2, { onlyOn: ['O'], cons: { e: 1 }, inc
 reg('R-LIT-2', 'Farol Histórico', 'VER', 1, { onlyOn: ['O'], poll: -1, onBuild: [appr(1)], inc: [{ r: 'a', n: 1 }], t: 'Em Orla. ☁️ −1; +1 😊 ao construir; Renda 🗳️1.' });
 reg('R-LIT-3', 'Resort Litorâneo', 'COM', 3, { onlyOn: ['O'], cons: { e: 2, w: 2 }, req: 6, inc: [{ r: 'v', n: 2 }, { r: 'a', n: 1 }], t: 'Em Orla. Req 👥6; Renda 💰2 + 🗳️1.' });
 reg('R-MON-1', 'Mina de Cobre', 'IND', 3, { onlyOn: ['J'], cons: { e: 1 }, req: 4, inc: [{ r: 'o', n: 1 }, { r: 'v', n: 2 }], poll: 2, mine: true, t: 'Em Jazida. Req 👥4; Renda 🔨1 + 💰2; ☁️2. Se um cubo seu for sorteado, a Mina fica inativa até seu próximo turno.' });
-reg('R-MON-2', 'Pequena Hidrelétrica', 'INF', 3, { onlyOn: ['R', 'E'], hydro: true, power: { e: 4 }, t: 'Em Rio/Encosta. ⚡+4; ☁️0.' });
+reg('R-MON-2', 'Pequena Hidrelétrica', 'INF', 3, { onlyOn: ['R', 'E'], hydro: true, power: { e: 3 }, t: 'Em Rio/Encosta. ⚡+3; ☁️0.' });
 reg('R-MON-3', 'Teleférico Turístico', 'COM', 2, { cons: { e: 1 }, req: 5, inc: [{ r: 'v', n: 2 }, { r: 'a', n: 1, onKind: 'E' }], t: 'Req 👥5; Renda 💰2; +🗳️1 se em Encosta.' });
 reg('R-PLA-1', 'Silo Cooperativo', 'COM', 1, { inc: [{ r: 'v', n: 2 }, { r: 'v', n: 1, adjAny: 'VER' }], t: 'Renda 💰2; +💰1 se adjacente a VER.' });
 reg('R-PLA-2', 'Cooperativa Agrícola', 'SER', 2, { cons: { e: 1 }, onBuild: [appr(1)], inc: [{ r: 'v', n: 2 }], t: '+1 😊 ao construir; Renda 💰2.' });
@@ -416,8 +416,8 @@ export const PACKAGES = [
 // Pacote de Posição calibrado por nº de jogadores (simulação com draft por preferência; ver README)
 export const PACKAGES_BY_N = {
   2: [{}, { treasury: 2 }],
-  3: [{}, { treasury: 2 }, { treasury: 1 }],
-  4: [{ treasury: 2 }, { treasury: 1 }, {}, { treasury: 1 }],
+  3: [{}, { treasury: 3 }, { treasury: 2 }],
+  4: [{}, { treasury: 2 }, { treasury: 1 }, { treasury: 1 }],
   5: [{}, { treasury: 1 }, { treasury: 2 }, {}, {}],
   6: [{}, { treasury: 2 }, { treasury: 2 }, {}, {}, { treasury: 1 }],
 };

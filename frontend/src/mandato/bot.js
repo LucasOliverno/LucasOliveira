@@ -4,7 +4,7 @@ import { LOT_OPTS, STANDARD, FAC_KEYS, GOALS, TERRAINS } from './data.js';
 
 const { CARDS } = E;
 // Ordem de preferência no draft (medida em simulação; ver test/sim.mjs)
-export const DRAFT_RANK = ['montanha', 'ilha', 'floresta', 'deserto', 'litoral', 'planicie'];
+export const DRAFT_RANK = ['deserto', 'litoral', 'montanha', 'planicie', 'floresta', 'ilha'];
 // draft: 'rank' (padrão) ou 'random' (simulação para medir a força de cada terreno sem o efeito da ordem)
 export const BOT_OPTS = { draft: 'rank' };
 const W = { v: 1, o: 1.2, a: 1.5 };

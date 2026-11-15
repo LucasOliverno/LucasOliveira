@@ -89,7 +89,7 @@ const give = (p, ...ids) => { p.hand.unshift(...ids); };
   ok(!r.err && r.desmate && r.ob === 2, `Floresta: Loteamento RES custa 🔨1+1 e desmata (ob=${r.ob})`);
   const before = p.cubesBag;
   E.exec(s, { t: 'build', src: 'hand', hi, tile: i, v: 'RES' });
-  ok(p.cubesBag === before + 1 && p.tiles[i].cleared, 'desmatar: +1 🕵️ e casa desmatada');
+  ok(p.cubesBag === before && p.tiles[i].cleared, 'desmatar: casa desmatada, sem cubo (ajuste v1.3)');
   const c = E.calc(s, E.currentPlayer(s) === p ? p : p);
   ok(c.poll <= 0, 'Pulmão Verde reduz ☁️ (≥4 florestas → −2): poll=' + c.poll);
 }
