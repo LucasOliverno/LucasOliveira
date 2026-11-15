@@ -1,7 +1,7 @@
 import { CARDS, FACTIONS, LOT_OPTS, TERRAINS, ZONES } from '../data.js';
 import { exploreCard } from '../engine.js';
 import { Ico, Rich } from './icons.jsx';
-import { HAS_ART, artUrl, bandFor, TYPE_BAND, costText, describeOps } from './cardutil.js';
+import { HAS_ART, artUrl, artIdFor, bandFor, TYPE_BAND, costText, describeOps } from './cardutil.js';
 
 // Emblema da Facção / da Meta (arte gerada; sem arte, cai no ícone SVG)
 export function FacEmblem({ f, s = 28 }) {
@@ -108,7 +108,7 @@ export function Card({ id, size = 'md', selected, disabled, onClick, footer, tag
         {cost && Object.keys(cost).length > 0 && <span className="c-cost"><CostChip cost={cost} /></span>}
       </span>
       <span className={`c-art${card.type === 'admin' || card.type === 'intrigue' ? ' c-art-sq' : ''}`}>
-        {(instance && instance.v && HAS_ART.has(`${id}-${instance.v}`)) || HAS_ART.has(id) ? <img src={artUrl(instance && instance.v && HAS_ART.has(`${id}-${instance.v}`) ? `${id}-${instance.v}` : id)} alt="" loading="lazy" draggable="false" /> : <Art card={eff} />}
+        {(instance && instance.v && HAS_ART.has(artIdFor(id, instance.v))) || HAS_ART.has(id) ? <img src={artUrl(instance && instance.v && HAS_ART.has(artIdFor(id, instance.v)) ? artIdFor(id, instance.v) : id)} alt="" loading="lazy" draggable="false" /> : <Art card={eff} />}
         {card.fac && card.fac.length > 0 && <span className="c-fac">{card.fac.map((f) => <Ico key={f} n={f} s={size === 'sm' ? 16 : 20} title={FACTIONS[f].name} />)}</span>}
         {card.alert && <span className="c-alert" title="🔔 Alerta: dispara uma Fiscalização ao entrar na Fila Especial"><Ico n="alert" s={size === 'sm' ? 15 : 18} /></span>}
       </span>

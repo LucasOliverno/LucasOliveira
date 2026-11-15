@@ -247,7 +247,7 @@ export function CenterBoard({ s, onGoals }) {
             const gold = who('gold');
             const silver = who('silver');
             return (
-              <button type="button" key={sl.id + i} className="cg" onClick={onGoals} title={`${g.name}: ${g.t}`}>
+              <button type="button" key={sl.id + i} className="cg" onClick={() => onGoals(i)} title={`${g.name}: ${g.t}`}>
                 <span className="cg-h"><GoalEmblem id={g.id} s={34} /><span className="gid">{g.id}</span><b>{g.name}</b></span>
                 <span className="cg-t"><Rich t={g.t} s={12} /></span>
                 <span className="cg-m">

@@ -287,6 +287,8 @@ export function fisc(s, why, bonus = 0) {
   const drawn = shuffle(s, bag).slice(0, Math.min(k, bag.length));
   const hits = {};
   drawn.forEach((id) => { if (id >= 0) hits[id] = (hits[id] || 0) + 1; });
+  // registro público do último sorteio (a mesa mostra os cubos saindo)
+  s.lastFisc = { id: s.stats.fisc, round: s.round, why, k, total: bag.length, drawn: drawn.slice(), res: {} };
   s.players.forEach((p) => {
     const h = hits[p.id] || 0;
     if (!h) { p.fiscStreak += 1; return; }
@@ -300,6 +302,7 @@ export function fisc(s, why, bonus = 0) {
     loss = Math.max(0, loss);
     log(s, `🕵️ ${nm(p)} tem ${h} cubo(s) sorteado(s) — perde ${loss} 😊.`, 'bad', p.id);
     if (loss) addAppr(s, p, -loss, 'Fiscalização');
+    s.lastFisc.res[p.id] = { h, loss, invest: h >= 3 };
     if (h >= 3) {
       s.stats.invest += 1;
       p.investRound = s.round;
@@ -594,9 +597,10 @@ export function obraCost(s, p, card, tile, { upgrade = false } = {}) {
   if (k === 'E' && !card.hydro) c += 1;
   if (k === 'D') c += 1;
   if (k === 'F' && !tile.cleared && !card.forestOk) c += 1;
-  if (p.terrain === 'ilha' && tile.isl !== 'M' && (card.zones.includes('IND') || card.zones.includes('INF'))) c += 1;
+  if (p.terrain === 'ilha' && tile.isl !== 'M' && card.zones.includes('IND')) c += 1;
   if (p.terrain === 'ilha' && card.id === 'E2-09') c -= 1;
   if (p.terrain === 'montanha' && card.hydro && (k === 'R' || k === 'E')) c -= 1;
+  if (p.terrain === 'planicie' && card.lot) c -= 1; // Terra Barata: lote pronto mais rápido
   if (upgrade) c -= 1;
   if (hasDecree(p, 'D1-02') && card.zones.includes('IND')) c += 1;
   if (s.tokens.tec === p.id && card.zones.includes('INF')) c -= 1;
@@ -706,11 +710,21 @@ function demolishCost(p) {
 
 // ------------------------------------------------------------------ mercado
 
-function refillRow(s, slot, by) {
+// A cada rodada a carta mais antiga da Fila Especial vai para o fundo do baralho e entra outra:
+// a fila gira mesmo quando ninguém compra.
+function rotateRow(s) {
+  if (!s.market.row.length || !s.market.deck.length) return;
+  const old = s.market.row.shift();
+  s.market.deck.push(old);
+  log(s, `🔄 A Fila Especial gira: ${CARDS[old].name} sai.`, 'event');
+  refillRow(s, s.market.row.length, null, true);
+}
+
+function refillRow(s, slot, by, quiet = false) {
   if (!s.market.deck.length) return;
   const id = s.market.deck.shift();
   s.market.row.splice(slot, 0, id);
-  if (CARDS[id].alert) fisc(s, `${CARDS[id].name} 🔔 entrou na Fila Especial`);
+  if (CARDS[id].alert && !quiet) fisc(s, `${CARDS[id].name} 🔔 entrou na Fila Especial`);
   void by;
 }
 
@@ -950,6 +964,7 @@ function endRound(s) {
   if (s.over) return;
   if (s.finalRound || s.round >= MAX_ROUNDS) return finishByMerit(s);
   s.firstIdx = (s.firstIdx + 1) % s.players.length;
+  rotateRow(s);
   return startRound(s);
 }
 
@@ -1125,7 +1140,7 @@ function startPlay(s) {
   const N = s.players.length;
   s.phase = 'play';
   const [nGoals, nWonders] = SETUP[N];
-  s.market.piles = { ...STD_QTY };
+  s.market.piles = { ...STD_QTY, 'P-01': STD_QTY['P-01'] + 2 * Math.max(0, N - 2) }; // mais Loteamento com mais gente
   const tiers = SPECIAL_TIERS.map((t) => shuffle(s, t.filter((id) => !(s.noIntrigues && CARDS[id].type === 'intrigue'))));
   const deck = [...tiers[0], ...tiers[1], ...tiers[2]];
   s.market.row = deck.splice(0, 6);

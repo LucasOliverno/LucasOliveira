@@ -1,3 +1,4 @@
+import { Glossary } from './explain.jsx';
 import { useState } from 'react';
 import { TERRAINS, RIVAL, ZONES, PLAYER_COLORS, FACTIONS, FAC_KEYS, CARGOS, packageFor } from '../data.js';
 import { calc, MAX_ROUNDS, actor } from '../engine.js';
@@ -8,7 +9,7 @@ const SHOWCASE = ['E1-01', 'E1-02', 'E1-03', 'E1-06', 'E1-05', 'E1-07'];
 
 // ---------------------------------------------------------------- abertura
 
-export function Home({ onSolo, onLocal, onOnline, onRules, saved, onContinue }) {
+export function Home({ onSolo, onLocal, onOnline, onRules, onTutorial, saved, onContinue }) {
   return (
     <main className="home">
       <div className="home-sheet">
@@ -41,6 +42,7 @@ export function Home({ onSolo, onLocal, onOnline, onRules, saved, onContinue }) 
               <b>Continuar</b><span>rodada {saved.round || 1} · {saved.solo ? 'solo' : `${saved.players.length} jogadores`}</span>
             </button>
           )}
+          {onTutorial && <button type="button" className="btn btn-primary tut" onClick={onTutorial}><b>Tutorial</b><span>partida guiada, primeira vez</span></button>}
           <button type="button" className="btn btn-ghost" onClick={onRules}>Como jogar</button>
         </div>
         <ul className="home-facts">
@@ -238,11 +240,16 @@ export function Curtain({ name, color, why, onOk }) {
 // ---------------------------------------------------------------- regras
 
 export function Rules({ onClose }) {
+  // glossário importado de explain.jsx
   return (
     <div className="modal" role="dialog" aria-modal="true" aria-label="Como jogar">
       <div className="modal-card rules">
         <button type="button" className="x close" onClick={onClose} aria-label="Fechar">×</button>
         <h2>Como jogar</h2>
+        <section>
+          <h3>Siglas e símbolos</h3>
+          <Glossary />
+        </section>
         <section>
           <h3>Objetivo</h3>
           <p>Chegue a <b>⭐10 de Mérito</b> antes dos outros. Quando alguém chega a ⭐10, a rodada em andamento é completada e vence quem tiver mais ⭐ (desempate: maior 😊 → menor ☁️ → maior Tesouro). Se o deck de Rodada acabar, a rodada {MAX_ROUNDS} é a última.</p>

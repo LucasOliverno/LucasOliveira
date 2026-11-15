@@ -263,9 +263,9 @@ export const TERRAINS = {
     regional: ['R-MON-1', 'R-MON-2', 'R-MON-3'],
   },
   planicie: {
-    id: 'planicie', name: 'Planície', sub: 'Campos Verdes', icon: '🌾', color: '#B5C66E', cap: { e: 3, w: 3 },
+    id: 'planicie', name: 'Planície', sub: 'Campos Verdes', icon: '🌾', color: '#B5C66E', cap: { e: 3, w: 4 },
     grid: rows('....', '.PHR', '...R', '....'),
-    trait: 'Terra Barata', traitT: 'Loteamento custa 💰1; Licitação e Explorar custam 💰2 para você.',
+    trait: 'Terra Barata', traitT: 'Loteamento custa 💰1 e −🔨1 para construir; Licitação e Explorar custam 💰2 para você.',
     weak: 'Poucas Riquezas', weakT: 'Nenhuma casa especial além do Rio; Seca (Onda de Calor) corta −3 de 💧.',
     style: 'Expansão rápida e barata; precisa de Infra cedo.', stars: { eco: 3, con: 4, inf: 2 }, risk: 'Baixa', cx: 'Baixa',
     regionalGoal: { id: 'RG-PLA', name: 'Cidade Jardim', t: '👥 ≥ 15, 😊 ≥ 8 e ☁️ ≤ 2.' },
@@ -293,7 +293,7 @@ export const TERRAINS = {
     id: 'ilha', name: 'Ilha', sub: 'Arquipélago', icon: '🏝️', color: '#2BB3A3', cap: { e: 3, w: 3 }, island: true,
     tiles: islandTiles(),
     trait: 'Rota Marítima', traitT: '1×/turno: troque 💰2 → 🗳️1 ou 🗳️1 → 💰2. COM em Costa não rende extra, mas Porto Comercial custa −🔨1.',
-    weak: 'Arquipélago', weakT: 'Adjacência só dentro da ilha. IND e INF fora da Ilha Principal custam +🔨1 (logística por barco).',
+    weak: 'Arquipélago', weakT: 'Adjacência só dentro da ilha. IND fora da Ilha Principal custa +🔨1 (logística por barco).',
     style: 'Turismo de luxo, conversão de recursos, logística.', stars: { eco: 3, con: 2, inf: 2 }, risk: 'Baixa', cx: 'Alta',
     regionalGoal: { id: 'RG-ILH', name: 'Arquipélago Conectado', t: 'Balsas ligando as 3 ilhas e Renda 💰 total ≥ 6.' },
     regional: ['R-ILH-1', 'R-ILH-2', 'R-ILH-3'],
@@ -306,16 +306,16 @@ const reg = (id, name, zone, obra, x) => add({ id, name, type: 'building', regio
 reg('R-LIT-1', 'Porto Pesqueiro', 'COM', 2, { onlyOn: ['O'], cons: { e: 1 }, inc: [{ r: 'v', n: 2 }, { r: 'v', n: 1, adj: 'COM', max: 2 }], t: 'Em Orla. Renda 💰2; +💰1 por COM adjacente (máx. +2).' });
 reg('R-LIT-2', 'Farol Histórico', 'VER', 1, { onlyOn: ['O'], poll: -1, onBuild: [appr(1)], inc: [{ r: 'a', n: 1 }], t: 'Em Orla. ☁️ −1; +1 😊 ao construir; Renda 🗳️1.' });
 reg('R-LIT-3', 'Resort Litorâneo', 'COM', 3, { onlyOn: ['O'], cons: { e: 2, w: 2 }, req: 6, inc: [{ r: 'v', n: 2 }, { r: 'a', n: 1 }], t: 'Em Orla. Req 👥6; Renda 💰2 + 🗳️1.' });
-reg('R-MON-1', 'Mina de Cobre', 'IND', 3, { onlyOn: ['J'], cons: { e: 1 }, req: 4, inc: [{ r: 'o', n: 2 }, { r: 'v', n: 2 }], poll: 2, mine: true, t: 'Em Jazida. Req 👥4; Renda 🔨2 + 💰2; ☁️2. Se um cubo seu for sorteado, a Mina fica inativa até seu próximo turno.' });
+reg('R-MON-1', 'Mina de Cobre', 'IND', 3, { onlyOn: ['J'], cons: { e: 1 }, req: 4, inc: [{ r: 'o', n: 1 }, { r: 'v', n: 2 }], poll: 2, mine: true, t: 'Em Jazida. Req 👥4; Renda 🔨1 + 💰2; ☁️2. Se um cubo seu for sorteado, a Mina fica inativa até seu próximo turno.' });
 reg('R-MON-2', 'Pequena Hidrelétrica', 'INF', 3, { onlyOn: ['R', 'E'], hydro: true, power: { e: 4 }, t: 'Em Rio/Encosta. ⚡+4; ☁️0.' });
 reg('R-MON-3', 'Teleférico Turístico', 'COM', 2, { cons: { e: 1 }, req: 5, inc: [{ r: 'v', n: 2 }, { r: 'a', n: 1, onKind: 'E' }], t: 'Req 👥5; Renda 💰2; +🗳️1 se em Encosta.' });
-reg('R-PLA-1', 'Silo Cooperativo', 'COM', 1, { req: 3, inc: [{ r: 'v', n: 2 }, { r: 'v', n: 1, adjAny: 'VER' }], t: 'Req 👥3; Renda 💰2; +💰1 se adjacente a VER.' });
-reg('R-PLA-2', 'Cooperativa Agrícola', 'SER', 2, { cons: { e: 1 }, onBuild: [appr(1)], inc: [{ r: 'v', n: 1 }], t: '+1 😊 ao construir; Renda 💰1.' });
-reg('R-PLA-3', 'Moinho Eólico', 'INF', 2, { power: { e: 3 }, t: '⚡+3; ☁️0.' });
-reg('R-DES-1', 'Poço do Oásis', 'INF', 2, { onlyOn: ['A'], power: { w: 5 }, t: 'Na casa Oásis. 💧+5; ☁️0.' });
-reg('R-DES-2', 'Fazenda Solar', 'INF', 3, { power: { e: 5 }, solar: true, t: '⚡+5; ☁️0.' });
+reg('R-PLA-1', 'Silo Cooperativo', 'COM', 1, { inc: [{ r: 'v', n: 2 }, { r: 'v', n: 1, adjAny: 'VER' }], t: 'Renda 💰2; +💰1 se adjacente a VER.' });
+reg('R-PLA-2', 'Cooperativa Agrícola', 'SER', 2, { cons: { e: 1 }, onBuild: [appr(1)], inc: [{ r: 'v', n: 2 }], t: '+1 😊 ao construir; Renda 💰2.' });
+reg('R-PLA-3', 'Moinho Eólico', 'INF', 2, { power: { e: 4 }, t: '⚡+4; ☁️0.' });
+reg('R-DES-1', 'Poço do Oásis', 'INF', 2, { onlyOn: ['A'], power: { w: 5 }, onBuild: [appr(1)], inc: [{ r: 'a', n: 1 }], t: 'Na casa Oásis. 💧+5; ☁️0; +1 😊 ao construir; Renda 🗳️1.' });
+reg('R-DES-2', 'Fazenda Solar', 'INF', 2, { power: { e: 5 }, solar: true, t: '⚡+5; ☁️0.' });
 reg('R-DES-3', 'Poço de Petróleo', 'IND', 2, { cons: { e: 1 }, req: 4, inc: [{ r: 'v', n: 3 }, { r: 'o', n: 1 }], poll: 3, onBuild: [cube(1)], t: 'Req 👥4; Renda 💰3 + 🔨1; ☁️3; ao construir, adicione 1 🕵️.' });
-reg('R-FLO-1', 'Pousada Ecológica', 'COM+VER', 2, { inc: [{ r: 'v', n: 1 }, { r: 'a', n: 1 }], t: 'Renda 💰1 + 🗳️1.' });
+reg('R-FLO-1', 'Pousada Ecológica', 'COM+VER', 2, { cons: { w: 1 }, inc: [{ r: 'v', n: 1 }, { r: 'a', n: 1 }], t: 'Cons 💧1; Renda 💰1 + 🗳️1.' });
 reg('R-FLO-2', 'Estação de Pesquisa', 'SER', 2, { cons: { e: 1 }, inc: [{ r: 'a', n: 1 }], onBuild: [adv('ver', 1)], t: 'Renda 🗳️1; +1 🌿 ao construir.' });
 reg('R-FLO-3', 'Santuário', 'VER', 2, { poll: -2, onBuild: [appr(2)], forestOk: true, t: '☁️ −2; +2 😊 ao construir; pode ser construído em Floresta sem Desmatar (a casa conta como intacta).' });
 reg('R-ILH-1', 'Resort Insular', 'COM', 3, { cons: { e: 1, w: 2 }, req: 5, inc: [{ r: 'v', n: 3 }, { r: 'a', n: 1, minorIsland: true }], t: 'Req 👥5; Renda 💰3; +🗳️1 se em ilha menor.' });

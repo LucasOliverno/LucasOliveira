@@ -6,7 +6,9 @@ import { Ico, Rich, TerrainGlyph } from './icons.jsx';
 import { Card, ExploreCard, CostChip, FacEmblem, GoalEmblem } from './cards.jsx';
 import { HAS_ART, artUrl } from './cardutil.js';
 import { Chat } from './chat.jsx';
-import { chime, loadMuted, saveMuted } from './sound.js';
+import { chime, sfx, loadMuted, saveMuted } from './sound.js';
+import { BagInfo, FiscReveal, AuditLeaders, DeckView, CardZoom, GoalDetail, Coach } from './explain.jsx';
+import { REGIONAL_HOWTO } from './explainData.js';
 import { City, MetersMini, ResPool, MeritTrack, TurnStrip, CenterBoard } from './board.jsx';
 import { Draft, Curtain, Rules, GameOver } from './screens.jsx';
 
@@ -14,11 +16,11 @@ const SIMPLE = (id) => CARDS[id].type === 'basic' || id === 'P-02' || id === 'P-
 
 // ---------------------------------------------------------------- Saco
 
-function Bag({ s }) {
+function Bag({ s, onOpen }) {
   const shake = s.stats.fisc;
   const total = s.bag.neutral + s.players.reduce((a, p) => a + p.cubesBag, 0);
   return (
-    <div className="bag" title="Saco de Fiscalização: cubos neutros + cubos de suspeita dos jogadores">
+    <button type="button" className="bag" onClick={onOpen} title="O que é o Saco? Clique para entender">
       <svg key={shake} className={`bag-svg${shake ? ' shake' : ''}`} viewBox="0 0 48 52" width="40" height="44" aria-hidden="true">
         <path d="M14 8c2-4 18-4 20 0l-2 6H16z" fill="#CFCABD" stroke="#1B2A41" strokeWidth="2" strokeLinejoin="round" />
         <path d="M16 14C6 22 4 32 6 42c1 5 8 7 18 7s17-2 18-7c2-10 0-20-10-28z" fill="#E4D8BF" stroke="#1B2A41" strokeWidth="2" strokeLinejoin="round" />
@@ -30,15 +32,15 @@ function Bag({ s }) {
           <i className="cube neutral" /> {s.bag.neutral}
           {s.players.filter((p) => p.cubesBag > 0).map((p) => <span key={p.id} className="bag-p"><i className="cube" style={{ background: p.color }} /> {p.cubesBag}</span>)}
         </span>
-        <small>Tensão {E.tension(s.round)}: sorteia {E.tension(s.round)} cubos</small>
+        <small>Tensão {E.tension(s.round)}: sorteia {E.tension(s.round)} cubos · <u>o que é?</u></small>
       </div>
-    </div>
+    </button>
   );
 }
 
 // ---------------------------------------------------------------- barra superior
 
-function RoundBanner({ s }) {
+function RoundBanner({ s, onBag }) {
   const rd = ROUNDS.find((r) => r.id === s.card);
   return (
     <div className="banner">
@@ -50,11 +52,11 @@ function RoundBanner({ s }) {
       {rd && (
         <div className={`b-card${HAS_ART.has(rd.id) ? ' has-art' : ''}`}>
           {HAS_ART.has(rd.id) && <img className="b-art" src={artUrl(rd.id)} alt="" draggable="false" />}
-          <div className="b-ev"><span className="tagk">Evento</span><b>{rd.name}</b><span><Rich t={rd.ev} s={14} /></span></div>
-          <div className="b-au"><span className="tagk au">Auditoria</span><span><Rich t={rd.au} s={14} /></span></div>
+          <div className="b-ev"><span className="tagk" title="Regra que vale só nesta rodada">Evento</span><b>{rd.name}</b><span><Rich t={rd.ev} s={14} /></span></div>
+          <div className="b-au"><span className="tagk au" title="No fim da rodada, o 1º nesse critério ganha um Selo (2 Selos = ⭐1) e +💰1; o 2º ganha +💰1">Auditoria</span><span><Rich t={rd.au} s={14} /></span><AuditLeaders s={s} /></div>
         </div>
       )}
-      <Bag s={s} />
+      <Bag s={s} onOpen={onBag} />
     </div>
   );
 }
@@ -93,7 +95,7 @@ function Goals({ s, me, myTurn, run }) {
       <article className={`goal regional${regOk && !me.regionalDone ? ' ready' : ''}`} style={{ '--tc': T.color }}>
         <header><span className="gid">REG</span><b>{T.regionalGoal.name}</b><small>Meta Regional · privada</small></header>
         <p><Rich t={T.regionalGoal.t} s={14} /></p>
-        <p className="hint">Os edifícios do seu terreno estão sempre à venda em Mercado → Seus Projetos Regionais.</p>
+        <p className="hint"><b>Como cumprir:</b> {REGIONAL_HOWTO[me.terrain]}</p>
         <div className="medals"><span className={`medal gold${me.regionalDone ? ' got' : ''}`}><Ico n="star" s={14} /> ⭐2 {me.regionalDone ? '· cumprida' : ''}</span></div>
         <button type="button" className="btn sm" disabled={!(regOk && !me.regionalDone && canClaim)} onClick={() => run({ t: 'claim', regional: true })}>Reivindicar</button>
       </article>
@@ -186,7 +188,7 @@ function PendingModal({ s, pe, viewer, run }) {
 
 // ---------------------------------------------------------------- mesa
 
-export default function Game({ game, setGame, onExit, online }) {
+export default function Game({ game, setGame, onExit, online, tutorial }) {
   const s = game;
   const humans = s.players.filter((p) => !p.bot);
   const act = E.actor(s);
@@ -204,6 +206,12 @@ export default function Game({ game, setGame, onExit, online }) {
   const [seenChat, setSeenChat] = useState(0);
   const [hideOver, setHideOver] = useState(false);
   const [peek, setPeek] = useState(false); // ver a mão fora da sua vez
+  const [bagOpen, setBagOpen] = useState(false);
+  const [deckOpen, setDeckOpen] = useState(false);
+  const [zoom, setZoom] = useState(null);
+  const [coach, setCoach] = useState(!!tutorial);
+  const [fiscSeen, setFiscSeen] = useState(() => (game.lastFisc ? game.lastFisc.id : 0));
+  const logLen = useRef(game.log.length);
   const tt = useRef(null);
 
   const needCurtain = !online && humans.length > 1 && act != null && !s.players[act].bot && act !== shown && !s.over;
@@ -246,9 +254,27 @@ export default function Game({ game, setGame, onExit, online }) {
   const hasSimple = me.hand.some(SIMPLE);
   const endTurn = useCallback(() => {
     if (!myTurn) return;
-    if (hasSimple && !window.confirm('Você ainda tem cartas de recurso na mão (elas vão para o descarte sem render nada). Encerrar o turno mesmo assim?')) return;
+    const left = [];
+    if (hasSimple) left.push('cartas de recurso na mão (vão para o descarte sem render nada)');
+    if (!me.t.claimed && me.investRound !== s.round && s.goals.slots.some((sl) => E.goalOk(s, me, sl.id) && ((sl.gold == null && sl.silver !== me.id) || (sl.silver == null && sl.gold !== me.id)))) left.push('uma Meta que você já cumpre e não reivindicou');
+    if (STANDARD.some((id) => s.market.piles[id] > 0 && (E.buyCost(s, me, id).v || 0) <= me.pool.v && (E.buyCost(s, me, id).a || 0) <= me.pool.a) && me.pool.v + me.pool.a > 0) left.push(`💰${me.pool.v}${me.pool.a ? ` e 🗳️${me.pool.a}` : ''} que ainda compram cartas (o que passar do Tesouro se perde)`);
+    if (left.length && !window.confirm(`Antes de encerrar, você ainda tem:\n\n• ${left.join('\n• ')}\n\nEncerrar o turno mesmo assim?`)) return;
     setPlacing(null); setSel(null); run({ t: 'end' });
-  }, [myTurn, hasSimple, run]);
+  }, [myTurn, hasSimple, run, me, s]);
+
+  useEffect(() => {
+    const prev = logLen.current;
+    logLen.current = s.log.length;
+    if (muted || s.log.length <= prev) return;
+    const fresh = s.log.slice(prev);
+    const kinds = fresh.map((l) => l.kind);
+    const msgs = fresh.map((l) => l.msg || '');
+    if (kinds.includes('fisc')) sfx('bell');
+    else if (kinds.includes('merit')) sfx('fanfare');
+    else if (kinds.includes('build')) sfx('build');
+    else if (kinds.includes('buy')) sfx('coin');
+    else if (msgs.some((m) => m.startsWith('🃏'))) sfx('card');
+  }, [s.log, muted]);
 
   // Bots jogam um de cada vez, à vista de todos na mesa.
   const botWho = !s.over && act != null && s.players[act].bot ? act : null;
@@ -381,6 +407,14 @@ export default function Game({ game, setGame, onExit, online }) {
   }
 
   const inspector = () => {
+    if (sel && sel.k === 'goal') {
+      return (
+        <div className="insp">
+          <button type="button" className="insp-x" onClick={() => setSel(null)} aria-label="Fechar">×</button>
+          <GoalDetail s={s} me={me} slot={sel.i} myTurn={myTurn} run={run} onDone={() => setSel(null)} />
+        </div>
+      );
+    }
     if (!selCard) {
       return (
         <div className="insp empty">
@@ -447,6 +481,7 @@ export default function Game({ game, setGame, onExit, online }) {
     const left = s.market.piles[id];
     return (
       <div key={id} className="stack">
+        <button type="button" className="eye" onClick={() => setZoom(id)} title="Ver a carta" aria-label="Ver a carta">👁</button>
         <Card id={id} size="sm" costOverride={cost} selected={sel && sel.k === 'pile' && sel.id === id} disabled={!myTurn || buyCheck(id) !== null || left <= 0} onClick={() => { setSel({ k: 'pile', id }); setPlacing(null); }} />
         <span className="stack-n">{left} na pilha</span>
       </div>
@@ -463,6 +498,7 @@ export default function Game({ game, setGame, onExit, online }) {
           const owned = E.ownsCard(me, id);
           return (
             <div key={id} className="stack">
+              <button type="button" className="eye" onClick={() => setZoom(id)} title="Ver a carta" aria-label="Ver a carta">👁</button>
               <Card id={id} size="sm" costOverride={E.buyCost(s, me, id)} selected={sel && sel.k === 'reg' && sel.id === id} disabled={owned || !myTurn || buyCheck(id) !== null} onClick={() => { setSel({ k: 'reg', id }); setPlacing(null); }} />
               <span className="stack-n">{owned ? 'já é seu' : 'disponível'}</span>
             </div>
@@ -473,13 +509,16 @@ export default function Game({ game, setGame, onExit, online }) {
       <h3 className="h">Fila Especial <small>{s.market.deck.length} no baralho · 🔔 dispara Fiscalização ao entrar</small></h3>
       <div className="row">
         {s.market.row.map((id, i) => (
-          <Card key={id + i} id={id} size="sm" costOverride={E.buyCost(s, me, id)} selected={sel && sel.k === 'row' && sel.i === i} disabled={!myTurn || buyCheck(id) !== null} onClick={() => { setSel({ k: 'row', i }); setPlacing(null); }} />
+          <div key={id + i} className="stack">
+            <button type="button" className="eye" onClick={() => setZoom(id)} title="Ver a carta" aria-label="Ver a carta">👁</button>
+            <Card id={id} size="sm" costOverride={E.buyCost(s, me, id)} selected={sel && sel.k === 'row' && sel.i === i} disabled={!myTurn || buyCheck(id) !== null} onClick={() => { setSel({ k: 'row', i }); setPlacing(null); }} />
+          </div>
         ))}
         {!s.market.row.length && <p className="empty">Fila esgotada.</p>}
       </div>
       <h3 className="h">Obras-Prima <small>⭐2 · máx. 2 pontuam por jogador</small></h3>
       <div className="row">
-        {s.market.vit.map((id, i) => <Card key={id} id={id} size="sm" selected={sel && sel.k === 'wonder' && sel.i === i} onClick={() => { setSel({ k: 'wonder', i }); setPlacing(null); }} />)}
+        {s.market.vit.map((id, i) => <div key={id} className="stack"><button type="button" className="eye" onClick={() => setZoom(id)} title="Ver a carta" aria-label="Ver a carta">👁</button><Card id={id} size="sm" selected={sel && sel.k === 'wonder' && sel.i === i} onClick={() => { setSel({ k: 'wonder', i }); setPlacing(null); }} /></div>)}
       </div>
     </div>
   );
@@ -570,7 +609,7 @@ export default function Game({ game, setGame, onExit, online }) {
   const hand = (
     <div className={`handwrap${myTurn ? '' : ' waiting'}${handOpen ? '' : ' closed'}`}>
       <div className="hand-head">
-        <h3 className="h">{myTurn ? 'Sua mão' : 'Sua próxima mão'} <small>{me.hand.length} cartas · deck {me.deck.length} · descarte {me.discard.length}</small></h3>
+        <h3 className="h">{myTurn ? 'Sua mão' : 'Sua próxima mão'} <small>{me.hand.length} cartas · deck {me.deck.length} · descarte {me.discard.length}</small> <button type="button" className="m-link" onClick={() => setDeckOpen(true)}>ver deck e descarte</button></h3>
         {myTurn && <button type="button" className="btn sm" onClick={playAllSimple} disabled={!hasSimple}>Jogar recursos simples</button>}
         {!myTurn && <button type="button" className="m-link" onClick={() => setPeek((v) => !v)}>{handOpen ? 'recolher a mão' : 'ver a mão'}</button>}
       </div>
@@ -612,12 +651,13 @@ export default function Game({ game, setGame, onExit, online }) {
         <Brand />{online && <span className="roomchip" title="Código da sala">Sala <b>{online.code}</b></span>}
         <MeritTrack s={s} />
         <div className="tb-r">
-          {online && <button type="button" className="btn btn-ghost sm" onClick={() => setMuted((m) => { saveMuted(!m); return !m; })} title={muted ? 'Ligar o aviso sonoro da sua vez' : 'Silenciar o aviso da sua vez'} aria-pressed={!muted}>{muted ? '🔕' : '🔔'}</button>}
+          <button type="button" className="btn btn-ghost sm" onClick={() => setMuted((m) => { saveMuted(!m); return !m; })} title={muted ? 'Ligar os sons' : 'Silenciar os sons'} aria-pressed={!muted}>{muted ? '🔕' : '🔔'}</button>
+          <button type="button" className="btn btn-ghost sm" onClick={() => setCoach(true)} title="Tour guiado pela mesa">Tutorial</button>
           <button type="button" className="btn btn-ghost sm" onClick={() => setShowRules(true)}>Regras</button>
           <button type="button" className="btn btn-ghost sm" onClick={exit}>Sair</button>
         </div>
       </div>
-      <RoundBanner s={s} />
+      <RoundBanner s={s} onBag={() => setBagOpen(true)} />
 
       <div className="grid">
         <section className="pane pane-board" data-pane="city" aria-label="Mesa principal">
@@ -630,7 +670,7 @@ export default function Game({ game, setGame, onExit, online }) {
           <div className={`cities c${s.players.length}`}>
             <div className="seat-main">{seat(me)}</div>
             <div className="board-rest">
-              {centerOpen && <CenterBoard s={s} onGoals={() => { pickTab('metas'); goTab('goals'); }} />}
+              {centerOpen && <CenterBoard s={s} onGoals={(i) => { setSel({ k: 'goal', i }); setPlacing(null); }} />}
               {s.players.length > 1 && <div className="others">{[...s.players.slice(viewer + 1), ...s.players.slice(0, viewer)].map(seat)}</div>}
             </div>
           </div>
@@ -681,6 +721,11 @@ export default function Game({ game, setGame, onExit, online }) {
       {waitbar}
       {online && !online.connected && <div className="reconn" role="alert">Conexão perdida — reconectando…</div>}
       {showRules && <Rules onClose={() => setShowRules(false)} />}
+      {bagOpen && <BagInfo s={s} onClose={() => setBagOpen(false)} />}
+      {deckOpen && <DeckView p={me} onClose={() => setDeckOpen(false)} />}
+      {zoom && <CardZoom id={zoom} onClose={() => setZoom(null)} />}
+      {s.lastFisc && s.lastFisc.id !== fiscSeen && !needCurtain && !s.over && <FiscReveal s={s} onClose={() => setFiscSeen(s.lastFisc.id)} />}
+      {coach && !needCurtain && <Coach onClose={() => setCoach(false)} />}
       {s.over && !hideOver && (
         <GameOver
           s={s}

@@ -1,6 +1,8 @@
 // Testes direcionados das regras (cenários montados à mão). Rode: npm run test:mandato
 process.exitCode = 0;
 import * as E from '../engine.js';
+import { decide } from '../bot.js';
+const settleAll = (s) => { for (let g = 0; g < 20 && s.pending.length; g++) E.exec(s, decide(s, s.pending[0])); };
 import * as D from '../data.js';
 let fails = 0;
 const ok = (c, m) => { if (!c) { fails++; console.log('FAIL:', m); } else console.log('ok  :', m); };
@@ -162,7 +164,7 @@ const give = (p, ...ids) => { p.hand.unshift(...ids); };
   p.hand.unshift('R-ILH-2');
   const hi = 0;
   const r = E.checkBuild(s, p, { src: 'hand', hi, tile: 8 });
-  ok(!r.err && r.ob === 3, `Balsa em ilha menor custa +🔨1 (INF fora da principal): ${r.ob}`);
+  ok(!r.err && r.ob === 2, `Balsa em ilha menor sem custo extra (só IND paga logística): ${r.ob}`);
   E.exec(s, { t: 'build', src: 'hand', hi, tile: 8 });
   ok(p.links.includes('N'), 'Balsa liga a ilha');
 }
@@ -194,7 +196,8 @@ const give = (p, ...ids) => { p.hand.unshift(...ids); };
 {
   const s = game(3, ['litoral', 'montanha', 'planicie']);
   const r0 = s.round;
-  for (let i = 0; i < 3; i++) E.exec(s, { t: 'end' });
+  for (let i = 0; i < 3; i++) { settleAll(s); E.exec(s, { t: 'end' }); }
+  settleAll(s);
   ok(s.round === r0 + 1, 'após 3 turnos começa a rodada 2');
   ok(s.order[0] === 0, 'rodada 2: assento 1 abre');
 }

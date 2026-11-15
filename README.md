@@ -94,6 +94,18 @@ mesmo lugar for aberto em outra aba, a aba antiga para de reconectar em vez de d
 - Ainda abaixo da meta do doc 08: Fiscalizações (~3 por partida, meta 6–9), peso das Obras-Prima (~37% do mérito,
   meta 20–25%) e Crises (~1,4 por partida). Vale confirmar tudo com partidas de humanos.
 
+**Clareza e ajustes v1.2** (a partir de playtest):
+- Tutorial guiado (botão na tela inicial e no topo da mesa), glossário de siglas nas Regras, Saco clicável com
+  explicação e o sorteio animado a cada Fiscalização, Auditoria com quem lidera agora, ver deck e descarte,
+  👁 para ampliar qualquer carta do mercado (o Loteamento mostra as 5 opções de Zona), Meta clicada no centro da
+  mesa abre os detalhes no Inspetor, sons sintetizados (moeda, carta, obra, sino, fanfarra; 🔔 silencia) e
+  confirmação ao encerrar o turno com recursos, cartas ou Metas pendentes.
+- Projetos Regionais: os 3 edifícios do seu terreno (Balsa, Poço do Oásis…) estão sempre à venda para você
+  (💰3 + 🗳️1, 1 de cada), sem depender da Exploração; cada Meta Regional explica como ser cumprida.
+- A Fila Especial gira 1 carta por rodada (sem disparar Fiscalização), e há mais Loteamento com mais jogadores.
+- Terrenos: Planície com lote −🔨1 e 💧4; Ilha só paga logística em IND; Mina de Cobre rende 🔨1; regionais da
+  Floresta, Planície e Deserto ajustados.
+
 **Arte das cartas:** as folhas geradas por IA ficam em `MANDATO/images/` (ordem e prompts em
 `MANDATO/12_guia_de_prompts_ia.md`). `frontend/scripts/slice-art.mjs` recorta cada folha em uma imagem por ID
 (`public/mandato/art/<ID>.webp`: edificações, regionais, administração, básicas/padrão, decretos, intrigas,

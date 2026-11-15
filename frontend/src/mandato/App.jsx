@@ -31,6 +31,7 @@ export default function App() {
   const [game, setGameState] = useState(null);
   const [saved, setSaved] = useState(() => load());
   const [rules, setRules] = useState(false);
+  const [tut, setTut] = useState(false);
 
   useEffect(() => { document.body.classList.add('mandato'); return () => document.body.classList.remove('mandato'); }, []);
 
@@ -59,11 +60,12 @@ export default function App() {
           onLocal={() => { setMode('local'); setScreen('setup'); }}
           onOnline={() => setScreen('online')}
           onRules={() => setRules(true)}
+          onTutorial={() => { setTut(true); start({ solo: true, level: 'aprendiz', target: 10, noIntrigues: true, players: [{ name: 'Você', bot: false }] }); }}
           onContinue={() => { setGameState(saved); setScreen('game'); }}
         />
       )}
       {screen === 'setup' && <Setup mode={mode} onBack={() => setScreen('home')} onStart={start} />}
-      {screen === 'game' && game && <Game game={game} setGame={setGame} onExit={exit} />}
+      {screen === 'game' && game && <Game game={game} setGame={setGame} onExit={() => { setTut(false); exit(); }} tutorial={tut} />}
       {screen === 'online' && <Online initialCode={invite} onExit={() => { try { history.replaceState(null, '', location.pathname); } catch { /* sem history */ } setScreen('home'); }} />}
       {rules && <Rules onClose={() => setRules(false)} />}
     </div>
