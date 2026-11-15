@@ -219,3 +219,15 @@ console.log(fails ? `\n${fails} FALHAS` : '\ntodos os cenários passaram');
   const r2 = E.exec(s, { t: 'buy', src: 'regional', key: 'R-ILH-1' });
   ok(!r1 && !!r2, 'Resort Insular: só 1 cópia');
 }
+
+// Balsa só nas ilhas menores
+{
+  const s = game(2, ['ilha', 'litoral']);
+  const p = s.players.find((q) => q.terrain === 'ilha');
+  p.hand.unshift('R-ILH-2');
+  p.pool = { v: 9, o: 9, a: 9 };
+  const main = p.tiles.findIndex((t) => t.isl === 'M' && !t.b);
+  const north = p.tiles.findIndex((t) => t.isl === 'N' && !t.b);
+  ok(!!E.checkBuild(s, p, { src: 'hand', hi: 0, tile: main }).err, 'Balsa recusada na Ilha Principal');
+  ok(!E.checkBuild(s, p, { src: 'hand', hi: 0, tile: north }).err, 'Balsa aceita na Ilha Norte');
+}

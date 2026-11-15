@@ -503,7 +503,7 @@ export function goalOk(s, p, gid) {
     case 'G-01': return c.zn.COM >= 3 && c.inc.v >= 5;
     case 'G-02': return c.zn.IND >= 3 && c.inc.o >= 6;
     case 'G-03': return p.t.startTreasury >= tmax(s, { ...p, t: { ...p.t, treasuryBonus: 0 } });
-    case 'G-04': return c.pop >= 20;
+    case 'G-04': return c.pop >= 18;
     case 'G-05': return p.tiles.some((t) => {
       const at = (dx, dy) => p.tiles.find((u) => u.isl === t.isl && u.x === t.x + dx && u.y === t.y + dy);
       return [[0, 0], [1, 0], [0, 1], [1, 1]].every(([dx, dy]) => { const u = at(dx, dy); return u && u.b && def(u.b).zones.includes('RES'); });
@@ -534,7 +534,7 @@ export function regionalOk(s, p) {
   const tiles = p.tiles;
   const zOn = (t, z) => t.b && def(t.b).zones.includes(z);
   switch (T.regionalGoal.id) {
-    case 'RG-LIT': return tiles.filter((t) => t.k === 'O' && (zOn(t, 'COM') || zOn(t, 'VER'))).length >= 3 && p.approval >= 7;
+    case 'RG-LIT': return tiles.filter((t) => t.k === 'O' && (zOn(t, 'COM') || zOn(t, 'VER'))).length >= 4 && p.approval >= 7;
     case 'RG-MON': return tiles.filter((t) => t.k === 'J' && zOn(t, 'IND') && !isOff(s, t.b) && c.act.has(t.id)).length >= 2 && c.poll <= 4;
     case 'RG-PLA': return c.pop >= 12 && p.approval >= 7 && c.poll <= 3;
     case 'RG-DES': return tiles.some((t) => t.b && t.b.id === 'R-DES-1') && c.sur.e >= 4 && c.sur.w >= 4;
@@ -651,6 +651,8 @@ export function checkBuild(s, p, o) {
     if (eff.buildReq.ver && c.zn.VER < eff.buildReq.ver) return { err: 'Exige ≥ 3 VER construídos.' };
   }
   if (eff.ferry && p.terrain !== 'ilha') return { err: 'Só na Ilha.' };
+  if (eff.ferry && tile.isl === 'M') return { err: 'A Balsa só pode ser construída numa ilha menor (Norte ou Leste).' };
+  if (eff.ferry && p.links.includes(tile.isl)) return { err: 'Esta ilha já está ligada por uma Balsa.' };
   if (card.wonder) aq = { v: card.cost.v, a: card.cost.a };
   else if (o.src === 'row') aq = card.cost;
   const ob = obraCost(s, p, eff, tile, { upgrade });
@@ -699,7 +701,7 @@ function doBuild(s, p, o) {
 }
 function linkFerry(p, tile) {
   const minor = ['N', 'L'];
-  if (tile.isl === 'M') { const t = minor.find((i) => !p.links.includes(i)); if (t) p.links.push(t); } else if (!p.links.includes(tile.isl)) p.links.push(tile.isl);
+  if (minor.includes(tile.isl) && !p.links.includes(tile.isl)) p.links.push(tile.isl);
 }
 
 function demolishCost(p) {

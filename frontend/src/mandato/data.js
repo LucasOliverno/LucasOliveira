@@ -196,7 +196,7 @@ export const GOALS = [
   { id: 'G-01', name: 'Polo Comercial', cat: 'Economia', t: '3 COM construídos e Renda 💰 total ≥ 5 por turno.', d: 2 },
   { id: 'G-02', name: 'Cinturão Industrial', cat: 'Economia', t: '3 IND e Renda 🔨 total ≥ 6 por turno.', d: 2 },
   { id: 'G-03', name: 'Cofres Cheios', cat: 'Economia', t: 'Tesouro no máximo no início do turno.', d: 1 },
-  { id: 'G-04', name: 'Metrópole', cat: 'População', t: '👥 ≥ 20.', d: 2 },
+  { id: 'G-04', name: 'Metrópole', cat: 'População', t: '👥 ≥ 18.', d: 2 },
   { id: 'G-05', name: 'Bairro Planejado', cat: 'População', t: '4 RES formando um quadrado 2×2.', d: 2 },
   { id: 'G-06', name: 'Distrito Verde', cat: 'Ambiente', t: '3 VER e ☁️ ≤ 0.', d: 2 },
   { id: 'G-07', name: 'Autossuficiência', cat: 'Infra', t: 'Excedente de ⚡ ≥ 3 e de 💧 ≥ 3.', d: 2 },
@@ -250,7 +250,7 @@ export const TERRAINS = {
     trait: 'Turismo Sazonal', traitT: 'Cada COM ou VER em Orla rende +💰1. Cada VER em Orla tem ☁️ −1 adicional.',
     weak: 'Maré Alta', weakT: 'Quando você sofrer ≥1 hit de Fiscalização, 1 edifício em Orla fica inativo até seu próximo turno (1×/rodada).',
     style: 'Economia de turismo e comércio; Verde costeiro.', stars: { eco: 4, con: 3, inf: 3 }, risk: 'Média', cx: 'Baixa',
-    regionalGoal: { id: 'RG-LIT', name: 'Cartão-Postal', t: '3 COM/VER na Orla e 😊 ≥ 7.' },
+    regionalGoal: { id: 'RG-LIT', name: 'Cartão-Postal', t: '4 COM/VER na Orla (toda a orla) e 😊 ≥ 7.' },
     regional: ['R-LIT-1', 'R-LIT-2', 'R-LIT-3'],
   },
   montanha: {
@@ -319,7 +319,7 @@ reg('R-FLO-1', 'Pousada Ecológica', 'COM+VER', 2, { cons: { w: 1 }, inc: [{ r: 
 reg('R-FLO-2', 'Estação de Pesquisa', 'SER', 2, { cons: { e: 1 }, inc: [{ r: 'a', n: 1 }], onBuild: [adv('ver', 1)], t: 'Renda 🗳️1; +1 🌿 ao construir.' });
 reg('R-FLO-3', 'Santuário', 'VER', 2, { poll: -2, onBuild: [appr(2)], forestOk: true, t: '☁️ −2; +2 😊 ao construir; pode ser construído em Floresta sem Desmatar (a casa conta como intacta).' });
 reg('R-ILH-1', 'Resort Insular', 'COM', 3, { cons: { e: 1, w: 2 }, req: 5, inc: [{ r: 'v', n: 3 }, { r: 'a', n: 1, minorIsland: true }], t: 'Req 👥5; Renda 💰3; +🗳️1 se em ilha menor.' });
-reg('R-ILH-2', 'Balsa Rápida', 'INF', 2, { ferry: true, t: 'Conecta duas ilhas: a adjacência vale entre as ilhas ligadas por ela.' });
+reg('R-ILH-2', 'Balsa Rápida', 'INF', 2, { ferry: true, t: 'Só numa ilha menor (Norte ou Leste): liga essa ilha à Principal, e a adjacência passa a valer entre elas.' });
 reg('R-ILH-3', 'Estaleiro', 'IND', 3, { cons: { e: 2 }, req: 6, inc: [{ r: 'o', n: 2 }, { r: 'v', n: 1 }], poll: 2, t: 'Req 👥6; Renda 🔨2 + 💰1; ☁️2.' });
 
 // Decks de Exploração (04): { id, name, type, ops }

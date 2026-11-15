@@ -28,10 +28,10 @@ export const GLOSSARY = [
 
 // ---------------------------------------------------------------- dica da Meta Regional (como cumprir)
 export const REGIONAL_HOWTO = {
-  litoral: 'Construa 3 edifícios COM ou VER nas casas de Orla (a fileira do mar) e mantenha 😊 ≥ 7. Porto Pesqueiro, Farol e Resort (Projetos Regionais) contam.',
+  litoral: 'Ocupe as 4 casas de Orla (a fileira do mar) com edifícios COM ou VER e mantenha 😊 ≥ 7. Porto Pesqueiro, Farol e Resort (Projetos Regionais) contam.',
   montanha: 'Construa 2 edifícios IND nas casas de Jazida (J) e mantenha-os ativos, com ☁️ ≤ 4. A Mina de Cobre (Projeto Regional) é IND e vai em Jazida.',
   planicie: 'Chegue a 👥 ≥ 12 com 😊 ≥ 7 e ☁️ ≤ 3: muitas moradias (RES/Loteamento RES), praças VER e pouca indústria.',
   deserto: 'Compre o Poço do Oásis (Projetos Regionais) e construa na casa Oásis; depois tenha sobra de ⚡ e 💧 de 4 ou mais (Fazenda Solar ajuda no ⚡).',
   floresta: 'Mantenha ao menos 4 casas de Floresta intactas (não desmate) e chegue a 👥 ≥ 10. O Santuário pode ser construído em Floresta sem desmatar.',
-  ilha: 'Compre 2 Balsas Rápidas (Projetos Regionais): cada Balsa construída liga uma ilha menor (Norte ou Leste) à Principal. Com as 3 ilhas ligadas e Renda 💰 de 6 ou mais, a Meta é sua.',
+  ilha: 'Compre 2 Balsas Rápidas (Projetos Regionais) e construa uma na Ilha Norte e outra na Ilha Leste: cada uma liga a sua ilha à Principal. Com as 3 ilhas ligadas e Renda 💰 de 6 ou mais, a Meta é sua.',
 };

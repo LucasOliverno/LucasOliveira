@@ -13,7 +13,8 @@
     "diag:mandato": "node src/mandato/test/diag.mjs",
     "start": "node server/index.mjs",
     "server": "node server/index.mjs",
-    "test:online": "node src/mandato/test/online.mjs"
+    "test:online": "node src/mandato/test/online.mjs",
+    "audit:mandato": "node src/mandato/test/audit.mjs"
   },
   "dependencies": {
     "i18next": "^25.8.1",

@@ -55,6 +55,7 @@ function placementGain(s, p, card, tileIdx, variant, upg) {
   g += opScore(p, card.onBuild);
   g += (card.fac || []).length * 1.5;
   if (card.wonder) g += 16;
+  if (card.ferry && tile.isl !== 'M' && !p.links.includes(tile.isl)) g += 7; // liga ilha: Meta Regional da Ilha
   if (upg) g += 0;
   return g;
 }
