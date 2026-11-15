@@ -28,7 +28,7 @@ export const GLOSSARY = [
 
 // ---------------------------------------------------------------- dica da Meta Regional (como cumprir)
 export const REGIONAL_HOWTO = {
-  litoral: 'Ocupe as 4 casas de Orla (a fileira do mar) com edifícios COM ou VER e mantenha 😊 ≥ 7. Porto Pesqueiro, Farol e Resort (Projetos Regionais) contam.',
+  litoral: 'Construa 3 edifícios COM ou VER nas casas de Orla (a fileira do mar) e mantenha 😊 ≥ 7. Porto Pesqueiro, Farol e Resort (Projetos Regionais) contam.',
   montanha: 'Construa 2 edifícios IND nas casas de Jazida (J) e mantenha-os ativos, com ☁️ ≤ 4. A Mina de Cobre (Projeto Regional) é IND e vai em Jazida.',
   planicie: 'Chegue a 👥 ≥ 12 com 😊 ≥ 7 e ☁️ ≤ 3: muitas moradias (RES/Loteamento RES), praças VER e pouca indústria.',
   deserto: 'Compre o Poço do Oásis (Projetos Regionais) e construa na casa Oásis; depois tenha sobra de ⚡ e 💧 de 4 ou mais (Fazenda Solar ajuda no ⚡).',

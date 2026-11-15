@@ -38,8 +38,8 @@ function opScore(p, ops = []) {
 function vOfCalc(c) {
   const inc = c.inc;
   let v = 3 * (inc.v + W.o * inc.o + W.a * inc.a) + 0.5 * c.pop;
-  v -= 0.8 * Math.max(0, c.poll) + 1.5 * Math.max(0, c.poll - 4);
-  v -= 3 * Math.min(3, Math.max(0, -c.sur.e)) + 3 * Math.min(3, Math.max(0, -c.sur.w));
+  v -= 0.8 * Math.max(0, c.poll) + 1.5 * Math.max(0, c.poll - 4) + 5 * Math.max(0, c.poll - 5); // ☁️ ≥ 6 custa 😊 toda rodada
+  v -= 6 * Math.min(3, Math.max(0, -c.sur.e)) + 6 * Math.min(3, Math.max(0, -c.sur.w)); // déficit custa 😊 todo turno
   v += 0.2 * Math.min(3, Math.max(0, c.sur.e)) + 0.2 * Math.min(3, Math.max(0, c.sur.w));
   return v;
 }
@@ -68,7 +68,7 @@ function bestPlacement(s, p, card, src, hi) {
       for (const upg of p.tiles[i].b ? [true] : [false]) {
         const r = E.checkBuild(s, p, { src, hi, tile: i, v, upg });
         if (r.err) continue;
-        const g = placementGain(s, p, card, i, v, upg) - (r.desmate ? 2 : 0);
+        const g = placementGain(s, p, card, i, v, upg) - (r.desmate ? (p.terrain === 'floresta' ? 7 : 3) : 0); // floresta intacta vale (Pulmão Verde e Meta Regional)
         if (!best || g > best.g) best = { g, tile: i, v, upg, r };
       }
     }

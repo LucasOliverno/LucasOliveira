@@ -250,7 +250,7 @@ export const TERRAINS = {
     trait: 'Turismo Sazonal', traitT: 'Cada COM ou VER em Orla rende +💰1. Cada VER em Orla tem ☁️ −1 adicional.',
     weak: 'Maré Alta', weakT: 'Quando você sofrer ≥1 hit de Fiscalização, 1 edifício em Orla fica inativo até seu próximo turno (1×/rodada).',
     style: 'Economia de turismo e comércio; Verde costeiro.', stars: { eco: 4, con: 3, inf: 3 }, risk: 'Média', cx: 'Baixa',
-    regionalGoal: { id: 'RG-LIT', name: 'Cartão-Postal', t: '4 COM/VER na Orla (toda a orla) e 😊 ≥ 7.' },
+    regionalGoal: { id: 'RG-LIT', name: 'Cartão-Postal', t: '3 COM/VER na Orla e 😊 ≥ 7.' },
     regional: ['R-LIT-1', 'R-LIT-2', 'R-LIT-3'],
   },
   montanha: {
@@ -283,7 +283,7 @@ export const TERRAINS = {
   floresta: {
     id: 'floresta', name: 'Floresta', sub: 'Mata Fechada', icon: '🌲', color: '#3E6B4B', cap: { e: 3, w: 3 },
     grid: rows('FF..', 'FPH.', '...F', '..FF'),
-    trait: 'Pulmão Verde', traitT: 'A cada 2 Florestas intactas: ☁️ −1 (máx. −3). VER ou COM adjacente a Floresta intacta rende +💰1 (Ecoturismo).',
+    trait: 'Pulmão Verde', traitT: 'A cada 2 Florestas intactas: ☁️ −1 (máx. −3). VER ou COM adjacente a Floresta intacta rende +💰1 (Ecoturismo). Ecovila: o Loteamento pode ir em Floresta sem desmatar.',
     weak: 'Mata Fechada', weakT: '6 casas Floresta. Desmatar: pague +🔨1 antes de construir. A casa deixa de ser Floresta intacta.',
     style: 'Ecoturismo, Verde, mas expansão difícil.', stars: { eco: 2, con: 2, inf: 3 }, risk: 'Média', cx: 'Alta',
     regionalGoal: { id: 'RG-FLO', name: 'Guardiões', t: '≥ 4 Florestas intactas no fim do turno e 👥 ≥ 10.' },
@@ -293,7 +293,7 @@ export const TERRAINS = {
     id: 'ilha', name: 'Ilha', sub: 'Arquipélago', icon: '🏝️', color: '#2BB3A3', cap: { e: 3, w: 3 }, island: true,
     tiles: islandTiles(),
     trait: 'Rota Marítima', traitT: '1×/turno: troque 💰2 → 🗳️1 ou 🗳️1 → 💰2. COM em Costa não rende extra, mas Porto Comercial custa −🔨1.',
-    weak: 'Arquipélago', weakT: 'Adjacência só dentro da ilha. IND fora da Ilha Principal custa +🔨1 (logística por barco).',
+    weak: 'Arquipélago', weakT: 'Adjacência só dentro da ilha (até ligar com Balsa).',
     style: 'Turismo de luxo, conversão de recursos, logística.', stars: { eco: 3, con: 2, inf: 2 }, risk: 'Baixa', cx: 'Alta',
     regionalGoal: { id: 'RG-ILH', name: 'Arquipélago Conectado', t: 'Balsas ligando as 3 ilhas e Renda 💰 total ≥ 6.' },
     regional: ['R-ILH-1', 'R-ILH-2', 'R-ILH-3'],
@@ -312,10 +312,10 @@ reg('R-MON-3', 'Teleférico Turístico', 'COM', 2, { cons: { e: 1 }, req: 5, inc
 reg('R-PLA-1', 'Silo Cooperativo', 'COM', 1, { inc: [{ r: 'v', n: 2 }, { r: 'v', n: 1, adjAny: 'VER' }], t: 'Renda 💰2; +💰1 se adjacente a VER.' });
 reg('R-PLA-2', 'Cooperativa Agrícola', 'SER', 2, { cons: { e: 1 }, onBuild: [appr(1)], inc: [{ r: 'v', n: 2 }], t: '+1 😊 ao construir; Renda 💰2.' });
 reg('R-PLA-3', 'Moinho Eólico', 'INF', 2, { power: { e: 4 }, t: '⚡+4; ☁️0.' });
-reg('R-DES-1', 'Poço do Oásis', 'INF', 2, { onlyOn: ['A'], power: { w: 5 }, onBuild: [appr(1)], inc: [{ r: 'a', n: 1 }], t: 'Na casa Oásis. 💧+5; ☁️0; +1 😊 ao construir; Renda 🗳️1.' });
+reg('R-DES-1', 'Poço do Oásis', 'INF', 2, { onlyOn: ['A'], power: { w: 5 }, onBuild: [appr(1)], t: 'Na casa Oásis. 💧+5; ☁️0; +1 😊 ao construir.' });
 reg('R-DES-2', 'Fazenda Solar', 'INF', 2, { power: { e: 5 }, solar: true, t: '⚡+5; ☁️0.' });
 reg('R-DES-3', 'Poço de Petróleo', 'IND', 2, { cons: { e: 1 }, req: 4, inc: [{ r: 'v', n: 3 }, { r: 'o', n: 1 }], poll: 3, onBuild: [cube(1)], t: 'Req 👥4; Renda 💰3 + 🔨1; ☁️3; ao construir, adicione 1 🕵️.' });
-reg('R-FLO-1', 'Pousada Ecológica', 'COM+VER', 2, { cons: { w: 1 }, inc: [{ r: 'v', n: 1 }, { r: 'a', n: 1 }], t: 'Cons 💧1; Renda 💰1 + 🗳️1.' });
+reg('R-FLO-1', 'Pousada Ecológica', 'COM+VER', 2, { inc: [{ r: 'v', n: 1 }, { r: 'a', n: 1 }], t: 'Renda 💰1 + 🗳️1.' });
 reg('R-FLO-2', 'Estação de Pesquisa', 'SER', 2, { cons: { e: 1 }, inc: [{ r: 'a', n: 1 }], onBuild: [adv('ver', 1)], t: 'Renda 🗳️1; +1 🌿 ao construir.' });
 reg('R-FLO-3', 'Santuário', 'VER', 2, { poll: -2, onBuild: [appr(2)], forestOk: true, t: '☁️ −2; +2 😊 ao construir; pode ser construído em Floresta sem Desmatar (a casa conta como intacta).' });
 reg('R-ILH-1', 'Resort Insular', 'COM', 3, { cons: { e: 1, w: 2 }, req: 5, inc: [{ r: 'v', n: 3 }, { r: 'a', n: 1, minorIsland: true }], t: 'Req 👥5; Renda 💰3; +🗳️1 se em ilha menor.' });

@@ -111,6 +111,11 @@ Montanha perde a renda extra da Jazida (era a causa da força: 1,42× → 1,09×
 de VER rende +💰1) e Meta Regional mais alcançável (👥12, 😊7, ☁️3), de 0,48× para ~1,0×; desmatar a Floresta não põe mais
 cubo no Saco. Terrenos agora entre 0,73× e 1,27× da média; pacotes de 3p e 4p recalibrados.
 
+**Ajustes v1.4:** pilha de Loteamento com 8 por jogador + 4 (antes acabava na rodada 2–3; agora dura até ~5–7);
+Floresta ganha a Ecovila (o Loteamento entra em Floresta sem desmatar); a Ilha não paga mais logística. Os bots passaram a
+evitar déficit de ⚡/💧 e poluição alta: as "Crises de Governo" da simulação eram falha de estratégia do bot (caíram de ~2,2
+para ~0,2 por partida). Resultado: assentos 22–28% em 4p, terrenos entre 0,6× e 1,3× da média.
+
 **Arte das cartas:** as folhas geradas por IA ficam em `MANDATO/images/` (ordem e prompts em
 `MANDATO/12_guia_de_prompts_ia.md`). `frontend/scripts/slice-art.mjs` recorta cada folha em uma imagem por ID
 (`public/mandato/art/<ID>.webp`: edificações, regionais, administração, básicas/padrão, decretos, intrigas,

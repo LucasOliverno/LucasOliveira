@@ -28,7 +28,7 @@ Cada jogador recebe um **tabuleiro de terreno** com uma grade **4x4 (16 casas)**
 | **Traço — Turismo Sazonal** | Cada **COM ou VER** em Orla rende **+💰1**. Cada **VER** em Orla tem **☁️ −1 adicional** *(ajuste de balanceamento v1.1)* |
 | **Fraqueza — Maré Alta** | Quando você sofrer ≥1 hit de Fiscalização, **1 edifício em Orla** fica inativo até seu próximo turno (1×/rodada) |
 | **Estilo** | Economia de turismo e comércio; Verde costeiro |
-| **Meta Regional (⭐2, privada)** | **Cartão-Postal:** 4 COM/VER na Orla (toda a orla) e 😊 ≥ 7 *(v1.3)* |
+| **Meta Regional (⭐2, privada)** | **Cartão-Postal:** 3 COM/VER na Orla e 😊 ≥ 7 |
 
 **Cartas Regionais** (via Exploração; vão ao descarte quando reveladas por "Sítio"):
 

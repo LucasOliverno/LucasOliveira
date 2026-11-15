@@ -6,6 +6,8 @@ import {
 } from './data.js';
 
 export const HAND = 5;
+// Pilha de Loteamento: 8 por jogador + 4 (antes acabava na rodada 2–3; agora dura até ~rodada 5–7).
+export const loteamentoQty = (n) => 8 * n + 4;
 export const ROUND1_REVERSE = globalThis.process?.env?.R1REV !== '0'; // rodada 1 em ordem inversa (regra do 08); R1REV=0 só para testes
 export const MAX_ROUNDS = 12;
 const EX_BY_ID = Object.fromEntries(Object.values(EXPLORE).flat().map((c) => [c.id, c]));
@@ -534,7 +536,7 @@ export function regionalOk(s, p) {
   const tiles = p.tiles;
   const zOn = (t, z) => t.b && def(t.b).zones.includes(z);
   switch (T.regionalGoal.id) {
-    case 'RG-LIT': return tiles.filter((t) => t.k === 'O' && (zOn(t, 'COM') || zOn(t, 'VER'))).length >= 4 && p.approval >= 7;
+    case 'RG-LIT': return tiles.filter((t) => t.k === 'O' && (zOn(t, 'COM') || zOn(t, 'VER'))).length >= 3 && p.approval >= 7;
     case 'RG-MON': return tiles.filter((t) => t.k === 'J' && zOn(t, 'IND') && !isOff(s, t.b) && c.act.has(t.id)).length >= 2 && c.poll <= 4;
     case 'RG-PLA': return c.pop >= 12 && p.approval >= 7 && c.poll <= 3;
     case 'RG-DES': return tiles.some((t) => t.b && t.b.id === 'R-DES-1') && c.sur.e >= 4 && c.sur.w >= 4;
@@ -597,7 +599,6 @@ export function obraCost(s, p, card, tile, { upgrade = false } = {}) {
   if (k === 'E' && !card.hydro) c += 1;
   if (k === 'D') c += 1;
   if (k === 'F' && !tile.cleared && !card.forestOk) c += 1;
-  if (p.terrain === 'ilha' && tile.isl !== 'M' && card.zones.includes('IND')) c += 1;
   if (p.terrain === 'ilha' && card.id === 'E2-09') c -= 1;
   if (p.terrain === 'montanha' && card.hydro && (k === 'R' || k === 'E')) c -= 1;
   if (p.terrain === 'planicie' && card.lot) c -= 1; // Terra Barata: lote pronto mais rápido
@@ -644,7 +645,9 @@ export function checkBuild(s, p, o) {
   if (eff.needWater && !WATER(tile.k)) return { err: 'Exige casa de ÁGUA (Orla, Rio, Oásis ou Costa).' };
   if (eff.tileAny && !(WATER(tile.k) || tile.k === 'E')) return { err: 'Exige casa de ÁGUA ou Encosta.' };
   let desmate = false;
-  if (tile.k === 'F' && !tile.cleared && !eff.forestOk) desmate = true;
+  // Ecovila: na Floresta, o Loteamento (qualquer Zona) entra no meio das árvores sem desmatar
+  const eco = p.terrain === 'floresta' && card.lot;
+  if (tile.k === 'F' && !tile.cleared && !eff.forestOk && !eco) desmate = true;
   const c = calc(s, p);
   if (eff.buildReq) {
     if (eff.buildReq.pop && c.pop < eff.buildReq.pop) return { err: `Exige 👥 ≥ ${eff.buildReq.pop}.` };
@@ -655,7 +658,7 @@ export function checkBuild(s, p, o) {
   if (eff.ferry && p.links.includes(tile.isl)) return { err: 'Esta ilha já está ligada por uma Balsa.' };
   if (card.wonder) aq = { v: card.cost.v, a: card.cost.a };
   else if (o.src === 'row') aq = card.cost;
-  const ob = obraCost(s, p, eff, tile, { upgrade });
+  const ob = obraCost(s, p, eco ? { ...eff, forestOk: true } : eff, tile, { upgrade });
   if (p.pool.o < ob) return { err: `Faltam 🔨 (custa ${ob}).` };
   if ((aq.v || 0) > p.pool.v) return { err: 'Faltam 💰.' };
   if ((aq.a || 0) > p.pool.a) return { err: 'Faltam 🗳️.' };
@@ -1148,7 +1151,7 @@ function startPlay(s) {
   const N = s.players.length;
   s.phase = 'play';
   const [nGoals, nWonders] = SETUP[N];
-  s.market.piles = { ...STD_QTY, 'P-01': STD_QTY['P-01'] + 2 * Math.max(0, N - 2) }; // mais Loteamento com mais gente
+  s.market.piles = { ...STD_QTY, 'P-01': loteamentoQty(N) }; // Loteamento escala com a mesa
   const tiers = SPECIAL_TIERS.map((t) => shuffle(s, t.filter((id) => !(s.noIntrigues && CARDS[id].type === 'intrigue'))));
   const deck = [...tiers[0], ...tiers[1], ...tiers[2]];
   s.market.row = deck.splice(0, 6);
