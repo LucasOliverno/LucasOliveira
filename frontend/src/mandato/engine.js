@@ -715,6 +715,7 @@ function refillRow(s, slot, by) {
 }
 
 export function buyCost(s, p, id) {
+  if (CARDS[id].regional) return { ...REGIONAL_COST };
   const c = { ...CARDS[id].cost };
   if (id === 'P-01' && p.terrain === 'planicie') c.v = 1;
   if (id === 'P-03' && p.terrain === 'planicie') c.v = 2;
@@ -722,9 +723,25 @@ export function buyCost(s, p, id) {
   return c;
 }
 
+// Projetos Regionais: os 3 edifícios do seu terreno ficam sempre à venda para você (1 cópia de cada),
+// além de poderem aparecer de graça pela Exploração (Sítio).
+export const REGIONAL_COST = { v: 3, a: 1 };
+const TCODE = { litoral: 'LIT', montanha: 'MON', planicie: 'PLA', deserto: 'DES', floresta: 'FLO', ilha: 'ILH' };
+export function regionalOf(p) {
+  if (!p.terrain) return [];
+  return Object.values(CARDS).filter((c) => c.regional && c.id.startsWith(`R-${TCODE[p.terrain]}-`)).map((c) => c.id);
+}
+export function ownsCard(p, id) {
+  return [p.deck, p.hand, p.discard, p.exiled || [], p.played || []].some((a) => a.includes(id)) || p.tiles.some((t) => t.b && t.b.id === id);
+}
+
 function doBuy(s, p, cmd) {
   let id;
-  if (cmd.src === 'pile') {
+  if (cmd.src === 'regional') {
+    id = cmd.key;
+    if (!regionalOf(p).includes(id)) return 'Esse projeto é de outro terreno.';
+    if (ownsCard(p, id)) return 'Você já tem esse projeto.';
+  } else if (cmd.src === 'pile') {
     id = cmd.key;
     if (!STANDARD.includes(id) || s.market.piles[id] <= 0) return 'Pilha esgotada.';
   } else {
@@ -740,7 +757,7 @@ function doBuy(s, p, cmd) {
   p.bought += 1;
   log(s, `🛒 ${nm(p)} compra ${CARDS[id].name}.`, 'buy', p.id);
   if (cmd.src === 'pile') s.market.piles[id] -= 1;
-  else { s.market.row.splice(cmd.key, 1); refillRow(s, cmd.key, p); }
+  else if (cmd.src === 'row') { s.market.row.splice(cmd.key, 1); refillRow(s, cmd.key, p); }
   return null;
 }
 

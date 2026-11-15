@@ -1,7 +1,7 @@
 import { ZONES, TILE_NAMES, TILE_HINT, FACTIONS, FAC_KEYS, CARGOS, GOALS } from '../data.js';
 import { calc, def, tmax } from '../engine.js';
 import { Ico, Rich } from './icons.jsx';
-import { HAS_ART, artUrl, terrainMap } from './cardutil.js';
+import { artUrl, terrainMap, instArt } from './cardutil.js';
 import { FacEmblem, GoalEmblem } from './cards.jsx';
 
 // ---------------------------------------------------------------- cidade (grade 4×4 ou arquipélago)
@@ -53,7 +53,7 @@ export function City({ s, p, validity, placing, onTile, selected, interactive = 
             {b ? (
               // a chave muda quando o edifício muda: o conteúdo remonta e a animação de obra toca
               <span className="t-in" key={`${b.id}-${b.v || ''}`}>
-                {HAS_ART.has(b.id) && <img className="t-img" src={artUrl(b.id)} alt="" draggable="false" />}
+                {instArt(b) && <img className="t-img" src={artUrl(instArt(b))} alt="" draggable="false" />}
                 <span className="t-zone"><Ico n={zone} s={16} /></span>
                 <span className="t-name">{d.name}</span>
                 {!isOn && <span className="t-state">{off ? 'inativo' : 'Req 👥'}</span>}

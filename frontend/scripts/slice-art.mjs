@@ -46,6 +46,8 @@ const SHEETS = [
   { find: 'conquista e explora', cols: 3, rows: 2, kind: 'circle', ids: seq('G-', 13, 18) },
   { find: 'Desafios Nacionais', cols: 4, rows: 3, kind: 'sq', ids: seq('RD-', 1, 12) },
   { find: 'quatro cores', cols: 2, rows: 2, kind: 'sq', ids: ['F-tec', 'F-ver', 'F-emp', 'F-sin'], pad: 0.02, inset: 0.01 },
+  // folha extra (guia 12 §12): casas iniciais e o Loteamento em cada Zona; opcional até ser gerada
+  { find: 'Prefeitura e Loteamento', cols: 3, rows: 2, kind: 'land', optional: true, ids: ['PREF', 'HOME', 'P-01-RES', 'P-01-COM', 'P-01-IND', 'P-01-INF'] },
 ];
 
 const KIND = {
@@ -167,6 +169,7 @@ async function cutCell(file, rect, o) {
 await mkdir(OUT, { recursive: true });
 const made = [];
 for (const s of SHEETS) {
+  if (s.optional && !files.some((n) => n.normalize('NFC').includes(s.find))) { console.log(`${s.find}: ainda não existe (pulado)`); continue; }
   const file = pick(s.find);
   const meta = await sharp(file).metadata();
   const cw = meta.width / s.cols, ch = meta.height / s.rows;

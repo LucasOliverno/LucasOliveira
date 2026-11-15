@@ -4,6 +4,8 @@ import { ART_IDS, TERRAIN_ART } from '../artManifest.js';
 
 // Arte gerada por scripts/slice-art.mjs (public/mandato/art/<ID>.webp). Sem arte, as cartas caem na ilustração SVG provisória.
 export const HAS_ART = ART_IDS;
+// arte de uma instância construída: Loteamento usa a versão da Zona escolhida (P-01-RES etc.) se existir
+export const instArt = (b) => (b && b.v && ART_IDS.has(`${b.id}-${b.v}`) ? `${b.id}-${b.v}` : b && ART_IDS.has(b.id) ? b.id : null);
 export const artUrl = (id) => `${import.meta.env.BASE_URL}mandato/art/${id}.webp`;
 export const terrainMap = (key) => (TERRAIN_ART.includes(key) ? `${import.meta.env.BASE_URL}mandato/art/T-${key}.webp` : null);
 

@@ -93,6 +93,7 @@ function Goals({ s, me, myTurn, run }) {
       <article className={`goal regional${regOk && !me.regionalDone ? ' ready' : ''}`} style={{ '--tc': T.color }}>
         <header><span className="gid">REG</span><b>{T.regionalGoal.name}</b><small>Meta Regional · privada</small></header>
         <p><Rich t={T.regionalGoal.t} s={14} /></p>
+        <p className="hint">Os edifícios do seu terreno estão sempre à venda em Mercado → Seus Projetos Regionais.</p>
         <div className="medals"><span className={`medal gold${me.regionalDone ? ' got' : ''}`}><Ico n="star" s={14} /> ⭐2 {me.regionalDone ? '· cumprida' : ''}</span></div>
         <button type="button" className="btn sm" disabled={!(regOk && !me.regionalDone && canClaim)} onClick={() => run({ t: 'claim', regional: true })}>Reivindicar</button>
       </article>
@@ -274,7 +275,7 @@ export default function Game({ game, setGame, onExit, online }) {
   const selCard = useMemo(() => {
     if (!sel) return null;
     if (sel.k === 'hand') return me.hand[sel.hi] ? { id: me.hand[sel.hi] } : null;
-    if (sel.k === 'pile') return { id: sel.id };
+    if (sel.k === 'pile' || sel.k === 'reg') return { id: sel.id };
     if (sel.k === 'row') return s.market.row[sel.i] ? { id: s.market.row[sel.i] } : null;
     if (sel.k === 'wonder') return s.market.vit[sel.i] ? { id: s.market.vit[sel.i] } : null;
     if (sel.k === 'tile') { const t = s.players[sel.pid ?? viewer].tiles[sel.i]; return t && t.b ? { id: t.b.id, inst: t.b } : null; }
@@ -416,10 +417,10 @@ export default function Game({ game, setGame, onExit, online }) {
         else s.players.filter((p) => p.id !== viewer).forEach((p) => acts.push(<button key={p.id} type="button" className="btn btn-primary" disabled={!myTurn} onClick={() => { run({ t: 'intrigue', hi: sel.hi, target: p.id }); setSel(null); }} style={{ '--pc': p.color }}>Usar contra {p.name}</button>));
       }
       if (E.calc(s, me).recycle && myTurn) acts.push(<button key="rc" type="button" className="btn btn-ghost" onClick={() => { run({ t: 'ability', id: 'recycle', hi: sel.hi }); setSel(null); }}>♻️ Exilar (Usina de Reciclagem)</button>);
-    } else if (sel.k === 'pile' || sel.k === 'row') {
-      const why = buyCheck(c.id);
+    } else if (sel.k === 'pile' || sel.k === 'row' || sel.k === 'reg') {
+      const why = sel.k === 'reg' && E.ownsCard(me, c.id) ? 'Você já tem esse projeto.' : buyCheck(c.id);
       const cost = E.buyCost(s, me, c.id);
-      acts.push(<button key="buy" type="button" className="btn btn-primary" disabled={!!why} onClick={() => { run(sel.k === 'pile' ? { t: 'buy', src: 'pile', key: c.id } : { t: 'buy', src: 'row', key: sel.i }); setSel(null); }}>Comprar · <CostChip cost={cost} /></button>);
+      acts.push(<button key="buy" type="button" className="btn btn-primary" disabled={!!why} onClick={() => { run(sel.k === 'pile' ? { t: 'buy', src: 'pile', key: c.id } : sel.k === 'reg' ? { t: 'buy', src: 'regional', key: c.id } : { t: 'buy', src: 'row', key: sel.i }); setSel(null); }}>Comprar · <CostChip cost={cost} /></button>);
       if (why) acts.push(<p key="w" className="hint">{why}</p>);
       if (sel.k === 'row' && c.type === 'building' && myTurn && me.t.express) acts.push(<button key="ex" type="button" className="btn" onClick={() => startPlacing({ src: 'row', hi: sel.i, v: undefined })}>Obra Expressa: construir direto</button>);
     } else if (sel.k === 'wonder') {
@@ -456,6 +457,19 @@ export default function Game({ game, setGame, onExit, online }) {
     <div className="market">
       <h3 className="h">Mercado Padrão <small>sempre disponível · não dispara Fiscalização</small></h3>
       <div className="row">{stdCards}</div>
+      <h3 className="h">Seus Projetos Regionais <small>só do seu terreno · 1 de cada · 💰3 + 🗳️1</small></h3>
+      <div className="row">
+        {E.regionalOf(me).map((id) => {
+          const owned = E.ownsCard(me, id);
+          return (
+            <div key={id} className="stack">
+              <Card id={id} size="sm" costOverride={E.buyCost(s, me, id)} selected={sel && sel.k === 'reg' && sel.id === id} disabled={owned || !myTurn || buyCheck(id) !== null} onClick={() => { setSel({ k: 'reg', id }); setPlacing(null); }} />
+              <span className="stack-n">{owned ? 'já é seu' : 'disponível'}</span>
+            </div>
+          );
+        })}
+        {!E.regionalOf(me).length && <p className="empty">Escolha um terreno para liberar seus projetos.</p>}
+      </div>
       <h3 className="h">Fila Especial <small>{s.market.deck.length} no baralho · 🔔 dispara Fiscalização ao entrar</small></h3>
       <div className="row">
         {s.market.row.map((id, i) => (

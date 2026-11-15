@@ -505,3 +505,32 @@ Formato: ID | frase
 7. Metas, Rodada, Facções
 8. Ícones e tabuleiros
 9. Composição das cartas e impressão de protótipo
+
+---
+
+## 12. Folha extra — Prefeitura, Moradia Popular e as 4 zonas do Loteamento (6 células, grid 3×2)
+
+As duas casas iniciais de toda cidade e o Loteamento construído em cada Zona. O Loteamento é um **lote genérico**,
+então as 4 versões devem parecer **a mesma obra simples e barata**, mudando só o uso. Mesmo estilo e mesma base
+isométrica das folhas de Edificações (3.1), para combinar no tabuleiro.
+
+**Nome do arquivo ao salvar:** `Folha Prefeitura e Loteamento.png` (o script de recorte procura por esse nome).
+
+```
+[STYLE BIBLE] [SHEET RULES: N=6, COLS=3, ROWS=2] Cell ratio 5:4.
+Same isometric 3/4 view, same small square ground plate and same soft top-left light as the Tier I buildings sheet.
+1. PREF Prefeitura: small neoclassical town hall with a short clock tower without numerals, front steps, a plain
+   mustard pennant on a flagpole (no symbols), two tiny trees, cream walls and brick-red roof. Civic and modest.
+2. HOME Moradia Popular: two-storey simple social housing duplex in sage and cream, small front yard with laundry line,
+   one tiny bicycle. Humble but cared for.
+3. P-01-RES Loteamento residencial: modest single prefab family house on a simple lot, wooden fence, tiny garden,
+   leftover survey stakes at one corner. Teal accents.
+4. P-01-COM Loteamento comercial: small kiosk-style corner shop made from a shipping container, striped mustard awning,
+   two crates of goods, leftover survey stakes at one corner.
+5. P-01-IND Loteamento industrial: small prefab metal workshop shed with one short chimney with thin grey smoke,
+   stacked pallets, leftover survey stakes at one corner. Brick-red accents.
+6. P-01-INF Loteamento de infraestrutura: small utility compound with a water tank on legs and a short power pole with
+   a transformer box, gravel ground, leftover survey stakes at one corner. Navy and teal accents.
+```
+> As 4 versões do Loteamento compartilham a **mesma base de terreno com estacas**: é isso que mostra que nasceram do
+> mesmo lote. Se a IA variar demais o tamanho, peça "same plot size and same camera distance in cells 3 to 6".
