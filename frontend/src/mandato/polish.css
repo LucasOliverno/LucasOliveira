@@ -235,3 +235,13 @@ button.bag:hover { background: #fff7e8; }
 .au-pop p { margin: 4px 0; }
 .au-pop ul { margin: 4px 0 6px; padding-left: 18px; display: grid; gap: 3px; }
 .b-card:has(.au-pop) { overflow: visible; }
+
+/* Ilha: as casas são terra (areia) sobre o mar — antes a Costa usava o mesmo azul da água e as ilhas sumiam */
+.city-island { background: radial-gradient(ellipse at 50% 45%, #7cc3d6 0%, #4f9fbe 100%); }
+.city-island .tile.k-C { background: #ecd9a4 radial-gradient(circle at 30% 70%, rgba(176, 140, 72, .28) 0 2px, transparent 3px) 0 0 / 12px 12px; border-color: #8a6a3c; box-shadow: 0 0 0 3px rgba(255, 255, 255, .35); }
+.city-island .tile.k-C.i-N { background-color: #e6d39b; }
+.city-island .tile.k-C.i-L { background-color: #f0dfb0; }
+.city-island .tile.k-C.has { background: linear-gradient(160deg, color-mix(in srgb, var(--zc) 40%, #ecd9a4) 0%, #ecd9a4 90%); }
+.city-island .tile .t-kind { color: rgba(92, 64, 30, .75); }
+.tp-island, .mini-island { background: #5aa7c3; border-radius: 6px; padding: 3px; }
+.tp-island .mt.k-C, .mini-island .mt.k-C { background: #ecd9a4; border-color: #8a6a3c; }

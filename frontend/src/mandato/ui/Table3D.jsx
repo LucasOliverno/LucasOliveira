@@ -198,9 +198,10 @@ function CityBoard({ s, p, nodes, mine, placing, validity, selected, onTile, onH
     <group>
       <CityFrame w={w} d={d} color={p.color} />
       {island && (
-        <mesh position={[0, -0.075, 0]} receiveShadow>
-          <boxGeometry args={[w + 0.5, 0.02, d + 0.5]} />
-          <meshStandardMaterial color="#5FA9C4" roughness={0.2} />
+        // mar do arquipélago: acima da tampa da moldura, abaixo do topo das casas (as ilhas "saem" da água)
+        <mesh position={[0, -0.04, 0]} receiveShadow>
+          <boxGeometry args={[w + 0.55, 0.03, d + 0.55]} />
+          <meshStandardMaterial color="#3E8FB0" roughness={0.15} metalness={0.05} />
         </mesh>
       )}
       <group scale={S}>

@@ -73,6 +73,7 @@ function IsoCity({ s, p, validity, placing, onTile, selected, interactive = true
   );
 }
 
+const ISL_NAMES = { M: 'Principal', N: 'Norte', L: 'Leste' };
 function FlatCity({ s, p, validity, placing, onTile, selected, interactive = true, onHover, land }) {
   const c = calc(s, p);
   const island = p.tiles.some((t) => t.isl !== 'M');
@@ -81,9 +82,6 @@ function FlatCity({ s, p, validity, placing, onTile, selected, interactive = tru
   const map = !island ? terrainMap(p.terrain) : null; // mapa do terreno por baixo da grade (o arquipélago tem layout próprio)
   return (
     <div className={`city${island ? ' city-island' : ''}${map ? ' city-map' : ''}`} style={{ ...(map ? { '--map': `url(${map})` } : {}), gridTemplateColumns: `repeat(${cols}, 1fr)` }} role="grid" aria-label={`Cidade de ${p.name}`}>
-      {island && <span className="isl-label isl-M">Ilha Principal</span>}
-      {island && <span className="isl-label isl-N">Ilha Norte</span>}
-      {island && <span className="isl-label isl-L">Ilha Leste</span>}
       {p.tiles.map((t, i) => {
         const b = t.b;
         const d = b ? def(b) : null;
@@ -129,7 +127,7 @@ function FlatCity({ s, p, validity, placing, onTile, selected, interactive = tru
                 {b.popBonus ? <span className="t-bonus">+{b.popBonus}👥</span> : null}
               </span>
             ) : (
-              <span className="t-kind">{t.k === '.' ? '' : TILE_NAMES[t.k]}{t.k === 'F' && t.cleared ? 'desmatada' : ''}</span>
+              <span className="t-kind">{island ? ISL_NAMES[t.isl] : t.k === '.' ? '' : TILE_NAMES[t.k]}{t.k === 'F' && t.cleared ? 'desmatada' : ''}</span>
             )}
             {ok && <span className="t-plus" aria-hidden="true">{validity[i].upgrade ? '↑' : '+'}</span>}
           </button>
