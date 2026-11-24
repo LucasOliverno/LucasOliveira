@@ -1,5 +1,5 @@
 // Mesa 3D no estilo "tabletop": uma mesa de madeira com o tabuleiro central (Metas, Facções e Fila Especial)
-// e a cidade de cada prefeito ao redor, com os prédios modelados no Blender (public/mandato/models/mandato.glb,
+// e a cidade de cada prefeito ao redor, com os prédios modelados no Blender (public/mandato/models/mandato.glb?v=art2,
 // gerado por MANDATO/3d/build_sprites.py --glb). A câmera gira/aproxima como no Tabletop Simulator.
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -8,9 +8,10 @@ import * as THREE from 'three';
 import { FACTIONS, FAC_KEYS, TERRAINS, STANDARD } from '../data.js';
 import { calc, regionalOf, copiesOf } from '../engine.js';
 import { HAS_ART, artUrl } from './cardutil.js';
+import { TableFurniture, CityFrame, BoardFoundation, SectionTray, RegionalTray } from './TableFurniture.jsx';
 import { isoBuilding, isoGround, gridPos } from './iso.js';
 
-const MODEL = `${import.meta.env.BASE_URL}mandato/models/mandato.glb`;
+const MODEL = `${import.meta.env.BASE_URL}mandato/models/mandato.glb?v=art2`;
 const S = 0.5; // escala das cidades: 1 casa = 2 m no modelo → 1 m na mesa
 const CARD = [0.9, 1.26]; // carta deitada na mesa (largura × altura)
 const SRGB = (t) => { (Array.isArray(t) ? t : [t]).forEach((x) => { x.colorSpace = THREE.SRGBColorSpace; x.anisotropy = 8; }); };
@@ -182,7 +183,7 @@ function Disc({ color, pos, r = 0.16, h = 0.08 }) {
 }
 
 // ------------------------------------------------------------------ cidade de um jogador
-function CityBoard({ s, p, nodes, mine, active, placing, validity, selected, onTile, onHover, back, land }) {
+function CityBoard({ s, p, nodes, mine, placing, validity, selected, onTile, onHover, back, land }) {
   const c = useMemo(() => calc(s, p), [s, p]);
   const ghosts = land ? land.slots : [];
   const g = [...p.tiles, ...ghosts].map(gridPos);
@@ -193,19 +194,9 @@ function CityBoard({ s, p, nodes, mine, active, placing, validity, selected, onT
   const [born] = useState(() => performance.now());
   const pulse = useRef();
   useFrame((st) => { if (pulse.current) pulse.current.opacity = 0.35 + 0.25 * Math.sin(st.clock.elapsedTime * 4); });
-  const ring = useRef();
-  useFrame((st) => { if (ring.current) ring.current.emissiveIntensity = 0.6 + 0.4 * Math.sin(st.clock.elapsedTime * 3); });
   return (
     <group>
-      {/* base da cidade: placa de madeira com a cor do jogador na borda */}
-      <mesh position={[0, -0.2, 0]} receiveShadow castShadow>
-        <boxGeometry args={[w + 0.7, 0.24, d + 0.7]} />
-        <meshStandardMaterial color="#6E4630" roughness={0.8} />
-      </mesh>
-      <mesh position={[0, -0.27, 0]}>
-        <boxGeometry args={[w + 0.95, 0.1, d + 0.95]} />
-        <meshStandardMaterial ref={active ? ring : undefined} color={p.color} emissive={active ? p.color : '#000'} emissiveIntensity={active ? 0.8 : 0} roughness={0.5} />
-      </mesh>
+      <CityFrame w={w} d={d} color={p.color} />
       {island && (
         <mesh position={[0, -0.075, 0]} receiveShadow>
           <boxGeometry args={[w + 0.5, 0.02, d + 0.5]} />
@@ -272,16 +263,9 @@ function CityBoard({ s, p, nodes, mine, active, placing, validity, selected, onT
 //                         [ Fila Especial ]  (frente)
 const BW = 15.5, BD = 10.4; // tamanho do tabuleiro central
 function Label({ pos, children, small }) {
-  return <BoardText pos={[pos[0], 0.06, pos[2]]} text={children} h={small ? 0.3 : 0.4} />;
+  return <BoardText pos={[pos[0], 0.06, pos[2]]} text={children} h={small ? 0.25 : 0.36} />;
 }
-function Section({ pos, size, color = '#F6EFDF' }) {
-  return (
-    <mesh position={[pos[0], 0.015, pos[1]]} receiveShadow>
-      <boxGeometry args={[size[0], 0.02, size[1]]} />
-      <meshStandardMaterial color={color} roughness={0.9} />
-    </mesh>
-  );
-}
+function Section(props) { return <SectionTray {...props} />; }
 
 // trilhas das Facções desenhadas numa textura só (nome, casas 0–6, marco ★ no 3 e Aliança no 5)
 const FB = { w: 6.6, rowH: 0.78, name: 1.75, cell: 0.6, tok: 0.65 };
@@ -295,14 +279,14 @@ function useFacBoard() {
     g.fillStyle = '#F6EFDF'; g.fillRect(0, 0, W, H);
     FAC_KEYS.forEach((f, r) => {
       const F = FACTIONS[f], y = r * FB.rowH * k, h = FB.rowH * k;
-      g.fillStyle = F.color; g.fillRect(6, y + 6, FB.name * k - 12, h - 12);
+      g.fillStyle = F.color; g.beginPath(); g.roundRect(6, y + 6, FB.name * k - 12, h - 12, 9); g.fill();
       g.fillStyle = '#fff'; g.font = `bold ${Math.round(h * 0.28)}px Georgia, serif`; g.textBaseline = 'middle'; g.textAlign = 'left';
-      g.fillText(F.name, 18, y + h / 2);
+      g.fillText(F.name, 18, y + h * .43); g.font = `${Math.round(h * .15)}px sans-serif`; g.fillText('INFLUÊNCIA', 18, y + h * .72);
       for (let n = 0; n <= 6; n++) {
         const x = (FB.name + n * FB.cell) * k;
-        g.fillStyle = n === 3 ? '#F3D27A' : n === 5 ? '#D9E4E6' : '#FFFDF7';
+        g.fillStyle = n === 3 ? '#F3D27A' : n === 5 ? '#D9E4E6' : '#EEE4CE';
         g.fillRect(x + 4, y + 6, FB.cell * k - 8, h - 12);
-        g.strokeStyle = n === 5 ? F.color : '#1B2A41'; g.lineWidth = n === 5 ? 6 : 3; g.strokeRect(x + 4, y + 6, FB.cell * k - 8, h - 12);
+        g.strokeStyle = n === 5 ? F.color : '#1B2A41'; g.lineWidth = n === 5 ? 4 : 1.5; g.strokeRect(x + 4, y + 6, FB.cell * k - 8, h - 12);
         g.fillStyle = '#1B2A41'; g.font = `bold ${Math.round(h * 0.26)}px sans-serif`; g.textAlign = 'center';
         g.fillText(String(n), x + (FB.cell * k) / 2, y + h * 0.3);
         g.font = `bold ${Math.round(h * 0.16)}px sans-serif`;
@@ -377,15 +361,11 @@ function Center({ s, onPick }) {
   const vit = s.market.vit;
   return (
     <group>
-      <mesh position={[0, -0.06, 0]} receiveShadow castShadow>
-        <boxGeometry args={[BW, 0.12, BD]} />
-        <meshStandardMaterial color="#1B2A41" roughness={0.7} />
-      </mesh>
-      <mesh position={[0, 0.0, 0]} receiveShadow>
-        <boxGeometry args={[BW - 0.3, 0.02, BD - 0.3]} />
-        <meshStandardMaterial color="#D8CBAE" roughness={0.9} />
-      </mesh>
-
+      <BoardFoundation w={BW} d={BD} />
+      <BoardText pos={[-5.75, 0.035, -3.8]} text="MANDATO" h={0.55} />
+      <BoardText pos={[-5.75, 0.035, -3.25]} text="PLANEJAMENTO URBANO" h={0.16} />
+      <BoardText pos={[5.8, 0.035, -3.8]} text="CIDADES & CIDADÃOS" h={0.22} />
+      <BoardText pos={[5.8, 0.035, -3.3]} text="CONSTRUIR · GOVERNAR · PROSPERAR" h={0.13} />
       {/* Metas (fundo) */}
       <Section pos={[0, -3.55]} size={[Math.max(7, goals.length * gw + 0.6), 2.75]} />
       <Label pos={[0, 0.1, -5.05]}>Metas · 🥇 ⭐2 · 🥈 ⭐1</Label>
@@ -408,7 +388,7 @@ function Center({ s, onPick }) {
       <Label pos={[-3.95, 0.1, -1.95]}>Facções</Label>
 
       {/* Mercado Padrão (meio): as 4 pilhas, com quantas cartas restam */}
-      <Section pos={[1.85, -0.25]} size={[4.5, 3.3]} />
+      <Section pos={[1.85, -0.25]} size={[4.5, 3.3]} color="#DDE3D1" />
       <Label pos={[1.85, 0.1, -1.95]}>Mercado Padrão</Label>
       {STANDARD.map((id, i) => {
         const x = 0.55 + (i % 2) * 2.3, z = -0.95 + Math.floor(i / 2) * 1.5;
@@ -422,7 +402,7 @@ function Center({ s, onPick }) {
       })}
 
       {/* Obras-Prima (meio, à direita) */}
-      <Section pos={[5.95, -0.25]} size={[3.1, 3.3]} color="#F3E4B5" />
+      <Section pos={[5.95, -0.25]} size={[3.1, 3.3]} color="#DFCAA0" />
       <Label pos={[5.95, 0.1, -1.95]}>Obras-Prima</Label>
       {vit.map((id, i) => (
         <CardFlat key={id + i} id={id} pos={[5.3 + (i % 2) * 1.3, 0.04, -0.95 + Math.floor(i / 2) * 1.45]} glow="#C9A227" onClick={() => onPick({ k: 'wonder', i })} />
@@ -442,6 +422,7 @@ function Center({ s, onPick }) {
 function Regionals({ p, x, mine, onPick, onZoom }) {
   return (
     <group>
+      <RegionalTray x={x} />
       {regionalOf(p).map((id, i) => {
         const z = -1.5 + i * 1.5;
         const n = copiesOf(p, id);
@@ -471,19 +452,11 @@ function Scene({ s, viewer, act, placing, validity, sel, onTile, onHover, onPick
   useEffect(() => { onReady(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
-      <hemisphereLight args={['#fff6e6', '#6a5a48', 1.25]} />
+      <hemisphereLight args={['#FFF5E2', '#797465', 1.8]} />
       <ambientLight intensity={0.25} />
-      <directionalLight position={[10, 22, 12]} intensity={2.2} castShadow shadow-mapSize={[2048, 2048]}
+      <directionalLight position={[10, 22, 12]} intensity={2.6} castShadow shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-R - 8} shadow-camera-right={R + 8} shadow-camera-top={R + 8} shadow-camera-bottom={-R - 8} shadow-bias={-0.0004} />
-      {/* mesa de madeira com feltro */}
-      <mesh position={[0, -0.9, 0]} receiveShadow>
-        <cylinderGeometry args={[R + 7.5, R + 7.2, 1.0, 72]} />
-        <meshStandardMaterial color="#7A5236" roughness={0.75} />
-      </mesh>
-      <mesh position={[0, -0.39, 0]} receiveShadow>
-        <cylinderGeometry args={[R + 6.8, R + 6.8, 0.02, 72]} />
-        <meshStandardMaterial color="#2C5A5F" roughness={0.95} />
-      </mesh>
+      <TableFurniture radius={R} />
       <Center s={s} onPick={onPick} />
       {order.map((p, k) => {
         const a = seatAngle(k, n);
@@ -516,7 +489,7 @@ function seatView(k, n, R, half = 2) {
   return [tx + ux * 7.4 * f, 8.6 * f, tz + uz * 7.4 * f, tx, 0, tz];
 }
 const VIEWS = {
-  center: () => [-1.6, 15.5, 12.5, -1.6, 0, 1.4],
+  center: () => [0, 22, 18, 0, 0, 0],
   all: (R) => [0, (R + 6) * 2.5, (R + 6) * 1.65, 0, 0, 3.2],
 };
 const cityHalfW = (p) => {
@@ -541,8 +514,8 @@ export default function Table3D(props) {
   return (
     <div className="tt-wrap">
       <Canvas shadows dpr={[1, 2]} camera={{ fov: 38, position: seatView(0, n, R, cityHalfW(order[0])).slice(0, 3), near: 0.5, far: 500 }} gl={{ antialias: true }}>
-        <color attach="background" args={['#1d2430']} />
-        <fog attach="fog" args={['#1d2430', R * 3.5, R * 7]} />
+        <color attach="background" args={['#C6BDAA']} />
+        <fog attach="fog" args={['#C6BDAA', R * 3.5, R * 7]} />
         <Suspense fallback={null}>
           <Scene {...props} camRef={camRef} onReady={() => setReady(true)} />
         </Suspense>

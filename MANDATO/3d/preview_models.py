@@ -6,6 +6,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location('kit', os.path.join(HERE, 'build_sprites.py'))
 kit = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(kit)
+kit.art.apply()
+kit = kit.art.k
 sc, camera = kit.setup()
 sc.render.resolution_x = 1500
 sc.render.resolution_y = 1000
