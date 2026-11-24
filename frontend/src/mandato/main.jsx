@@ -6,6 +6,8 @@ import './online.css';
 import './art.css';
 import './mesa2.css';
 import './polish.css';
+import './iso.css';
+import './tabletop.css';
 import App from './App.jsx';
 
 createRoot(document.getElementById('root')).render(

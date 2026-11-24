@@ -2,6 +2,7 @@ import { Glossary } from './explain.jsx';
 import { useState } from 'react';
 import { TERRAINS, RIVAL, ZONES, PLAYER_COLORS, FACTIONS, FAC_KEYS, CARGOS, packageFor } from '../data.js';
 import { calc, MAX_ROUNDS, actor } from '../engine.js';
+import { DURATIONS, DEFAULT_TARGET, CITY_MARKS, LAND } from '../data.js';
 import { Ico, Rich, TerrainGlyph } from './icons.jsx';
 import { artUrl, terrainMap } from './cardutil.js';
 
@@ -60,7 +61,7 @@ export function Home({ onSolo, onLocal, onOnline, onRules, onTutorial, saved, on
 export function Setup({ mode, onBack, onStart }) {
   const solo = mode === 'solo';
   const [level, setLevel] = useState('normal');
-  const [target, setTarget] = useState(10);
+  const [target, setTarget] = useState(solo ? 10 : DEFAULT_TARGET);
   const [noIntrigues, setNoIntrigues] = useState(false);
   const [seats, setSeats] = useState([
     { name: 'Prefeito(a) 1', bot: false }, { name: 'Bot Alfa', bot: true }, { name: 'Bot Beta', bot: true },
@@ -118,7 +119,7 @@ export function Setup({ mode, onBack, onStart }) {
         <div>
           <label className="lab">Duração</label>
           <div className="seg wide">
-            {[[8, 'Curto · ⭐8'], [10, 'Padrão · ⭐10'], [12, 'Épico · ⭐12']].map(([n, l]) => (
+            {(solo ? [[8, 'Curto · ⭐8'], [10, 'Padrão · ⭐10'], [12, 'Épico · ⭐12']] : DURATIONS.map((d) => [d.target, `${d.label} · ⭐${d.target} · ${d.rounds} rodadas`])).map(([n, l]) => (
               <button type="button" key={n} className={target === n ? 'on' : ''} onClick={() => setTarget(n)}>{l}</button>
             ))}
           </div>
@@ -252,7 +253,8 @@ export function Rules({ onClose }) {
         </section>
         <section>
           <h3>Objetivo</h3>
-          <p>Chegue a <b>⭐10 de Mérito</b> antes dos outros. Quando alguém chega a ⭐10, a rodada em andamento é completada e vence quem tiver mais ⭐ (desempate: maior 😊 → menor ☁️ → maior Tesouro). Se o deck de Rodada acabar, a rodada {MAX_ROUNDS} é a última.</p>
+          <p>Chegue à <b>meta de Mérito</b> da partida (⭐{DURATIONS.map((d) => d.target).join(' / ⭐')} conforme a duração; ⭐10 no solo) antes dos outros. Quando alguém chega lá, a rodada em andamento é completada e vence quem tiver mais ⭐ (desempate: maior 😊 → menor ☁️ → maior Tesouro). Se ninguém chegar, a última rodada ({DURATIONS.map((d) => d.rounds).join(' / ')}; {MAX_ROUNDS} no solo) encerra o jogo.</p>
+          <p><b>Marcos da Cidade</b> (⭐1 cada, uma vez): {CITY_MARKS.map((m) => m.label).join(' · ')}. <b>Comprar terreno:</b> 1 por turno, vizinho da sua cidade, até a grade 5×5 (💰{LAND.base}, depois +💰{LAND.step} a cada compra).</p>
         </section>
         <section>
           <h3>Seu turno</h3>

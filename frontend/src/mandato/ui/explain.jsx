@@ -38,7 +38,7 @@ export function BagInfo({ s, onClose }) {
       <p className="lead">O Partido fiscaliza as prefeituras. O Saco guarda cubos: <b>cinzas</b> são neutros, os <b>coloridos</b> são suspeitas contra cada prefeito.</p>
       <ul className="explain-list">
         <li><b>Como entram cubos seus:</b> cartas corruptas (Lobista, Contabilidade Criativa…), desmatar Floresta, algumas Intrigas e ter ⭐6 ou mais no fim de cada rodada.</li>
-        <li><b>Quando sorteia:</b> sempre que uma carta com 🔔 entra na Fila Especial (e em alguns eventos). Saem <b>{k} cubos</b> nesta rodada (a Tensão sobe com o jogo: 3 → 6).</li>
+        <li><b>Quando sorteia:</b> sempre que uma carta com 🔔 entra na Fila Especial. Saem <b>{k} cubos</b> nesta rodada (a Tensão sobe com o jogo: 3 → 6).</li>
         <li><b>O que acontece:</b> cada cubo seu sorteado volta para você e custa <b>1 😊</b>. Com <b>3 ou mais</b> no mesmo sorteio, Investigação: <b>−⭐1</b> e sem Metas na rodada.</li>
         <li><b>Como se proteger:</b> evite cartas corruptas, use cartas que removem 🕵️ (Ecóloga, Secretária de Meio Ambiente) e mantenha cubos neutros no Saco diluindo o sorteio.</li>
       </ul>
@@ -165,7 +165,7 @@ const TOUR = [
   { sel: '.pane-side', title: 'Mercado', text: 'Gaste 💰 comprando cartas. Elas vão para o descarte e voltam na sua mão nos próximos turnos. Mercado Padrão está sempre disponível; a Fila Especial gira e traz cartas mais fortes; Seus Projetos Regionais são exclusivos do seu terreno.' },
   { sel: '.seat.mine', title: 'Sua cidade', text: 'Edificações na mão são construídas aqui: clique na carta, depois em "Construir" e numa casa destacada. Cada edifício rende todo turno, mas consome ⚡/💧 e alguns pedem população mínima (Req 👥).' },
   { sel: '.center', title: 'Metas e Facções', text: 'Metas dão ⭐2 ao 1º que cumprir e ⭐1 ao 2º (clique numa para ver o que pede). Cartas com ícone de Facção te avançam na trilha: chegar a 3 vale ⭐1.' },
-  { sel: '.banner', title: 'Rodada, Evento e Auditoria', text: 'Cada rodada tem um Evento (regra só daquela rodada) e uma Auditoria: no fim, quem for melhor no critério ganha um Selo (2 Selos = ⭐1). Os números ao lado mostram quem lidera.' },
+  { sel: '.banner', title: 'Rodada e Auditoria', text: 'Cada rodada tem uma Auditoria: no fim, quem for melhor no critério ganha um Selo (2 Selos = ⭐1). Os números ao lado mostram quem lidera.' },
   { sel: '.bag', title: 'O Saco', text: 'Cartas corruptas põem cubos seus no Saco. Quando uma carta 🔔 entra na Fila, há sorteio: cubo seu sorteado custa 😊. Clique no Saco para entender tudo.' },
   { sel: '.topbar', title: 'Objetivo', text: 'A trilha de cima mostra o Mérito (⭐) de todos. Quem chegar a ⭐10 encerra o jogo no fim da rodada; senão, vence quem tiver mais ⭐ após 12 rodadas. Boa campanha, prefeito!' },
 ];

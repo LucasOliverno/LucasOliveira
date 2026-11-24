@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PLAYER_COLORS } from '../data.js';
+import { PLAYER_COLORS, DURATIONS } from '../data.js';
 import { useOnline, loadName, savedRoom, recentRooms, forgetRoom } from '../online/useOnline.js';
 import Game from './Game.jsx';
 import { Chat } from './chat.jsx';
@@ -143,7 +143,7 @@ function Lobby({ o }) {
         <div>
           <label className="lab">Duração</label>
           <div className="seg wide">
-            {[[8, 'Curto · ⭐8'], [10, 'Padrão · ⭐10'], [12, 'Épico · ⭐12']].map(([n, l]) => (
+            {DURATIONS.map((d) => [d.target, `${d.label} · ⭐${d.target} · ${d.rounds} rodadas`]).map(([n, l]) => (
               <button type="button" key={n} className={L.opts.target === n ? 'on' : ''} disabled={!isHost} onClick={() => o.act('opts', { target: n })}>{l}</button>
             ))}
           </div>

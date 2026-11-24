@@ -88,10 +88,10 @@ await run('só o anfitrião controla a sala', async () => {
 await run('anfitrião adiciona bot e inicia a partida', async () => {
   A.send({ t: 'lobby', action: 'addBot' });
   await A.next((m) => m.t === 'lobby' && m.seats.length === 3);
-  A.send({ t: 'lobby', action: 'opts', target: 8 });
+  A.send({ t: 'lobby', action: 'opts', target: 12 });
   A.send({ t: 'lobby', action: 'start' });
   const sa = await A.next((m) => m.t === 'state');
-  assert.equal(sa.view.target, 8);
+  assert.equal(sa.view.target, 12);
   assert.equal(sa.view.players.length, 3);
   assert.equal(sa.view.phase, 'draft');
 });
@@ -228,7 +228,7 @@ await run('partida online completa até o fim, conversa e revanche na mesma sala
   assert.equal(c.msg.name, 'Gil');
   H.send({ t: 'lobby', action: 'addBot' });
   await H.next((m) => m.t === 'lobby' && m.seats.length === 3);
-  H.send({ t: 'lobby', action: 'opts', target: 8 });
+  H.send({ t: 'lobby', action: 'opts', target: 12 });
   H.send({ t: 'lobby', action: 'start' });
   await H.next((m) => m.t === 'state');
   const by = { Hana: H, Gil: G };

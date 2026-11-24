@@ -1,0 +1,16 @@
+MANDATO - modelos para a mesa 3D
+
+build_sprites.py e a fonte do conjunto usado pelo jogo.
+--glb exporta frontend/public/mandato/models/mandato.glb e salva
+mandato_modelos.blend com as miniaturas organizadas numa grade para edicao.
+Sem argumentos gera os 73 sprites em frontend/public/mandato/iso.
+preview_models.py renderiza uma amostra de seis edificios.
+
+Melhorias: janelas com moldura, divisao e peitoril; quatro fachadas nos
+predios gerados por block/house; rodapes, platibandas e relevos de telhado;
+copas em camadas; ponteiros no relogio da Prefeitura. Escala, IDs e origem
+dos modelos GLB preservados. Malhas agrupadas por material em cada modelo.
+O arquivo .blend e uma biblioteca, nao o tabuleiro montado de uma partida.
+
+backup_antes_melhoria preserva o gerador, GLB e sprites anteriores.
+model_report.json registra malhas e triangulos por modelo exportado.

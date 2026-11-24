@@ -4,7 +4,7 @@ import { LOT_OPTS, STANDARD, FAC_KEYS, GOALS, TERRAINS } from './data.js';
 
 const { CARDS } = E;
 // Ordem de preferência no draft (medida em simulação; ver test/sim.mjs)
-export const DRAFT_RANK = ['deserto', 'litoral', 'montanha', 'planicie', 'floresta', 'ilha'];
+export const DRAFT_RANK = ['deserto', 'planicie', 'floresta', 'montanha', 'litoral', 'ilha'];
 // draft: 'rank' (padrão) ou 'random' (simulação para medir a força de cada terreno sem o efeito da ordem)
 export const BOT_OPTS = { draft: 'rank' };
 const W = { v: 1, o: 1.2, a: 1.5 };
@@ -210,7 +210,7 @@ function tryBuy(s, p) {
   STANDARD.forEach((id) => opts.push({ src: 'pile', key: id, id }));
   s.market.row.forEach((id, i) => opts.push({ src: 'row', key: i, id }));
   E.regionalOf(p).filter((id) => !E.regionalFull(p, id)).forEach((id) => opts.push({ src: 'regional', key: id, id }));
-  const left = Math.max(1, E.MAX_ROUNDS - s.round);
+  const left = Math.max(1, E.maxRounds(s) - s.round);
   const scored = [];
   for (const o of opts) {
     const cost = E.buyCost(s, p, o.id);
@@ -231,6 +231,20 @@ function tryBuy(s, p) {
   return !E.exec(s, { t: 'buy', src: top.src, key: top.key });
 }
 
+// Compra terreno quando a grade está quase cheia (a cidade cresce até 5×5).
+function tryLand(s, p) {
+  if (p.t.landed || E.maxRounds(s) - s.round < 2) return false;
+  const free = p.tiles.filter((t) => !t.b && !(t.k === 'F' && !t.cleared) && t.k !== 'E' && t.k !== 'D').length;
+  if (free > 2) return false;
+  const cost = E.landCost(p);
+  if (p.pool.v < cost.v) return false;
+  const slots = E.landSlots(p);
+  if (!slots.length) return false;
+  const score = (o) => (o.k === '.' || o.k === 'C' ? 2 : o.k === 'O' || o.k === 'R' ? 1.5 : 0) + p.tiles.filter((t) => t.isl === o.isl && t.b && Math.abs(t.x - o.x) + Math.abs(t.y - o.y) === 1).length * 0.3;
+  const best = slots.sort((a, b) => score(b) - score(a))[0];
+  return !E.exec(s, { t: 'land', x: best.x, y: best.y, isl: best.isl });
+}
+
 function botTurn(s) {
   const p = s.players[s.order[s.turnIdx]];
   for (let i = 0; i < 80; i++) {
@@ -241,6 +255,7 @@ function botTurn(s) {
     if (tryDecree(s, p)) continue;
     if (tryWonder(s, p)) continue;
     if (tryBuild(s, p)) continue;
+    if (tryLand(s, p)) continue;
     if (tryBuy(s, p)) continue;
     break;
   }

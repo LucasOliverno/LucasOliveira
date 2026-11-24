@@ -214,3 +214,24 @@ button.bag:hover { background: #fff7e8; }
 .coach-acts { display: flex; gap: 8px; align-items: center; justify-content: flex-end; }
 .coach-acts .m-link { margin-right: auto; margin-left: 0; }
 .home-actions .btn.tut { background: var(--sage); }
+
+/* Marcos da Cidade e compra de terreno */
+.citymarks { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: .72rem; }
+.citymarks .cm-h { width: 100%; font: 700 .68rem var(--font-stamp, sans-serif); text-transform: uppercase; letter-spacing: .05em; color: var(--teal, #1F6F78); }
+.citymarks .cm-h small { text-transform: none; letter-spacing: 0; color: #5b6676; font-weight: 400; }
+.citymarks .cm { padding: 2px 6px; border-radius: 999px; border: 1px dashed rgba(27, 42, 65, .4); background: rgba(255, 255, 255, .55); white-space: nowrap; }
+.citymarks .cm small { color: #5b6676; }
+.citymarks .cm.got { border: 1px solid #2e7d4f; background: #dff0e3; color: #1d5a37; font-weight: 700; }
+.land-btn { width: 100%; justify-content: center; }
+.land-btn small { font-weight: 400; opacity: .8; }
+.land-btn.on { background: var(--mustard, #E0A526); color: #1B2A41; }
+.tile.land { border: 2px dashed var(--mustard, #E0A526); background: rgba(224, 165, 38, .16); cursor: pointer; animation: pulse 1.3s ease-in-out infinite; }
+.tile.land .t-plus { font-size: .8rem; }
+/* Auditoria: botão "?" e explicação */
+.b-au { position: relative; }
+.au-q { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--ink, #1B2A41); background: var(--paper, #F3EBDD); color: var(--ink, #1B2A41); font: 800 .75rem/1 sans-serif; cursor: pointer; flex: none; }
+.au-q:hover, .au-q[aria-expanded="true"] { background: #E0A526; }
+.au-pop { position: absolute; top: calc(100% + 8px); left: 0; z-index: 60; width: min(380px, 90vw); background: var(--paper, #F3EBDD); color: var(--ink, #1B2A41); border: 2px solid var(--ink, #1B2A41); border-radius: 10px; padding: 10px 12px; box-shadow: 0 8px 22px rgba(0,0,0,.3); font-size: .85rem; }
+.au-pop p { margin: 4px 0; }
+.au-pop ul { margin: 4px 0 6px; padding-left: 18px; display: grid; gap: 3px; }
+.b-card:has(.au-pop) { overflow: visible; }

@@ -1,17 +1,86 @@
-import { ZONES, TILE_NAMES, TILE_HINT, FACTIONS, FAC_KEYS, CARGOS, GOALS } from '../data.js';
-import { calc, def, tmax } from '../engine.js';
+import { ZONES, TILE_NAMES, TILE_HINT, FACTIONS, FAC_KEYS, CARGOS, GOALS, CITY_MARKS } from '../data.js';
+import { calc, def, tmax, cityMarkVal } from '../engine.js';
 import { Ico, Rich } from './icons.jsx';
 import { artUrl, terrainMap, instArt } from './cardutil.js';
 import { FacEmblem, GoalEmblem } from './cards.jsx';
+import { useView } from './viewpref.js';
+import { ISO_W, ISO_H, ISO_ANCHOR_Y, isoUrl, isoBuilding, isoGround, isoLayout, gridPos } from './iso.js';
 
 // ---------------------------------------------------------------- cidade (grade 4×4 ou arquipélago)
 
-export function City({ s, p, validity, placing, onTile, selected, interactive = true, onHover }) {
+export function City(props) {
+  return useView() === '2d' ? <FlatCity {...props} /> : <IsoCity {...props} />;
+}
+
+// cidade isométrica 2.5D: chão e prédios são sprites renderizados no Blender (MANDATO/3d/build_sprites.py)
+function IsoCity({ s, p, validity, placing, onTile, selected, interactive = true, onHover, land }) {
   const c = calc(s, p);
   const island = p.tiles.some((t) => t.isl !== 'M');
+  const ghosts = land ? land.slots : [];
+  const { W, H, pos } = isoLayout([...p.tiles, ...ghosts]);
+  const T0 = p.tiles.length;
+  const pct = (v, of) => `${(v / of) * 100}%`;
+  const spr = (i) => ({ left: pct(pos[i].cx - ISO_W / 2, W), top: pct(pos[i].cy - ISO_H * ISO_ANCHOR_Y, H), width: pct(ISO_W, W), height: pct(ISO_H, H) });
+  const cell = (i) => ({ left: pct(pos[i].cx - 0.5, W), top: pct(pos[i].cy - 0.25, H), width: pct(1, W), height: pct(0.5, H) });
+  return (
+    <div className={`iso${island ? ' iso-island' : ''}`} style={{ aspectRatio: `${W} / ${H}` }} role="grid" aria-label={`Cidade de ${p.name}`}>
+      {p.tiles.map((t, i) => (
+        <img key={`g${i}`} className="iso-spr iso-g" src={isoUrl(isoGround(t, p.terrain))} alt="" draggable="false" style={{ ...spr(i), zIndex: pos[i].z }} />
+      ))}
+      {p.tiles.map((t, i) => {
+        if (!t.b) return null;
+        const isOn = c.act.has(i);
+        return (
+          <img key={`b${i}-${t.b.id}-${t.b.v || ''}`} className={`iso-spr iso-b${isOn ? '' : ' iso-off'}`} src={isoUrl(isoBuilding(t.b))} alt="" draggable="false"
+            style={{ ...spr(i), zIndex: 40 + pos[i].z }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+        );
+      })}
+      {p.tiles.map((t, i) => {
+        const b = t.b;
+        const d = b ? def(b) : null;
+        const zone = d ? d.zones[0] : null;
+        const isOn = !b || c.act.has(i);
+        const off = b && c.off.includes(i);
+        const ok = placing && validity && validity[i] && !validity[i].err;
+        const cls = ['iso-cell'];
+        if (b) cls.push('has');
+        if (ok) cls.push('is-ok');
+        if (placing && !ok) cls.push('is-no');
+        if (selected === i) cls.push('is-sel');
+        const tip = b
+          ? `${d.name}${off ? ' — inativo (efeito de carta)' : !isOn ? ' — inativo: 👥 abaixo do Req' : ''}`
+          : `${TILE_NAMES[t.k]}${t.k === 'F' && !t.cleared ? ' (intacta)' : ''}: ${TILE_HINT[t.k]}`;
+        return (
+          <button key={i} type="button" role="gridcell" className={cls.join(' ')} style={{ ...cell(i), zIndex: 90 + pos[i].z, '--zc': zone ? ZONES[zone].color : undefined }}
+            disabled={!interactive} onClick={() => onTile && onTile(i)}
+            onMouseEnter={() => onHover && onHover(i)} onMouseLeave={() => onHover && onHover(null)} title={tip} aria-label={tip}>
+            <svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polygon points="50,1 99,25 50,49 1,25" /></svg>
+            {b && <span className="iso-zone"><Ico n={zone} s={12} /></span>}
+            {b && !isOn && <span className="iso-state">{off ? 'inativo' : 'Req 👥'}</span>}
+            {b && b.popBonus ? <span className="iso-bonus">+{b.popBonus}👥</span> : null}
+            {ok && <span className="iso-plus" aria-hidden="true">{validity[i].upgrade ? '↑' : '+'}</span>}
+          </button>
+        );
+      })}
+      {ghosts.map((o, k) => (
+        <button key={`land${o.isl}${o.x}${o.y}`} type="button" className="iso-cell iso-land" style={{ ...cell(T0 + k), zIndex: 90 + pos[T0 + k].z }}
+          onClick={() => land.onPick(o)} title={`Comprar este terreno (💰${land.cost})${o.k !== '.' && o.k !== 'C' ? ` — ${TILE_NAMES[o.k]}` : ''}`} aria-label="Comprar este terreno">
+          <svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polygon points="50,1 99,25 50,49 1,25" /></svg>
+          <span className="iso-plus">+💰{land.cost}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function FlatCity({ s, p, validity, placing, onTile, selected, interactive = true, onHover, land }) {
+  const c = calc(s, p);
+  const island = p.tiles.some((t) => t.isl !== 'M');
+  const ghosts = land ? land.slots : [];
+  const cols = Math.max(...[...p.tiles, ...ghosts].map((t) => gridPos(t)[0])) + 1;
   const map = !island ? terrainMap(p.terrain) : null; // mapa do terreno por baixo da grade (o arquipélago tem layout próprio)
   return (
-    <div className={`city${island ? ' city-island' : ''}${map ? ' city-map' : ''}`} style={map ? { '--map': `url(${map})` } : undefined} role="grid" aria-label={`Cidade de ${p.name}`}>
+    <div className={`city${island ? ' city-island' : ''}${map ? ' city-map' : ''}`} style={{ ...(map ? { '--map': `url(${map})` } : {}), gridTemplateColumns: `repeat(${cols}, 1fr)` }} role="grid" aria-label={`Cidade de ${p.name}`}>
       {island && <span className="isl-label isl-M">Ilha Principal</span>}
       {island && <span className="isl-label isl-N">Ilha Norte</span>}
       {island && <span className="isl-label isl-L">Ilha Leste</span>}
@@ -33,9 +102,9 @@ export function City({ s, p, validity, placing, onTile, selected, interactive = 
         if (t.cleared) cls.push('cleared');
         const style = {};
         if (zone) style['--zc'] = ZONES[zone].color;
-        if (island) { const o = { M: [0, 0], N: [4, 0], L: [4, 3] }[t.isl]; style.gridColumn = t.x + o[0] + 1; style.gridRow = t.y + o[1] + 1; }
+        { const [gx, gy] = gridPos(t); style.gridColumn = gx + 1; style.gridRow = gy + 1; }
         const tip = b
-          ? `${d.name}${off ? ' — inativo (evento)' : !isOn ? ' — inativo: 👥 abaixo do Req' : ''}`
+          ? `${d.name}${off ? ' — inativo (efeito de carta)' : !isOn ? ' — inativo: 👥 abaixo do Req' : ''}`
           : `${TILE_NAMES[t.k]}${t.k === 'F' && !t.cleared ? ' (intacta)' : ''}: ${TILE_HINT[t.k]}`;
         return (
           <button
@@ -66,6 +135,33 @@ export function City({ s, p, validity, placing, onTile, selected, interactive = 
           </button>
         );
       })}
+      {ghosts.map((o) => {
+        const [gx, gy] = gridPos(o);
+        return (
+          <button key={`land${o.isl}${o.x}${o.y}`} type="button" className={`tile land k-${o.k}`} style={{ gridColumn: gx + 1, gridRow: gy + 1 }} onClick={() => land.onPick(o)} title="Comprar este terreno">
+            <span className="t-plus">+💰{land.cost}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// Marcos da Cidade: ⭐1 cada, uma vez (o que já foi atingido fica marcado)
+export function CityMarks({ s, p }) {
+  const c = calc(s, p);
+  const got = p.cityMarks || {};
+  return (
+    <div className="citymarks" aria-label="Marcos da Cidade">
+      <span className="cm-h">Marcos da Cidade <small>⭐1 cada</small></span>
+      {CITY_MARKS.map((m) => {
+        const v = cityMarkVal(s, p, m, c);
+        return (
+          <span key={m.id} className={`cm${got[m.id] ? ' got' : ''}`} title={got[m.id] ? `Atingido na rodada ${got[m.id]}` : `${Math.min(v, m.n)}/${m.n}`}>
+            {got[m.id] ? '✓ ' : ''}{m.label}{got[m.id] ? '' : <small> {Math.min(v, m.n)}/{m.n}</small>}
+          </span>
+        );
+      })}
     </div>
   );
 }
@@ -73,11 +169,11 @@ export function City({ s, p, validity, placing, onTile, selected, interactive = 
 export function MiniCity({ p }) {
   const island = p.tiles.some((t) => t.isl !== 'M');
   return (
-    <div className={`mini${island ? ' mini-island' : ''}`} aria-hidden="true">
+    <div className={`mini${island ? ' mini-island' : ''}`} style={island ? undefined : { gridTemplateColumns: `repeat(${Math.max(...p.tiles.map((t) => t.x)) + 1}, 1fr)` }} aria-hidden="true">
       {p.tiles.map((t, i) => {
         const z = t.b ? def(t.b).zones[0] : null;
         const style = { background: z ? ZONES[z].color : undefined };
-        if (island) { const o = { M: [0, 0], N: [4, 0], L: [4, 3] }[t.isl]; style.gridColumn = t.x + o[0] + 1; style.gridRow = t.y + o[1] + 1; }
+        { const [gx, gy] = gridPos(t); style.gridColumn = gx + 1; style.gridRow = gy + 1; }
         return <i key={i} className={`mt k-${t.k}${z ? ' on' : ''}`} style={style} />;
       })}
     </div>

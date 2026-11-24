@@ -43,8 +43,8 @@ frontend/
     └── ui/ + mandato.css       ← interface no estilo do guia visual (MANDATO/11)
 ```
 
-Modos: **Solo contra o Rival** (doc 10) e **partida local** de 2 a 6 prefeitos (humanos com cortina de
-privacidade + bots). Multiplayer online (doc 09, fases 3+) ainda não existe.
+Modos: **Solo contra o Rival** (doc 10), **partida local** de 2 a 6 prefeitos (humanos com cortina de
+privacidade + bots) e **online** com salas (abaixo).
 
 **Mesa principal:** a tela de jogo é uma mesa compartilhada. No centro ficam as Metas (com quem pegou Ouro/Prata)
 e as Facções (posição de todos os jogadores); abaixo, a cidade de **todos** os prefeitos ao mesmo tempo, com
@@ -116,6 +116,21 @@ Floresta ganha a Ecovila (o Loteamento entra em Floresta sem desmatar); a Ilha n
 evitar déficit de ⚡/💧 e poluição alta: as "Crises de Governo" da simulação eram falha de estratégia do bot (caíram de ~2,2
 para ~0,2 por partida). Resultado: assentos 22–28% em 4p, terrenos entre 0,6× e 1,3× da média.
 
+**Jogo de cidade v1.5** (a partir de playtest: "o jogo está focado em Metas e não em construir a cidade"):
+- **Sem Eventos de Rodada:** a carta de Rodada só traz a Auditoria. Em simulação os eventos não ajudavam o balanceamento,
+  só desequilibravam terrenos (diferença melhor/pior: 0,57 com eventos, 0,21 sem).
+- **Partidas maiores:** Curto ⭐12/12 rodadas, **Padrão ⭐16/16**, Épico ⭐20/20 (`DURATIONS` em `data.js`; solo segue ⭐10/12).
+- **Comprar terreno até 5×5** (`landSlots`, `landCost`, comando `land` no motor): 1 por turno, vizinho da cidade, 💰3 +💰1 por
+  compra; a casa nova segue o mapa (`landKind`). Botão **🗺️ Comprar terreno** no painel da sua cidade; as casas à venda
+  aparecem nas três visualizações (Mesa 3D, Cidades 2.5D e Grade 2D).
+- **Marcos da Cidade** (`CITY_MARKS`): ⭐1 cada, uma vez — 8/12/16 edifícios, 👥 6 e 👥 10, 5 Zonas diferentes.
+- Resultado (bots, draft aleatório, 4p): Mérito vem 27% da cidade, ~30% de Metas (antes 47%), 20% Obras-Prima; assentos 22–28%
+  (5p 18–24%, 6p 14–20%); terrenos entre 0,78× e 1,24×; ~45% das partidas acabam por alguém chegar à meta.
+- Ajustes: Ilha (Prefeitura +🔨1, Loteamento 💰1, terreno −💰1), Montanha (Prefeitura +💰1), Deserto (Loteamento INF ⚡+2),
+  pacotes de 4–6 jogadores e ranking de draft dos bots. Os bots compram terreno quando a grade enche.
+- Limitação conhecida: os bots não perseguem 👥, então Metrópole/Bairro Planejado e as Metas Regionais de Planície e
+  Floresta quase não saem em simulação (são possíveis para humanos).
+
 **Arte das cartas:** as folhas geradas por IA ficam em `MANDATO/images/` (ordem e prompts em
 `MANDATO/12_guia_de_prompts_ia.md`). `frontend/scripts/slice-art.mjs` recorta cada folha em uma imagem por ID
 (`public/mandato/art/<ID>.webp`: edificações, regionais, administração, básicas/padrão, decretos, intrigas,
@@ -123,6 +138,28 @@ obras-prima, 60 cartas de exploração, Metas, Rodada, emblemas das Facções e 
 `src/mandato/artManifest.js`. Para refazer: `cd frontend && npm i --no-save sharp && node scripts/slice-art.mjs`.
 O retrato extra do Tier III (homem da tesoura) e os ícones gerados ficam de fora (os ícones do jogo são SVG).
 O favicon do jogo também sai desse script (`public/mandato/favicon.png`).
+
+**Mesa 3D (estilo Tabletop Simulator):** visualização padrão da partida (`src/mandato/ui/Table3D.jsx`, Three.js via
+`@react-three/fiber` + `drei`, carregada sob demanda). Uma mesa de madeira com o tabuleiro central (cartas de Meta com os discos
+de Ouro/Prata, trilhas das Facções com o cubo de cada jogador e a Fila Especial) e a cidade de cada prefeito em volta, com os
+prédios modelados no Blender (`public/mandato/models/mandato.glb`, ~560 KB com gzip, gerado por
+`build_sprites.py -- --glb`). Arrastar gira a câmera, botão direito move, roda aproxima; atalhos **Minha cidade / Centro /
+Mesa toda**. Clicar numa casa constrói ou inspeciona, prédios novos caem do céu, deck e descarte de cada um ficam ao lado da
+cidade e a mão aparece em leque por cima da mesa. O seletor no topo troca para **Cidades 2.5D** ou **Grade 2D**.
+
+**Cidade 3D (2.5D isométrica):** as cidades da mesa são montadas com sprites renderizados no Blender. O script
+`MANDATO/3d/build_sprites.py` modela, de forma procedural e na paleta do guia visual, os 62 edifícios (todas as
+edificações, Obras-Prima, regionais e as 5 Zonas do Loteamento) e os 11 tipos de chão (Plano, Orla, Encosta, Jazida, Rio,
+Duna, Oásis, Floresta, desmatada, Costa), e grava `public/mandato/iso/<ID>.webp` (~0,5 MB no total). Todos usam o mesmo
+enquadramento (câmera ortográfica 60°/45°, 320×480, centro da casa em 50%/80%), então o jogo só empilha as imagens
+(`src/mandato/ui/iso.js` + `IsoCity` em `board.jsx` + `iso.css`). O botão **Grade 2D / Cidade 3D** no topo da mesa troca a
+visualização (fica salvo no navegador). Para refazer os sprites (todos ou só alguns IDs):
+
+```
+blender --background --factory-startup --python MANDATO/3d/build_sprites.py [-- PREF E1-01 g-O]
+```
+
+`MANDATO/3d/build_prototype.py` gera a cena de prova do Litoral (`.blend`, `.glb` e renders).
 
 Decisões de implementação onde o texto dos documentos é ambíguo:
 - RD-03 (Onda de Calor): Deserto e Planície perdem 💧3 (o doc cita −2 no evento e −3 no terreno Planície).

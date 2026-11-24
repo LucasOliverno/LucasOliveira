@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CARDS, GOALS, ROUNDS, TERRAINS, LOT_OPTS, STANDARD, FACTIONS, FAC_KEYS, RIVAL, ZONES } from '../data.js';
 import * as E from '../engine.js';
 import { botStep } from '../bot.js';
@@ -7,9 +7,11 @@ import { Card, ExploreCard, CostChip, FacEmblem, GoalEmblem } from './cards.jsx'
 import { HAS_ART, artUrl } from './cardutil.js';
 import { Chat } from './chat.jsx';
 import { chime, sfx, loadMuted, saveMuted } from './sound.js';
+import { useView, setView, VIEWS } from './viewpref.js';
+const Table3D = lazy(() => import('./Table3D.jsx'));
 import { BagInfo, FiscReveal, AuditLeaders, DeckView, CardZoom, GoalDetail, Coach } from './explain.jsx';
 import { REGIONAL_HOWTO } from './explainData.js';
-import { City, MetersMini, ResPool, MeritTrack, TurnStrip, CenterBoard } from './board.jsx';
+import { City, MetersMini, ResPool, MeritTrack, TurnStrip, CenterBoard, CityMarks } from './board.jsx';
 import { Draft, Curtain, Rules, GameOver } from './screens.jsx';
 
 const SIMPLE = (id) => CARDS[id].type === 'basic' || id === 'P-02' || id === 'P-04';
@@ -42,18 +44,32 @@ function Bag({ s, onOpen }) {
 
 function RoundBanner({ s, onBag }) {
   const rd = ROUNDS.find((r) => r.id === s.card);
+  const [auHelp, setAuHelp] = useState(false);
   return (
     <div className="banner">
       <div className="b-round">
         <small>Rodada</small>
-        <b>{s.round}<i>/{E.MAX_ROUNDS}</i></b>
+        <b>{s.round}<i>/{E.maxRounds(s)}</i></b>
         {s.finalRound && <span className="b-final">Rodada final</span>}
       </div>
       {rd && (
         <div className={`b-card${HAS_ART.has(rd.id) ? ' has-art' : ''}`}>
           {HAS_ART.has(rd.id) && <img className="b-art" src={artUrl(rd.id)} alt="" draggable="false" />}
-          <div className="b-ev"><span className="tagk" title="Regra que vale só nesta rodada">Evento</span><b>{rd.name}</b><span><Rich t={rd.ev} s={14} /></span></div>
-          <div className="b-au"><span className="tagk au" title="No fim da rodada, o 1º nesse critério ganha um Selo (2 Selos = ⭐1) e +💰1; o 2º ganha +💰1">Auditoria</span><span><Rich t={rd.au} s={14} /></span><AuditLeaders s={s} /></div>
+          <div className="b-au"><span className="tagk au" title="No fim da rodada, o 1º nesse critério ganha um Selo (2 Selos = ⭐1) e +💰1; o 2º ganha +💰1">Auditoria</span><span><Rich t={rd.au} s={14} /></span><AuditLeaders s={s} />
+            <button type="button" className="au-q" onClick={() => setAuHelp((v) => !v)} aria-expanded={auHelp} title="O que é a Auditoria?">?</button>
+          {auHelp && (
+            <div className="au-pop" role="dialog" aria-label="Como funciona a Auditoria">
+              <b>Auditoria da rodada</b>
+              <p>No <b>fim da rodada</b>, todos são comparados no critério desta carta (<Rich t={rd.au} s={13} />). Os números ao lado mostram quem lidera agora.</p>
+              <ul>
+                <li><b>1º lugar (sozinho):</b> ganha <b>1 Selo</b> 🎖️ e +💰1 no Tesouro.</li>
+                <li><b>2º lugar</b> (3+ jogadores): +💰1 no Tesouro.</li>
+                <li><b>Empate no 1º:</b> ninguém ganha Selo; com 3+ jogadores, cada empatado ganha +💰1.</li>
+                <li><b>2 Selos = ⭐1</b> de Mérito (troca automática no fim da rodada). Seus Selos aparecem no painel da cidade (🎖️).</li>
+              </ul>
+              <button type="button" className="m-link" onClick={() => setAuHelp(false)}>fechar</button>
+            </div>
+          )}</div>
         </div>
       )}
       <Bag s={s} onOpen={onBag} />
@@ -195,6 +211,7 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
   const [shown, setShown] = useState(humans[0].id);
   const [sel, setSel] = useState(null);
   const [placing, setPlacing] = useState(null);
+  const [landKey, setLandKey] = useState(null); // modo "comprar terreno" vale só no turno em que foi aberto
   const [lot, setLot] = useState('RES');
   const [tab, setTab] = useState('mercado');
   const [mtab, setMtab] = useState('city');
@@ -203,6 +220,7 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
   const [showRules, setShowRules] = useState(false);
   const [centerOpen, setCenterOpen] = useState(() => { try { return localStorage.getItem('mandato:center') !== '0'; } catch { return true; } });
   const [muted, setMuted] = useState(loadMuted);
+  const view = useView();
   const [seenChat, setSeenChat] = useState(0);
   const [hideOver, setHideOver] = useState(false);
   const [peek, setPeek] = useState(false); // ver a mão fora da sua vez
@@ -218,6 +236,9 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
   const viewer = online ? online.viewer : humans.length === 1 ? humans[0].id : shown;
   const me = s.players[viewer];
   const myTurn = !s.over && s.phase === 'play' && act === viewer && !s.pending.length;
+  const turnKey = `${s.round}:${s.turnIdx}`;
+  const landMode = landKey === turnKey;
+  const setLandMode = (f) => setLandKey((k) => ((typeof f === 'function' ? f(k === turnKey) : f) ? turnKey : null));
 
   useEffect(() => {
     if (!online) return undefined;
@@ -542,6 +563,10 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
     </div>
   );
 
+  const landProp = landMode && myTurn && !placing
+    ? { slots: E.landSlots(me), cost: E.landCost(me).v, onPick: (o) => { run({ t: 'land', x: o.x, y: o.y, isl: o.isl }); setLandMode(false); } }
+    : null;
+
   const placingBar = placing && (
     <div className="placing" role="status">
       <div>
@@ -585,11 +610,28 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
         {last && <p className="seat-last" key={last} title="Última jogada"><Rich t={last} s={12} /></p>}
         <div className="seat-body">
           <div className="seat-city">
-            <City s={s} p={p} placing={mine && !!placing} validity={mine ? validity : null} onTile={(i) => onTile(p.id, i)} selected={sel && sel.k === 'tile' && (sel.pid ?? viewer) === p.id ? sel.i : null} onHover={mine ? setHover : undefined} />
+            <City s={s} p={p} placing={mine && !!placing} validity={mine ? validity : null} onTile={(i) => onTile(p.id, i)} selected={sel && sel.k === 'tile' && (sel.pid ?? viewer) === p.id ? sel.i : null} onHover={mine ? setHover : undefined} land={mine ? landProp : null} />
             {mine && placingBar}
           </div>
+          {seatInfo(p, mine, turn, T)}
+        </div>
+      </article>
+    );
+  };
+  const seatInfo = (p, mine, turn, T) => (
           <div className="seat-info">
             <MetersMini s={s} p={p} />
+            <CityMarks s={s} p={p} />
+            {mine && turn && myTurn && (() => {
+              const cost = E.landCost(p).v, slots = E.landSlots(p);
+              const why = p.t.landed ? 'já comprou neste turno' : !slots.length ? 'grade no limite (5×5)' : p.pool.v < cost ? `faltam 💰 (custa ${cost})` : '';
+              return (
+                <button type="button" className={`btn sm land-btn${landMode ? ' on' : ''}`} disabled={!!why && !landMode} title={why || 'Escolha uma casa vizinha da cidade'}
+                  onClick={() => { setPlacing(null); setLandMode((v) => !v); }}>
+                  {landMode ? 'Cancelar compra de terreno' : <>🗺️ Comprar terreno · 💰{cost}{why ? <small> ({why})</small> : null}</>}
+                </button>
+              );
+            })()}
             {turn && s.phase === 'play' && (
               <div className="seat-pool"><span>Em jogo agora</span><ResPool pool={p.pool} size={18} /></div>
             )}
@@ -602,10 +644,7 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
             )}
             <p className="seat-cards">mão {p.hand.length} · deck {p.deck.length} · descarte {p.discard.length}</p>
           </div>
-        </div>
-      </article>
-    );
-  };
+  );
 
   const handOpen = myTurn || peek || !!placing || s.over;
   const hand = (
@@ -617,7 +656,7 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
       </div>
       <div className="hand">
         {me.hand.map((id, hi) => (
-          <div key={`${id}-${hi}`} className="hcell" onDoubleClick={() => handPrimary(hi)}>
+          <div key={`${id}-${hi}`} className="hcell" style={{ '--i': hi - (me.hand.length - 1) / 2, '--n': me.hand.length }} onDoubleClick={() => handPrimary(hi)}>
             <Card id={id} size="sm" selected={sel && sel.k === 'hand' && sel.hi === hi} dim={!myTurn} onClick={() => { setSel({ k: 'hand', hi }); setPlacing(null); }} tag={<kbd className="hk">{hi + 1}</kbd>} />
           </div>
         ))}
@@ -648,12 +687,16 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
   }
 
   return (
-    <div className={`table mt-${mtab}`}>
+    <div className={`table mt-${mtab}${view === 'mesa' ? ' tt' : ''}`}>
       <div className="topbar">
         <Brand />{online && <span className="roomchip" title="Código da sala">Sala <b>{online.code}</b></span>}
         <MeritTrack s={s} />
         <div className="tb-r">
           <button type="button" className="btn btn-ghost sm" onClick={() => setMuted((m) => { saveMuted(!m); return !m; })} title={muted ? 'Ligar os sons' : 'Silenciar os sons'} aria-pressed={!muted}>{muted ? '🔕' : '🔔'}</button>
+          <label className="viewsel" title="Como ver a mesa">
+            <span className="sr-only">Visualização</span>
+            <select value={view} onChange={(e) => setView(e.target.value)}>{VIEWS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
+          </label>
           <button type="button" className="btn btn-ghost sm" onClick={() => setCoach(true)} title="Tour guiado pela mesa">Tutorial</button>
           <button type="button" className="btn btn-ghost sm" onClick={() => setShowRules(true)}>Regras</button>
           <button type="button" className="btn btn-ghost sm" onClick={exit}>Sair</button>
@@ -669,6 +712,19 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
             </button>
             <TurnStrip s={s} act={act} />
           </div>
+          {view === 'mesa' ? (
+            <div className="tt-stage">
+              <Suspense fallback={<div className="tt-wrap tt-loading">carregando a mesa 3D…</div>}>
+                <Table3D s={s} viewer={viewer} act={act} placing={placing} validity={validity} sel={sel} onTile={onTile} onHover={setHover} land={landProp}
+                  onPick={(v) => { setSel(v); setPlacing(null); }} onZoom={setZoom} />
+              </Suspense>
+              <details className="tt-hud" style={{ '--pc': me.color }} open>
+                <summary>Sua cidade</summary>
+                {seatInfo(me, true, !s.over && act === me.id, TERRAINS[me.terrain])}
+              </details>
+              {placingBar}
+            </div>
+          ) : (
           <div className={`cities c${s.players.length}`}>
             <div className="seat-main">{seat(me)}</div>
             <div className="board-rest">
@@ -676,6 +732,7 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
               {s.players.length > 1 && <div className="others">{[...s.players.slice(viewer + 1), ...s.players.slice(0, viewer)].map(seat)}</div>}
             </div>
           </div>
+          )}
         </section>
 
         <aside className="pane pane-side">

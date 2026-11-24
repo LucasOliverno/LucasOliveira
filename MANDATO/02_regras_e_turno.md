@@ -1,5 +1,18 @@
 # 02 — Regras Completas e Estrutura de Turno
 
+> **Atualização v1.5 (jogo de cidade).** Vale sobre o texto abaixo onde houver conflito:
+> - **Sem Eventos de Rodada.** A carta de Rodada só define a **Auditoria** (Selo para o 1º no critério). Os eventos
+>   desequilibravam os terrenos (diferença entre o melhor e o pior caiu de 0,57 para 0,21 sem eles, em simulação).
+> - **Duração:** Curto ⭐12 em 12 rodadas · **Padrão ⭐16 em 16 rodadas** · Épico ⭐20 em 20 rodadas (solo segue ⭐10/12).
+>   O deck de Rodada é reembaralhado quando acaba.
+> - **Comprar terreno:** 1 por turno, uma casa vizinha da cidade, até a grade **5×5** (na Ilha, a principal vai até 3×4 e
+>   cada ilha menor até 2×3). Custa 💰3, depois +💰1 a cada compra (Ilha −💰1). O tipo da casa nova segue o mapa
+>   (Orla no Litoral, Encosta/Jazida na Montanha, Rio na Planície, Duna no Deserto, Costa na Ilha).
+> - **Marcos da Cidade** (⭐1 cada, uma vez por partida): 8, 12 e 16 edifícios; 👥 6 e 👥 10; 5 Zonas diferentes ativas.
+>   Em simulação, a cidade passou a render ~27% do Mérito e as Metas caíram de 47% para ~30%.
+> - **Terrenos:** Ilha — Prefeitura rende +🔨1, Loteamento custa 💰1, terreno −💰1. Montanha — Prefeitura rende +💰1.
+>   Deserto — Loteamento INF ⚡ rende ⚡+2 (era +3). Pacotes de Posição de 4, 5 e 6 jogadores recalibrados.
+
 ## 1. Objetivo
 
 Chegue a **⭐10 Mérito** antes dos outros. Quando alguém alcança ⭐10, a **rodada atual é completada** (para todos jogarem o mesmo número de turnos) e vence quem tiver **mais ⭐**. Desempate: maior 😊 → menor ☁️ → maior Tesouro → vitória compartilhada.

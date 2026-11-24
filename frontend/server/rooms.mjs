@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import { dirname } from 'node:path';
 import * as E from '../src/mandato/engine.js';
 import { botStep } from '../src/mandato/bot.js';
-import { CARDS } from '../src/mandato/data.js';
+import { CARDS, DURATIONS, DEFAULT_TARGET } from '../src/mandato/data.js';
 import { viewFor } from '../src/mandato/online/view.js';
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sem 0/O/1/I
@@ -60,7 +60,7 @@ export class Rooms {
       const d = JSON.parse(readFileSync(this.file, 'utf8'));
       for (const x of d.rooms || []) {
         if (!x || !x.code || !Array.isArray(x.seats) || !x.seats.length) continue;
-        const r = { code: x.code, opts: x.opts || { target: 10, noIntrigues: false }, game: x.game || null, touched: x.touched || Date.now(), botTimer: null, chat: Array.isArray(x.chat) ? x.chat.slice(-60) : [], seats: x.seats.map((s) => ({ ...s, ws: null })) };
+        const r = { code: x.code, opts: x.opts || { target: DEFAULT_TARGET, noIntrigues: false }, game: x.game || null, touched: x.touched || Date.now(), botTimer: null, chat: Array.isArray(x.chat) ? x.chat.slice(-60) : [], seats: x.seats.map((s) => ({ ...s, ws: null })) };
         this.rooms.set(r.code, r);
       }
       for (const r of this.rooms.values()) this.pump(r); // bots retomam a vez
@@ -143,7 +143,7 @@ export class Rooms {
     const code = this.newCode();
     if (!code) return send(ws, { t: 'error', msg: 'Não foi possível criar a sala.' });
     const token = randomBytes(16).toString('hex');
-    const r = { code, seats: [{ name: clean(msg.name) || 'Prefeito(a) 1', bot: false, token, ws: null, host: true }], opts: { target: 10, noIntrigues: false }, game: null, botTimer: null, touched: Date.now(), chat: [] };
+    const r = { code, seats: [{ name: clean(msg.name) || 'Prefeito(a) 1', bot: false, token, ws: null, host: true }], opts: { target: DEFAULT_TARGET, noIntrigues: false }, game: null, botTimer: null, touched: Date.now(), chat: [] };
     this.rooms.set(code, r);
     this.attach(r, 0, ws);
     send(ws, { t: 'joined', code, token, seat: 0 });
@@ -232,7 +232,7 @@ export class Rooms {
       case 'opts': {
         if (r.game) return err('A partida já começou.');
         const target = Number(msg.target);
-        if ([8, 10, 12].includes(target)) r.opts.target = target;
+        if (DURATIONS.some((d) => d.target === target)) r.opts.target = target;
         if (typeof msg.noIntrigues === 'boolean') r.opts.noIntrigues = msg.noIntrigues;
         break;
       }

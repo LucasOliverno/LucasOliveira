@@ -1,7 +1,7 @@
 // MANDATO — motor de regras. Puro (sem React/DOM): roda no navegador e no Node (simulação).
 // Fonte das regras: MANDATO/02…10. Todo sorteio usa PRNG com semente guardada no estado.
 import {
-  CARDS, STARTER, STANDARD, STD_QTY, LOT_OPTS, SPECIAL_TIERS, WONDERS, GOALS, ROUNDS, TERRAINS, TERRAIN_IDS,
+  CARDS, STARTER, STANDARD, STD_QTY, LOT_OPTS, SPECIAL_TIERS, WONDERS, GOALS, ROUNDS, TERRAINS, TERRAIN_IDS, DURATIONS, DEFAULT_TARGET, CITY_MARKS, LAND, landKind,
   EXPLORE, SETUP, packageFor, FAC_KEYS, WATER_KINDS, RIVAL, rivalGain, PLAYER_COLORS,
 } from './data.js';
 
@@ -9,7 +9,9 @@ export const HAND = 5;
 // Pilha de Loteamento: 8 por jogador + 4 (antes acabava na rodada 2–3; agora dura até ~rodada 5–7).
 export const loteamentoQty = (n) => 8 * n + 4;
 export const ROUND1_REVERSE = globalThis.process?.env?.R1REV !== '0'; // rodada 1 em ordem inversa (regra do 08); R1REV=0 só para testes
-export const MAX_ROUNDS = 12;
+export const MAX_ROUNDS = 12; // solo (o Rival foi calibrado para 12 rodadas)
+export const roundsFor = (target, solo) => (solo ? MAX_ROUNDS : (DURATIONS.find((d) => d.target === target) || { rounds: Math.max(12, target) }).rounds);
+export const maxRounds = (s) => s.maxRounds || MAX_ROUNDS;
 const EX_BY_ID = Object.fromEntries(Object.values(EXPLORE).flat().map((c) => [c.id, c]));
 export const exploreCard = (id) => EX_BY_ID[id];
 const ZONE_ORDER = ['RES', 'COM', 'IND', 'INF', 'VER', 'SER'];
@@ -51,14 +53,73 @@ const isOff = (s, b) => !!b.off && (b.off.k === 'turn' || s.round <= b.off.r);
 export const hasDecree = (p, id) => p.cabinet.includes(id);
 const apprMax = (p) => Math.min(10, hasDecree(p, 'D1-01') ? 7 : 10, hasDecree(p, 'D3-01') ? 6 : 10);
 
+const isPref = (t) => t.b && t.b.id === 'PREF';
+function linkAdj(tiles) {
+  tiles.forEach((t, i) => {
+    t.adj = tiles.map((_, j) => j).filter((j) => j !== i && tiles[j].isl === t.isl && Math.abs(tiles[j].x - t.x) + Math.abs(tiles[j].y - t.y) === 1);
+  });
+}
+
+// ------------------------------------------------------------------ comprar terreno (até 5×5)
+export const landCost = (p) => ({ v: LAND.base + LAND.step * (p.landBought || 0) - (p.terrain === 'ilha' ? 1 : 0) });
+export function landSlots(p) {
+  if (!p.terrain) return [];
+  const island = TERRAINS[p.terrain].island;
+  const has = new Set(p.tiles.map((t) => `${t.isl}:${t.x}:${t.y}`));
+  const out = [];
+  const seen = new Set();
+  p.tiles.forEach((t) => {
+    [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => {
+      const x = t.x + dx, y = t.y + dy, key = `${t.isl}:${x}:${y}`;
+      if (has.has(key) || seen.has(key) || x < 0 || y < 0) return;
+      const [mx, my] = island ? LAND.islandBounds[t.isl] : [LAND.maxRegular, LAND.maxRegular];
+      if (x >= mx || y >= my) return;
+      seen.add(key);
+      out.push({ isl: t.isl, x, y, k: landKind(p.terrain, x, y) });
+    });
+  });
+  return out;
+}
+function doLand(s, p, cmd) {
+  if (p.t.landed) return 'Só 1 terreno por turno.';
+  const slot = landSlots(p).find((o) => o.isl === (cmd.isl || 'M') && o.x === cmd.x && o.y === cmd.y);
+  if (!slot) return 'Esse terreno não pode ser comprado (precisa ser vizinho da cidade, dentro do limite).';
+  const cost = landCost(p);
+  if (p.pool.v < cost.v) return 'Faltam 💰.';
+  p.pool.v -= cost.v;
+  p.landBought = (p.landBought || 0) + 1;
+  p.t.landed = true;
+  p.tiles.push({ id: p.tiles.length, k: slot.k, isl: slot.isl, x: slot.x, y: slot.y, cleared: false, b: null });
+  linkAdj(p.tiles);
+  log(s, `🗺️ ${nm(p)} compra um terreno (💰${cost.v})${slot.k !== '.' && slot.k !== 'C' ? ` — ${slot.k}` : ''}.`, 'build', p.id);
+  return null;
+}
+
+// ------------------------------------------------------------------ Marcos da Cidade
+export function cityMarkVal(s, p, m, c = calc(s, p)) {
+  if (m.kind === 'bld') return p.tiles.filter((t) => t.b).length;
+  if (m.kind === 'pop') return c.pop;
+  if (m.kind === 'mix') return ['RES', 'COM', 'IND', 'INF', 'VER', 'SER'].filter((z) => [...c.act].some((i) => def(p.tiles[i].b).zones.includes(z))).length;
+  return 0;
+}
+function checkCity(s, p) {
+  if (!p.terrain) return;
+  p.cityMarks = p.cityMarks || {};
+  const c = calc(s, p);
+  CITY_MARKS.forEach((m) => {
+    if (p.cityMarks[m.id] || cityMarkVal(s, p, m, c) < m.n) return;
+    p.cityMarks[m.id] = s.round;
+    log(s, `🏙️ ${nm(p)} atinge o Marco da Cidade "${m.label}".`, 'merit', p.id);
+    addMerit(s, p, 1, 'Marco da Cidade');
+  });
+}
+
 function makeTiles(terrainId) {
   const T = TERRAINS[terrainId];
   const tiles = [];
   if (T.island) T.tiles.forEach((t, i) => tiles.push({ id: i, k: t.k, isl: t.isl, x: t.x, y: t.y, cleared: false, b: null }));
   else T.grid.forEach((k, i) => tiles.push({ id: i, k: k === 'P' || k === 'H' ? '.' : k, isl: 'M', x: i % 4, y: Math.floor(i / 4), cleared: false, b: null }));
-  tiles.forEach((t, i) => {
-    t.adj = tiles.map((_, j) => j).filter((j) => j !== i && tiles[j].isl === t.isl && Math.abs(tiles[j].x - t.x) + Math.abs(tiles[j].y - t.y) === 1);
-  });
+  linkAdj(tiles);
   const pi = T.island ? 4 : T.grid.indexOf('P');
   const hi = T.island ? 5 : T.grid.indexOf('H');
   tiles[pi].b = { id: 'PREF' };
@@ -87,7 +148,6 @@ function pairsOf(set, byI, tiles) {
 export function calc(s, p) {
   const T = TERRAINS[p.terrain];
   const tiles = p.tiles;
-  const m = s.mods || {};
   const bl = [];
   tiles.forEach((t, i) => { if (t.b) bl.push({ i, b: t.b, c: def(t.b) }); });
   const alive = bl.filter((x) => !isOff(s, x.b));
@@ -140,7 +200,7 @@ export function calc(s, p) {
     let pw = c.power ? { ...c.power } : null;
     let pl = c.poll || 0;
     const solar = c.solar || (p.terrain === 'deserto' && b.v === 'INFe');
-    if (p.terrain === 'deserto' && solar) { if (pw && pw.e) pw.e += 1; if (b.v === 'INFe') { pw = { e: 3 }; pl = 0; } else pl = 0; }
+    if (p.terrain === 'deserto' && solar) { if (pw && pw.e) pw.e += 1; if (b.v === 'INFe') { pw = { e: 2 }; pl = 0; } else pl = 0; }
     if (p.terrain === 'litoral' && c.zones.includes('VER') && tile.k === 'O') pl -= 1;
     poll += pl;
     if (pw) { cap.e += pw.e || 0; cap.w += pw.w || 0; if (c.zones.includes('INF') && !c.hub) { infPower.e += pw.e ? 1 : 0; infPower.w += pw.w ? 1 : 0; } }
@@ -156,9 +216,10 @@ export function calc(s, p) {
       inc[it.r] += n;
     });
     if (p.terrain === 'litoral' && (c.zones.includes('COM') || c.zones.includes('VER')) && tile.k === 'O') inc.v += 1;
+    if (p.terrain === 'ilha' && isPref(tile)) inc.o += 1;
+    if (p.terrain === 'montanha' && isPref(tile)) inc.v += 1;
     if (p.terrain === 'planicie' && c.zones.includes('RES') && tile.adj.some((j) => tiles[j].b && def(tiles[j].b).zones.includes('VER'))) inc.v += 1; // bairro-jardim
     if (p.terrain === 'floresta' && (c.zones.includes('VER') || c.zones.includes('COM')) && tile.adj.some((j) => tiles[j].k === 'F' && !tiles[j].cleared)) inc.v += 1;
-    if (m.fair && c.zones.includes('COM')) inc.v += (p.terrain === 'litoral' && tile.k === 'O') || (p.terrain === 'ilha') ? 2 : 1;
   });
   if (hubBonus) {
     const be = Math.min(hubBonus, infPower.e);
@@ -168,9 +229,6 @@ export function calc(s, p) {
   if (p.terrain === 'floresta') poll -= Math.min(3, Math.floor(forestIntact / 2));
   if (s.tokens.ver === p.id) poll -= 1;
   if (s.tokens.tec === p.id) { cap.e += 2; cap.w += 2; }
-  if (m.energy && p.terrain !== 'deserto') cap.e -= 2;
-  if (m.heat && (p.terrain === 'deserto' || p.terrain === 'planicie')) cap.w -= 3;
-  if (m.rain && p.terrain === 'deserto') cap.w += 2;
 
   if (hasDecree(p, 'D1-01')) inc.v += 2;
   if (hasDecree(p, 'D2-03')) inc.v += Math.min(3, Math.floor(pop / 5));
@@ -700,6 +758,7 @@ function doBuild(s, p, o) {
     if (p.wondersScored < 2) { p.wondersScored += 1; addMerit(s, p, 2, 'Obra-Prima'); } else log(s, `${nm(p)} já tem 2 Obras-Prima que pontuam: só o efeito conta.`, '', p.id);
   }
   if (card.onBuild) runOps(s, p, card.onBuild, { tile: tile.id, src: card.name });
+  checkCity(s, p);
   return null;
 }
 function linkFerry(p, tile) {
@@ -736,9 +795,9 @@ function refillRow(s, slot, by, quiet = false) {
 export function buyCost(s, p, id) {
   if (CARDS[id].regional) return { ...REGIONAL_COST };
   const c = { ...CARDS[id].cost };
-  if (id === 'P-01' && p.terrain === 'planicie') c.v = 1;
+  if (id === 'P-01' && (p.terrain === 'planicie' || p.terrain === 'ilha')) c.v = 1;
   if (id === 'P-03' && p.terrain === 'planicie') c.v = 2;
-  if (id === 'P-02') { if (p.terrain === 'planicie') c.v = 2; if (s.mods.strike) c.v = (c.v || 0) + 1; }
+  if (id === 'P-02' && p.terrain === 'planicie') c.v = 2;
   return c;
 }
 
@@ -866,7 +925,7 @@ function doDecree(s, p, cmd) {
 // ------------------------------------------------------------------ turno
 
 function freshT() {
-  return { builtCount: 0, claimed: false, intrigued: false, firstBuildUsed: false, firstBuildDisc: 0, encostaDisc: 0, startTreasury: 0, rota: 0, treasuryBonus: 0, freeDemolish: 0, emergency: 0, express: 0, mestreObras: 0, recycled: 0, rotaTwice: 0, played: 0 };
+  return { landed: false, builtCount: 0, claimed: false, intrigued: false, firstBuildUsed: false, firstBuildDisc: 0, encostaDisc: 0, startTreasury: 0, rota: 0, treasuryBonus: 0, freeDemolish: 0, emergency: 0, express: 0, mestreObras: 0, recycled: 0, rotaTwice: 0, played: 0 };
 }
 
 function beginTurn(s) {
@@ -891,6 +950,7 @@ function beginTurn(s) {
 
 function endTurn(s) {
   const p = P(s, s.order[s.turnIdx]);
+  checkCity(s, p);
   p.discard.push(...p.hand, ...p.played);
   p.hand = [];
   p.played = [];
@@ -969,11 +1029,10 @@ function endRound(s) {
     if (p.merit >= 6) addCubes(s, p, 1);
     p.builtRound = false;
     while (p.seals >= 2) { p.seals -= 2; addMerit(s, p, 1, '2 Selos'); }
-    if (s.mods.cut) p.treasury = Math.min(p.treasury, 1);
   });
   if (s.solo) rivalStep(s);
   if (s.over) return;
-  if (s.finalRound || s.round >= MAX_ROUNDS) return finishByMerit(s);
+  if (s.finalRound || s.round >= maxRounds(s)) return finishByMerit(s);
   s.firstIdx = (s.firstIdx + 1) % s.players.length;
   rotateRow(s);
   return startRound(s);
@@ -999,49 +1058,10 @@ function rivalStep(s) {
   }
 }
 
-function applyEvent(s, id) {
-  const m = s.mods;
-  const all = s.players;
-  switch (id) {
-    case 'RD-01': all.forEach((p) => { if (calc(s, p).pop >= 6) { p.treasury += 2; log(s, `${nm(p)} ganha 💰2 no Tesouro.`, '', p.id); } }); break;
-    case 'RD-02':
-      m.rain = true;
-      all.filter((p) => p.terrain === 'litoral' || p.terrain === 'ilha').forEach((p) => {
-        const tiles = ownBuildingTiles(s, p, 'O');
-        if (tiles.length) ask(s, p, 'tile', { mode: 'off', tiles, owner: p.id, until: 'round' });
-      });
-      break;
-    case 'RD-03': m.heat = true; all.filter((p) => p.terrain === 'floresta').forEach((p) => addAppr(s, p, -1, 'Onda de Calor')); break;
-    case 'RD-04': m.strike = true; break;
-    case 'RD-05': all.forEach((p) => addAppr(s, p, 1, 'Feriado Nacional')); break;
-    case 'RD-06': m.energy = true; break;
-    case 'RD-07': {
-      const low = Math.min(...all.map((p) => p.merit));
-      all.filter((p) => p.merit === low).forEach((p) => ask(s, p, 'faction', { n: 1, mode: 'adv', excl: [] }));
-      break;
-    }
-    case 'RD-08':
-      all.filter((p) => p.terrain === 'montanha').forEach((p) => {
-        const tiles = ownBuildingTiles(s, p, 'any');
-        if (tiles.length) ask(s, p, 'tile', { mode: 'off', tiles, owner: p.id, until: 'round' });
-      });
-      {
-        const out = s.market.row.splice(0, 2);
-        log(s, `A Fila Especial perde ${out.length} carta(s) mais antigas.`);
-        for (let i = 0; i < out.length; i++) refillRow(s, s.market.row.length, null);
-      }
-      break;
-    case 'RD-09': fisc(s, 'Escândalo Nacional', 1); break;
-    case 'RD-10': m.fair = true; break;
-    case 'RD-11': all.forEach((p) => { const n = Math.min(3, calc(s, p).zn.VER); if (n) addAppr(s, p, n, 'Sinal Verde'); }); break;
-    case 'RD-12': m.cut = true; break;
-    default: break;
-  }
-}
-
 function startRound(s) {
   s.round += 1;
-  s.mods = {};
+  // sem eventos: a carta de Rodada só define a Auditoria; o deck é reembaralhado em partidas longas
+  if (!s.roundDeck[s.round - 1]) s.roundDeck.push(...shuffle(s, ROUNDS.map((r) => r.id)));
   s.card = s.roundDeck[s.round - 1];
   s.tension = tension(s.round);
   s.players.forEach((p) => p.tiles.forEach((t) => { if (t.b && t.b.off && t.b.off.k === 'round' && s.round > t.b.off.r) t.b.off = null; }));
@@ -1050,9 +1070,7 @@ function startRound(s) {
   s.order = s.round === 1 && ROUND1_REVERSE ? [...Array(N).keys()].reverse() : [...Array(N).keys()].map((i) => (s.firstIdx + i) % N);
   s.turnIdx = 0;
   const rd = ROUNDS.find((r) => r.id === s.card);
-  log(s, `—— Rodada ${s.round} ——`, 'round');
-  log(s, `📰 ${rd.name}: ${rd.ev}`, 'event');
-  applyEvent(s, s.card);
+  log(s, `—— Rodada ${s.round} —— Auditoria: ${rd.au}`, 'round');
   s.cont = 'begin';
   settle(s);
 }
@@ -1100,15 +1118,16 @@ function newPlayer(id, cfg) {
     cubesSupply: 10, cubesBag: 0, pool: { v: 0, o: 0, a: 0 },
     ex: { deck: [], disc: [] }, caps: { e: 0, w: 0 }, links: [],
     wondersScored: 0, regionalDone: false, explored: 0, fiscStreak: 0, crises: 0, crisisRound: -1, investRound: -1, tideRound: -1,
-    lastTarget: null, nextResPop: 0, builtRound: false, bought: 0,
+    lastTarget: null, nextResPop: 0, builtRound: false, bought: 0, landBought: 0, cityMarks: {},
     t: freshT(), next: {},
   };
 }
 
-export function newGame({ players, solo = false, level = 'normal', target = 10, noIntrigues = false, seed } = {}) {
+export function newGame({ players, solo = false, level = 'normal', target, noIntrigues = false, seed } = {}) {
+  if (target == null) target = solo ? 10 : DEFAULT_TARGET;
   const N = players.length;
   const s = {
-    v: 2, rng: (seed ?? Math.floor(Math.random() * 2 ** 32)) >>> 0, solo, level, target, noIntrigues,
+    v: 3, rng: (seed ?? Math.floor(Math.random() * 2 ** 32)) >>> 0, solo, level, target, maxRounds: roundsFor(target, solo), noIntrigues,
     players: players.map((c, i) => newPlayer(i, c)), phase: 'draft', round: 0, order: [], turnIdx: 0, firstIdx: 0,
     over: false, winners: [], reason: '', finalRound: false, mods: {}, card: null, tension: 3, cont: null,
     pending: [], log: [], tokens: { tec: null, ver: null, emp: null, sin: null },
@@ -1199,6 +1218,7 @@ export function exec(s, cmd) {
       return null;
     }
     case 'buy': return doBuy(s, p, cmd);
+    case 'land': return doLand(s, p, cmd);
     case 'build': return doBuild(s, p, { ...cmd, src: cmd.src || 'hand' });
     case 'wonder': return doBuild(s, p, { ...cmd, src: 'wonder' });
     case 'demolish': {

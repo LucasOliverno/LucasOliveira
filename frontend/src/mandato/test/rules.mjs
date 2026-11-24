@@ -205,6 +205,57 @@ const give = (p, ...ids) => { p.hand.unshift(...ids); };
   ok(s.order[0] === 0, 'rodada 2: assento 1 abre');
 }
 
+// Sem eventos: a carta de Rodada só traz a Auditoria; duração maior e deck de Rodada reembaralhado
+{
+  const s = game(2, ['litoral', 'montanha']);
+  ok(s.target === D.DEFAULT_TARGET && s.maxRounds === D.DURATIONS.find((d) => d.target === D.DEFAULT_TARGET).rounds, `duração padrão: ⭐${s.target} em ${s.maxRounds} rodadas`);
+  ok(!s.log.some((l) => l.kind === 'event'), 'nenhum evento de rodada no diário');
+  const s2 = E.newGame({ players: [{ name: 'a', bot: true }, { name: 'b', bot: true }], seed: 3, target: 20 });
+  ok(s2.maxRounds === 20, 'Épico: 20 rodadas');
+  const solo = E.newGame({ players: [{ name: 'a' }], solo: true, seed: 3 });
+  ok(solo.target === 10 && E.maxRounds(solo) === 12, 'solo continua ⭐10 em 12 rodadas');
+}
+
+// Comprar terreno: vizinho da cidade, 1 por turno, custo crescente, até 5×5
+{
+  const s = game(2, ['planicie', 'litoral']);
+  const p = s.players[E.actor(s)];
+  settleAll(s);
+  const slots = E.landSlots(p);
+  ok(slots.length === 8 && slots.every((o) => o.x === 4 || o.y === 4), `4×4 → 8 terrenos à venda na borda (o canto 5×5 abre depois) (got ${slots.length})`);
+  p.pool.v = 20;
+  const n0 = p.tiles.length;
+  const e1 = E.exec(s, { t: 'land', x: 4, y: 0, isl: 'M' });
+  ok(!e1 && p.tiles.length === n0 + 1 && p.pool.v === 20 - E.landCost({ terrain: p.terrain, landBought: 0 }).v, `compra 1 terreno (${e1})`);
+  const nt = p.tiles[p.tiles.length - 1];
+  ok(nt.adj.length === 1 && p.tiles[nt.adj[0]].adj.includes(nt.id), 'terreno novo fica vizinho da casa ao lado (adjacência recalculada)');
+  ok(!!E.exec(s, { t: 'land', x: 4, y: 1, isl: 'M' }), 'só 1 terreno por turno');
+  ok(E.landCost(p).v === D.LAND.base + D.LAND.step, 'o próximo terreno custa mais');
+  p.t.landed = false;
+  ok(!!E.exec(s, { t: 'land', x: 5, y: 0, isl: 'M' }), 'além do 5×5 é recusado');
+  const isl = game(2, ['ilha', 'litoral']).players[0];
+  ok(E.landSlots(isl).every((o) => o.k === 'C') && E.landSlots(isl).some((o) => o.isl === 'N'), 'Ilha: cada ilha cresce dentro do seu limite');
+}
+
+// Marcos da Cidade: ⭐1 ao atingir 8 edifícios (uma vez só)
+{
+  const s = game(2, ['planicie', 'litoral']);
+  const p = s.players[E.actor(s)];
+  settleAll(s);
+  let n = p.tiles.filter((t) => t.b).length;
+  for (const t of p.tiles) { if (n >= 7) break; if (!t.b) { t.b = { id: 'P-01', v: 'RES' }; n++; } }
+  p.hand.unshift('P-01');
+  p.pool = { v: 9, o: 9, a: 9 };
+  const free = p.tiles.findIndex((t) => !t.b);
+  const m0 = p.merit;
+  const e = E.exec(s, { t: 'build', src: 'hand', hi: 0, tile: free, v: 'RES' });
+  settleAll(s);
+  ok(!e && p.cityMarks.b8 && p.merit >= m0 + 1, `8º edifício dá o Marco da Cidade (+⭐1) (${e})`);
+  const marks = Object.keys(p.cityMarks).length;
+  E.exec(s, { t: 'end' });
+  ok(Object.keys(p.cityMarks).length >= marks && p.cityMarks.b8, 'marco fica registrado (não pontua de novo)');
+}
+
 console.log(fails ? `\n${fails} FALHAS` : '\ntodos os cenários passaram');
 
 // Balsa Rápida: a Ilha pode comprar 2 (uma para cada ilha menor), os outros projetos só 1

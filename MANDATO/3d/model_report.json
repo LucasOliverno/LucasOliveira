@@ -1,0 +1,294 @@
+{
+  "P-01": {
+    "meshes": 11,
+    "triangles": 1948
+  },
+  "P-01-RES": {
+    "meshes": 11,
+    "triangles": 1948
+  },
+  "P-01-COM": {
+    "meshes": 7,
+    "triangles": 612
+  },
+  "P-01-IND": {
+    "meshes": 7,
+    "triangles": 1568
+  },
+  "P-01-INFe": {
+    "meshes": 5,
+    "triangles": 1056
+  },
+  "P-01-INFw": {
+    "meshes": 4,
+    "triangles": 506
+  },
+  "PREF": {
+    "meshes": 11,
+    "triangles": 3098
+  },
+  "HOME": {
+    "meshes": 7,
+    "triangles": 1452
+  },
+  "E1-01": {
+    "meshes": 11,
+    "triangles": 6824
+  },
+  "E1-02": {
+    "meshes": 10,
+    "triangles": 900
+  },
+  "E1-03": {
+    "meshes": 6,
+    "triangles": 1872
+  },
+  "E1-04": {
+    "meshes": 8,
+    "triangles": 1300
+  },
+  "E1-05": {
+    "meshes": 10,
+    "triangles": 1648
+  },
+  "E1-06": {
+    "meshes": 5,
+    "triangles": 1476
+  },
+  "E1-07": {
+    "meshes": 7,
+    "triangles": 1628
+  },
+  "E1-08": {
+    "meshes": 14,
+    "triangles": 2532
+  },
+  "E2-01": {
+    "meshes": 8,
+    "triangles": 5960
+  },
+  "E2-02": {
+    "meshes": 10,
+    "triangles": 1356
+  },
+  "E2-03": {
+    "meshes": 10,
+    "triangles": 2424
+  },
+  "E2-04": {
+    "meshes": 8,
+    "triangles": 1952
+  },
+  "E2-05": {
+    "meshes": 7,
+    "triangles": 6548
+  },
+  "E2-06": {
+    "meshes": 11,
+    "triangles": 2864
+  },
+  "E2-07": {
+    "meshes": 9,
+    "triangles": 1668
+  },
+  "E2-08": {
+    "meshes": 9,
+    "triangles": 688
+  },
+  "E2-09": {
+    "meshes": 11,
+    "triangles": 1848
+  },
+  "E3-01": {
+    "meshes": 9,
+    "triangles": 6892
+  },
+  "E3-02": {
+    "meshes": 8,
+    "triangles": 3086
+  },
+  "E3-03": {
+    "meshes": 8,
+    "triangles": 1936
+  },
+  "E3-04": {
+    "meshes": 8,
+    "triangles": 404
+  },
+  "E3-05": {
+    "meshes": 6,
+    "triangles": 1472
+  },
+  "E3-06": {
+    "meshes": 11,
+    "triangles": 1004
+  },
+  "E3-07": {
+    "meshes": 12,
+    "triangles": 1556
+  },
+  "M-01": {
+    "meshes": 9,
+    "triangles": 1232
+  },
+  "M-02": {
+    "meshes": 8,
+    "triangles": 1248
+  },
+  "M-03": {
+    "meshes": 13,
+    "triangles": 1584
+  },
+  "M-04": {
+    "meshes": 7,
+    "triangles": 952
+  },
+  "M-05": {
+    "meshes": 7,
+    "triangles": 1024
+  },
+  "M-06": {
+    "meshes": 6,
+    "triangles": 2872
+  },
+  "M-07": {
+    "meshes": 9,
+    "triangles": 12154
+  },
+  "M-08": {
+    "meshes": 5,
+    "triangles": 908
+  },
+  "M-09": {
+    "meshes": 6,
+    "triangles": 686
+  },
+  "M-10": {
+    "meshes": 14,
+    "triangles": 5344
+  },
+  "M-11": {
+    "meshes": 7,
+    "triangles": 1052
+  },
+  "M-12": {
+    "meshes": 9,
+    "triangles": 1252
+  },
+  "R-LIT-1": {
+    "meshes": 12,
+    "triangles": 2240
+  },
+  "R-LIT-2": {
+    "meshes": 9,
+    "triangles": 2310
+  },
+  "R-LIT-3": {
+    "meshes": 12,
+    "triangles": 3942
+  },
+  "R-MON-1": {
+    "meshes": 7,
+    "triangles": 924
+  },
+  "R-MON-2": {
+    "meshes": 8,
+    "triangles": 1272
+  },
+  "R-MON-3": {
+    "meshes": 12,
+    "triangles": 1616
+  },
+  "R-PLA-1": {
+    "meshes": 4,
+    "triangles": 4554
+  },
+  "R-PLA-2": {
+    "meshes": 7,
+    "triangles": 1392
+  },
+  "R-PLA-3": {
+    "meshes": 3,
+    "triangles": 1064
+  },
+  "R-DES-1": {
+    "meshes": 9,
+    "triangles": 2276
+  },
+  "R-DES-2": {
+    "meshes": 4,
+    "triangles": 2360
+  },
+  "R-DES-3": {
+    "meshes": 6,
+    "triangles": 1520
+  },
+  "R-FLO-1": {
+    "meshes": 6,
+    "triangles": 2176
+  },
+  "R-FLO-2": {
+    "meshes": 11,
+    "triangles": 1644
+  },
+  "R-FLO-3": {
+    "meshes": 9,
+    "triangles": 2584
+  },
+  "R-ILH-1": {
+    "meshes": 8,
+    "triangles": 1354
+  },
+  "R-ILH-2": {
+    "meshes": 12,
+    "triangles": 1896
+  },
+  "R-ILH-3": {
+    "meshes": 9,
+    "triangles": 1428
+  },
+  "g-plain-grass": {
+    "meshes": 3,
+    "triangles": 336
+  },
+  "g-plain-sand": {
+    "meshes": 3,
+    "triangles": 336
+  },
+  "g-O": {
+    "meshes": 5,
+    "triangles": 416
+  },
+  "g-C": {
+    "meshes": 4,
+    "triangles": 336
+  },
+  "g-E": {
+    "meshes": 3,
+    "triangles": 512
+  },
+  "g-J": {
+    "meshes": 4,
+    "triangles": 1128
+  },
+  "g-R": {
+    "meshes": 4,
+    "triangles": 348
+  },
+  "g-D": {
+    "meshes": 3,
+    "triangles": 376
+  },
+  "g-A": {
+    "meshes": 7,
+    "triangles": 816
+  },
+  "g-F": {
+    "meshes": 4,
+    "triangles": 2092
+  },
+  "g-Fx": {
+    "meshes": 4,
+    "triangles": 440
+  }
+}

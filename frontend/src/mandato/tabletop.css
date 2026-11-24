@@ -1,0 +1,56 @@
+/* Mesa 3D (Table3D.jsx): a cena ocupa o painel da mesa; HUD e mão em leque por cima, no estilo tabletop. */
+.tt .pane-board { position: relative; }
+.tt-stage { position: relative; height: calc(100vh - 250px); min-height: 460px; border-radius: 14px; overflow: hidden; border: 2px solid var(--ink, #1B2A41); background: #1d2430; }
+.tt-wrap { position: absolute; inset: 0; }
+.tt-loading { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; color: #F3EBDD; font: 600 .9rem var(--font-stamp, sans-serif); letter-spacing: .06em; text-transform: uppercase; }
+.tt-cams { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; background: rgba(27, 42, 65, .78); padding: 4px; border-radius: 10px; }
+.tt-cams button { border: 0; background: transparent; color: #F3EBDD; font: 600 .74rem var(--font-stamp, sans-serif); text-transform: uppercase; letter-spacing: .05em; padding: 6px 10px; border-radius: 7px; cursor: pointer; }
+.tt-cams button:hover { background: rgba(255, 255, 255, .12); }
+.tt-cams button.on { background: #E0A526; color: #1B2A41; }
+.tt-help { position: absolute; right: 12px; bottom: 8px; margin: 0; color: rgba(243, 235, 221, .55); font-size: .7rem; pointer-events: none; }
+
+/* etiquetas desenhadas sobre a cena (drei <Html>) */
+.tt-name { display: grid; grid-template-columns: auto auto auto; align-items: center; gap: 2px 6px; white-space: nowrap; background: rgba(243, 235, 221, .95); color: #1B2A41; border: 2px solid var(--pc); border-radius: 10px; padding: 5px 10px; font-size: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, .35); pointer-events: none; user-select: none; }
+.tt-name i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.tt-name small { grid-column: 1 / -1; font-size: 12px; color: #4a5568; }
+.tt-name span { font-weight: 800; }
+.tt-name.now { background: #E0A526; animation: tt-bob 1.4s ease-in-out infinite; }
+@keyframes tt-bob { 50% { transform: translateY(-4px); } }
+.tt-lbl { white-space: nowrap; color: #1B2A41; background: rgba(243, 235, 221, .9); padding: 2px 9px; border-radius: 6px; font: 700 13px var(--font-stamp, sans-serif); text-transform: uppercase; letter-spacing: .08em; pointer-events: none; }
+.tt-tag { white-space: nowrap; background: rgba(27, 42, 65, .88); color: #F3EBDD; padding: 2px 6px; border-radius: 5px; font: 700 11px var(--font-stamp, sans-serif); text-transform: uppercase; pointer-events: none; }
+
+/* seu painel (medidores, Gabinete) flutuando no canto da mesa */
+.tt-hud { position: absolute; left: 10px; top: 10px; width: 250px; max-height: calc(100% - 20px); overflow: auto; background: rgba(243, 235, 221, .93); border: 2px solid var(--pc); border-radius: 12px; padding: 8px 10px; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); font-size: .85rem; }
+.tt-hud .seat-info { display: grid; gap: 6px; }
+.tt-stage .placing { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); width: min(720px, calc(100% - 24px)); z-index: 5; box-shadow: 0 6px 18px rgba(0, 0, 0, .4); }
+
+/* mão em leque (como segurar as cartas no Tabletop Simulator) */
+.tt .hand { overflow: visible; justify-content: center; gap: 0; padding: 18px 0 4px; min-height: 150px; }
+.tt .hand .hcell { margin: 0 -14px; transform-origin: 50% 160%; transform: rotate(calc(var(--i) * 5deg)) translateY(calc(var(--i) * var(--i) * 2.2px)); transition: transform .18s ease, margin .18s ease; position: relative; z-index: 1; }
+.tt .hand .hcell:hover, .tt .hand .hcell:focus-within { transform: rotate(0deg) translateY(-26px) scale(1.12); z-index: 5; margin: 0 6px; }
+.tt .hand .card { box-shadow: 0 6px 14px rgba(27, 42, 65, .35); }
+@media (max-width: 900px) { .tt-stage { height: 62vh; min-height: 360px; } .tt-hud { width: 200px; font-size: .78rem; } }
+
+/* No desktop a mesa vai até o rodapé e a mão flutua por cima dela (sem faixa sólida), como no Tabletop Simulator. */
+@media (min-width: 1100px) {
+  .tt .tt-stage { height: calc(100vh - 205px); }
+  .tt .dock { position: fixed; left: 16px; right: 432px; bottom: 0; margin: 0; padding: 0; pointer-events: none; z-index: 40; }
+  .tt .dock-main { background: transparent; border: 0; box-shadow: none; padding: 0 10px 0; pointer-events: none; display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 10px; }
+  .tt .dock-res { pointer-events: auto; background: rgba(243, 235, 221, .96); border: 2px solid var(--ink, #1B2A41); border-radius: 12px; padding: 8px 10px; margin: 0 0 12px; display: grid; gap: 8px; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); }
+  .tt .handwrap { pointer-events: none; }
+  .tt .hand-head { pointer-events: auto; justify-self: center; width: max-content; margin: 0 auto; background: rgba(243, 235, 221, .94); border: 1.5px solid var(--ink, #1B2A41); border-radius: 10px; padding: 3px 10px; display: flex; gap: 10px; align-items: center; }
+  .tt .hand-head .h { margin: 0; font-size: .9rem; }
+  .tt .hand { pointer-events: none; min-height: 0; padding-top: 10px; }
+  .tt .hand .hcell { pointer-events: auto; margin-bottom: -46px; }
+  .tt .hand .hcell:hover, .tt .hand .hcell:focus-within { transform: rotate(0deg) translateY(-62px) scale(1.15); }
+  .tt .handwrap.closed .hand { display: flex; }
+  .tt .handwrap.closed .hcell { transform: rotate(calc(var(--i) * 5deg)) translateY(calc(70px + var(--i) * var(--i) * 2.2px)); }
+  .tt .tt-stage .placing { bottom: 200px; }
+  .tt .tt-help { bottom: auto; top: 46px; }
+}
+.tt-lbl.sm { font-size: 12px; padding: 1px 6px; }
+.tt-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; border: 1px solid rgba(255, 255, 255, .7); }
+.tt-cams { flex-wrap: wrap; justify-content: flex-end; max-width: calc(100% - 290px); }
+.tt-hud > summary { cursor: pointer; font: 700 .74rem var(--font-stamp, sans-serif); text-transform: uppercase; letter-spacing: .06em; color: #1B2A41; margin-bottom: 4px; }
+.tt-hud:not([open]) { width: auto; padding: 5px 10px; }
+.tt-hud:not([open]) > summary { margin: 0; }

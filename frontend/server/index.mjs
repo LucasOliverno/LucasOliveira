@@ -16,9 +16,9 @@ const MIME = {
   '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif',
   '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.woff': 'font/woff', '.txt': 'text/plain; charset=utf-8',
-  '.xml': 'application/xml', '.pdf': 'application/pdf', '.md': 'text/markdown; charset=utf-8',
+  '.xml': 'application/xml', '.pdf': 'application/pdf', '.md': 'text/markdown; charset=utf-8', '.glb': 'model/gltf-binary',
 };
-const COMPRESSIBLE = new Set(['.html', '.js', '.mjs', '.css', '.json', '.svg', '.txt', '.xml']);
+const COMPRESSIBLE = new Set(['.glb', '.html', '.js', '.mjs', '.css', '.json', '.svg', '.txt', '.xml']);
 const gzCache = new Map();
 
 async function fileFor(pathname) {

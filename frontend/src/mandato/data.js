@@ -216,6 +216,39 @@ export const GOALS = [
 // ------------------------------------------------------------------ Deck de Rodada (03 §5)
 // metric: chave de ranking usada pela Auditoria; low = "menor é melhor"
 
+// Durações (Mérito para encerrar → número máximo de rodadas). O jogo de cidade pede partidas mais longas.
+export const DURATIONS = [
+  { target: 12, rounds: 12, label: 'Curto' },
+  { target: 16, rounds: 16, label: 'Padrão' },
+  { target: 20, rounds: 20, label: 'Épico' },
+];
+export const DEFAULT_TARGET = 16;
+
+// Marcos da Cidade: ⭐1 cada, uma vez por partida, por construir uma cidade grande, populosa e completa.
+export const CITY_MARKS = [
+  { id: 'b8', kind: 'bld', n: 8, label: '8 edifícios' },
+  { id: 'b12', kind: 'bld', n: 12, label: '12 edifícios' },
+  { id: 'b16', kind: 'bld', n: 16, label: '16 edifícios' },
+  { id: 'p6', kind: 'pop', n: 6, label: '👥 6' },
+  { id: 'p10', kind: 'pop', n: 10, label: '👥 10' },
+  { id: 'mix', kind: 'mix', n: 5, label: '5 Zonas diferentes' },
+];
+
+// Expansão: comprar terreno vizinho até a grade 5×5 (na Ilha, cada ilha cresce até o seu limite).
+export const LAND = { base: 3, step: 1, maxRegular: 5, islandBounds: { M: [3, 4], N: [2, 3], L: [2, 3] } };
+// tipo de casa que aparece ao comprar terreno (mantém o caráter de cada mapa)
+export function landKind(terrain, x, y) {
+  switch (terrain) {
+    case 'litoral': return y === 0 ? 'O' : '.';
+    case 'montanha': return y === 0 || (x === 4 && y === 1) ? 'E' : x === 4 && y === 3 ? 'J' : '.';
+    case 'deserto': return x === 4 && y % 2 === 0 ? 'D' : '.';
+    case 'floresta': return x === 4 && y === 4 ? 'F' : '.';
+    case 'planicie': return x === 4 && (y === 1 || y === 2) ? 'R' : '.';
+    case 'ilha': return 'C';
+    default: return '.';
+  }
+}
+
 export const ROUNDS = [
   { id: 'RD-01', name: 'Boom Imobiliário', ev: 'Quem tem 👥 ≥ 6 ganha 💰2 no Tesouro.', au: 'Maior 👥', metric: 'pop' },
   { id: 'RD-02', name: 'Temporada de Chuvas', ev: 'Litoral/Ilha: 1 edifício em Orla/Costa fica inativo na rodada. Deserto: +💧2 de capacidade.', au: 'Maior 😊', metric: 'appr' },
@@ -256,7 +289,7 @@ export const TERRAINS = {
   montanha: {
     id: 'montanha', name: 'Montanha', sub: 'Serra Alta', icon: '⛰️', color: '#6C7A89', cap: { e: 3, w: 3 },
     grid: rows('EEEE', 'EPH.', '..JR', '.J..'),
-    trait: 'Riqueza Mineral', traitT: 'Jazidas (J) aceitam a Mina de Cobre. Hidrelétricas em Rio/Encosta custam −🔨1.',
+    trait: 'Riqueza Mineral', traitT: 'Jazidas (J) aceitam a Mina de Cobre. Hidrelétricas em Rio/Encosta custam −🔨1. A Prefeitura rende +💰1 (mineração).',
     weak: 'Encostas', weakT: '5 casas Encosta (+🔨1 para construir). Poucas casas planas.',
     style: 'Indústria pesada, energia barata, construção cara.', stars: { eco: 3, con: 2, inf: 4 }, risk: 'Alta (Minas)', cx: 'Média',
     regionalGoal: { id: 'RG-MON', name: 'Veia Metálica', t: '2 IND ativos em Jazida e ☁️ ≤ 4.' },
@@ -266,7 +299,7 @@ export const TERRAINS = {
     id: 'planicie', name: 'Planície', sub: 'Campos Verdes', icon: '🌾', color: '#B5C66E', cap: { e: 3, w: 4 },
     grid: rows('....', '.PHR', '...R', '....'),
     trait: 'Terra Barata', traitT: 'Loteamento custa 💰1 e −🔨1 para construir; Licitação e Explorar custam 💰2. Cada RES vizinho de um VER rende +💰1 (bairro-jardim).',
-    weak: 'Poucas Riquezas', weakT: 'Nenhuma casa especial além do Rio; Seca (Onda de Calor) corta −3 de 💧.',
+    weak: 'Poucas Riquezas', weakT: 'Nenhuma casa especial além do Rio.',
     style: 'Expansão rápida e barata; precisa de Infra cedo.', stars: { eco: 3, con: 4, inf: 2 }, risk: 'Baixa', cx: 'Baixa',
     regionalGoal: { id: 'RG-PLA', name: 'Cidade Jardim', t: '👥 ≥ 12, 😊 ≥ 7 e ☁️ ≤ 3.' },
     regional: ['R-PLA-1', 'R-PLA-2', 'R-PLA-3'],
@@ -274,8 +307,8 @@ export const TERRAINS = {
   deserto: {
     id: 'deserto', name: 'Deserto', sub: 'Mesa Árida', icon: '🏜️', color: '#D98A3D', cap: { e: 3, w: 1 },
     grid: rows('....', 'DPHD', 'D.A.', 'D.D.'),
-    trait: 'Sol Pleno', traitT: 'Seus INF de ⚡ solar têm +1 ⚡ e ☁️0. O Loteamento INF para ⚡ rende ⚡+3 (sem ☁️).',
-    weak: 'Sede', weakT: '💧 inicial 1. 5 Dunas (+🔨1). Onda de Calor corta mais 💧.',
+    trait: 'Sol Pleno', traitT: 'Seus INF de ⚡ solar têm +1 ⚡ e ☁️0. O Loteamento INF para ⚡ rende ⚡+2 sem ☁️.',
+    weak: 'Sede', weakT: '💧 inicial 1. 5 Dunas (+🔨1).',
     style: 'Energia solar abundante, água como gargalo.', stars: { eco: 3, con: 3, inf: 2 }, risk: 'Média', cx: 'Média',
     regionalGoal: { id: 'RG-DES', name: 'Oásis de Ouro', t: 'Ter construído o Poço do Oásis e ter excedente ≥ 4 de ⚡ e de 💧.' },
     regional: ['R-DES-1', 'R-DES-2', 'R-DES-3'],
@@ -292,7 +325,7 @@ export const TERRAINS = {
   ilha: {
     id: 'ilha', name: 'Ilha', sub: 'Arquipélago', icon: '🏝️', color: '#2BB3A3', cap: { e: 3, w: 3 }, island: true,
     tiles: islandTiles(),
-    trait: 'Rota Marítima', traitT: '1×/turno: troque 💰2 → 🗳️1 ou 🗳️1 → 💰2. COM em Costa não rende extra, mas Porto Comercial custa −🔨1.',
+    trait: 'Rota Marítima', traitT: '1×/turno: troque 💰2 → 🗳️1 ou 🗳️1 → 💰2. A Prefeitura rende +🔨1 (porto), o Loteamento custa 💰1, comprar terreno custa −💰1 e o Porto Comercial custa −🔨1.',
     weak: 'Arquipélago', weakT: 'Adjacência só dentro da ilha (até ligar com Balsa).',
     style: 'Turismo de luxo, conversão de recursos, logística.', stars: { eco: 3, con: 2, inf: 2 }, risk: 'Baixa', cx: 'Alta',
     regionalGoal: { id: 'RG-ILH', name: 'Arquipélago Conectado', t: 'Balsas ligando as 3 ilhas e Renda 💰 total ≥ 6.' },
@@ -417,9 +450,9 @@ export const PACKAGES = [
 export const PACKAGES_BY_N = {
   2: [{}, { treasury: 2 }],
   3: [{}, { treasury: 3 }, { treasury: 2 }],
-  4: [{}, { treasury: 2 }, { treasury: 1 }, { treasury: 1 }],
-  5: [{}, { treasury: 1 }, { treasury: 2 }, {}, {}],
-  6: [{}, { treasury: 2 }, { treasury: 2 }, {}, {}, { treasury: 1 }],
+  4: [{ treasury: 1 }, { treasury: 2 }, { treasury: 1 }, {}],
+  5: [{ treasury: 2 }, {}, {}, {}, { treasury: 2 }],
+  6: [{ treasury: 1 }, { treasury: 2 }, { treasury: 2 }, {}, { treasury: 1 }, { treasury: 1 }],
 };
 export const packageFor = (n, seat) => ((PACKAGES_BY_N[n] || PACKAGES)[seat] || {});
 
