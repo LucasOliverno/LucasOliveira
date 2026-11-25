@@ -158,7 +158,7 @@ export function TerrainPreview({ id }) {
   const T = TERRAINS[id];
   if (T.island) {
     return (
-      <div className="tp tp-island" aria-hidden="true">
+      <div className="tp tp-island tp-map" style={{ '--map': `url(${artUrl('T-ilha-grid')})` }} aria-hidden="true">
         {T.tiles.map((t, i) => {
           const o = { M: [0, 0], N: [4, 0], L: [4, 3] }[t.isl];
           return <i key={i} className="mt k-C" style={{ gridColumn: t.x + o[0] + 1, gridRow: t.y + o[1] + 1 }}>{i === 4 ? 'P' : i === 5 ? 'H' : ''}</i>;

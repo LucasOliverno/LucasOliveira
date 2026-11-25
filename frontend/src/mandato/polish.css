@@ -265,3 +265,9 @@ select.lvl { font: 600 .74rem var(--font-stamp, sans-serif); text-transform: upp
 .abilities { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
 .abilities .btn { font-size: .74rem; }
 .abilities .hint { width: 100%; font-size: .7rem; color: #5b6676; }
+
+/* Ilha com o mapa do arquipélago por baixo (o mapa tem exatamente 6×5 casas) */
+.tp.tp-island.tp-map { width: min(100%, 264px); aspect-ratio: 6 / 5; grid-template-rows: repeat(5, 1fr); background-size: 100% 100%; background-origin: content-box; background-repeat: no-repeat; }
+.tp-island.tp-map .mt.k-C { background: rgba(255, 255, 255, .16); border-color: rgba(27, 42, 65, .45); }
+.city-island.city-map { background-size: 100% 100%; background-origin: content-box; background-repeat: no-repeat; }
+.city-island.city-map .tile.k-C:not(.has) { background: rgba(255, 255, 255, .14); border-color: rgba(27, 42, 65, .5); box-shadow: none; }

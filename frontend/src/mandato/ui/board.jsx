@@ -79,7 +79,8 @@ function FlatCity({ s, p, validity, placing, onTile, selected, interactive = tru
   const island = p.tiles.some((t) => t.isl !== 'M');
   const ghosts = land ? land.slots : [];
   const cols = Math.max(...[...p.tiles, ...ghosts].map((t) => gridPos(t)[0])) + 1;
-  const map = !island ? terrainMap(p.terrain) : null; // mapa do terreno por baixo da grade (o arquipélago tem layout próprio)
+  // mapa do terreno por baixo da grade; o arquipélago usa um mapa no formato exato das 3 ilhas (MANDATO/3d/render_ilha_mapa.py)
+  const map = !island ? terrainMap(p.terrain) : p.tiles.every((t) => gridPos(t)[0] < 6 && gridPos(t)[1] < 5) ? artUrl('T-ilha-grid') : null;
   return (
     <div className={`city${island ? ' city-island' : ''}${map ? ' city-map' : ''}`} style={{ ...(map ? { '--map': `url(${map})` } : {}), gridTemplateColumns: `repeat(${cols}, 1fr)` }} role="grid" aria-label={`Cidade de ${p.name}`}>
       {p.tiles.map((t, i) => {

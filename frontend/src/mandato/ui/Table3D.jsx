@@ -3,7 +3,7 @@
 // gerado por MANDATO/3d/build_sprites.py --glb). A câmera gira/aproxima como no Tabletop Simulator.
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { CameraControls, useGLTF, useTexture } from '@react-three/drei';
+import { CameraControls, RoundedBox, useGLTF, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { FACTIONS, FAC_KEYS, TERRAINS, STANDARD } from '../data.js';
 import { calc, regionalOf, copiesOf } from '../engine.js';
@@ -182,6 +182,42 @@ function Disc({ color, pos, r = 0.16, h = 0.08 }) {
   );
 }
 
+// ------------------------------------------------------------------ arquipélago
+// Cada ilha vira terra de verdade: praia de areia em volta das casas e um anel de água rasa, sobre o mar da placa.
+// Uma faixa por linha contínua de casas (a Principal é um L); as faixas se sobrepõem e formam a costa.
+function Islands({ tiles, g, cx, cy }) {
+  const runs = [];
+  const byIsl = {};
+  tiles.forEach((t, i) => { (byIsl[t.isl] = byIsl[t.isl] || []).push(g[i]); });
+  Object.values(byIsl).forEach((cells) => {
+    const rows = {};
+    cells.forEach(([x, y]) => { (rows[y] = rows[y] || []).push(x); });
+    Object.entries(rows).forEach(([y, xs]) => {
+      xs.sort((a, b) => a - b);
+      let a = xs[0];
+      for (let k = 1; k <= xs.length; k++) {
+        if (k === xs.length || xs[k] !== xs[k - 1] + 1) { runs.push({ x0: a, x1: xs[k - 1], y: +y }); a = xs[k]; }
+      }
+    });
+  });
+  const box = (r, m) => ({ w: (r.x1 - r.x0 + 1) * 2 + m * 2, d: 2 + m * 2, x: ((r.x0 + r.x1) / 2 - cx) * 2, z: (r.y - cy) * 2 });
+  return (
+    <group>
+      {runs.map((r, i) => { const b = box(r, 0.85); return (
+        <mesh key={`w${i}`} position={[b.x, -0.075, b.z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[b.w, b.d]} />
+          <meshStandardMaterial color="#6FC0D2" roughness={0.2} transparent opacity={0.75} depthWrite={false} />
+        </mesh>
+      ); })}
+      {runs.map((r, i) => { const b = box(r, 0.42); return (
+        <RoundedBox key={`s${i}`} args={[b.w, 0.3, b.d]} radius={0.12} smoothness={3} position={[b.x, -0.17, b.z]} receiveShadow castShadow>
+          <meshStandardMaterial color="#E8D19A" roughness={0.95} />
+        </RoundedBox>
+      ); })}
+    </group>
+  );
+}
+
 // ------------------------------------------------------------------ cidade de um jogador
 function CityBoard({ s, p, nodes, mine, placing, validity, selected, onTile, onHover, back, land }) {
   const c = useMemo(() => calc(s, p), [s, p]);
@@ -205,6 +241,7 @@ function CityBoard({ s, p, nodes, mine, placing, validity, selected, onTile, onH
         </mesh>
       )}
       <group scale={S}>
+        {island && <Islands tiles={p.tiles} g={g} cx={cx} cy={cy} />}
         {p.tiles.map((t, i) => {
           const [gx, gy] = g[i];
           const x = (gx - cx) * 2, z = (gy - cy) * 2;
@@ -213,7 +250,7 @@ function CityBoard({ s, p, nodes, mine, placing, validity, selected, onTile, onH
           const off = t.b && !c.act.has(i);
           return (
             <group key={i} position={[x, 0, z]}>
-              <Model id={isoGround(t, p.terrain)} nodes={nodes} />
+              <Model id={island && t.k === 'C' ? 'g-plain-grass' : isoGround(t, p.terrain)} nodes={nodes} />
               {t.b && <Model key={key} id={isoBuilding(t.b)} nodes={nodes} born={born} />}
               {/* área clicável da casa */}
               <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}
