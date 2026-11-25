@@ -1,7 +1,7 @@
 // MANDATO — motor de regras. Puro (sem React/DOM): roda no navegador e no Node (simulação).
 // Fonte das regras: MANDATO/02…10. Todo sorteio usa PRNG com semente guardada no estado.
 import {
-  CARDS, STARTER, STANDARD, STD_QTY, LOT_OPTS, SPECIAL_TIERS, WONDERS, GOALS, ROUNDS, TERRAINS, TERRAIN_IDS, DURATIONS, DEFAULT_TARGET, CITY_MARKS, LAND, landKind,
+  CARDS, STARTER, STANDARD, STD_QTY, LOT_OPTS, SPECIAL_TIERS, WONDERS, GOALS, ROUNDS, TERRAINS, TERRAIN_IDS, DURATIONS, DEFAULT_TARGET, CITY_MARKS, LAND, landKind, MANDATE, PARTY_REVIEW,
   EXPLORE, SETUP, packageFor, FAC_KEYS, WATER_KINDS, RIVAL, rivalGain, PLAYER_COLORS,
 } from './data.js';
 
@@ -12,13 +12,23 @@ export const ROUND1_REVERSE = globalThis.process?.env?.R1REV !== '0'; // rodada 
 export const MAX_ROUNDS = 12; // solo (o Rival foi calibrado para 12 rodadas)
 export const roundsFor = (target, solo) => (solo ? MAX_ROUNDS : (DURATIONS.find((d) => d.target === target) || { rounds: Math.max(12, target) }).rounds);
 export const maxRounds = (s) => s.maxRounds || MAX_ROUNDS;
+// Dificuldade dos bots (o bot não trapaceia: os níveis mudam só a qualidade das decisões)
+export const BOT_LEVELS = ['facil', 'normal', 'dificil'];
+export const BOT_HARD_BONUS = +(globalThis.process?.env?.HARD_BONUS ?? 2); // Difícil: +💰2 no início de cada turno
+// Mandatos (só em partidas com mais de um prefeito; o solo contra o Rival segue sem Avaliação)
+export const hasMandates = (s) => !s.solo && (s.v || 0) >= 4;
+export const mandateOf = (s) => Math.max(1, Math.ceil(s.round / MANDATE));
+export const mandateCount = (s) => Math.ceil(maxRounds(s) / MANDATE);
+export const reviewRound = (s) => Math.min(mandateOf(s) * MANDATE, maxRounds(s));
+// Pontuação da Avaliação do Partido: aprovação conta em dobro, e cada edifício ativo vale 1
+export function partyScore(s, p, c = calc(s, p)) { return p.approval * 2 + c.act.size; }
 const EX_BY_ID = Object.fromEntries(Object.values(EXPLORE).flat().map((c) => [c.id, c]));
 export const exploreCard = (id) => EX_BY_ID[id];
 const ZONE_ORDER = ['RES', 'COM', 'IND', 'INF', 'VER', 'SER'];
 
 // ------------------------------------------------------------------ RNG, log
 
-function rnd(s) {
+export function rnd(s) {
   s.rng = (s.rng + 0x6d2b79f5) >>> 0;
   let t = s.rng;
   t = Math.imul(t ^ (t >>> 15), t | 1);
@@ -226,7 +236,7 @@ export function calc(s, p) {
     cap.e += be;
     cap.w += Math.min(hubBonus - be, infPower.w);
   }
-  if (p.terrain === 'floresta') poll -= Math.min(3, Math.floor(forestIntact / 2));
+  if (p.terrain === 'floresta') poll -= Math.min(2, Math.floor(forestIntact / 2));
   if (s.tokens.ver === p.id) poll -= 1;
   if (s.tokens.tec === p.id) { cap.e += 2; cap.w += 2; }
 
@@ -242,6 +252,10 @@ export function calc(s, p) {
   return {
     pop, poll, cap, cons, sur: { e: cap.e - cons.e, w: cap.w - cons.w }, inc, act, built: bl.length, zn,
     bigLib: [...act].some((i) => byI[i].c.bigLib), recycle: [...act].some((i) => byI[i].c.recycle),
+    handPlus: [...act].reduce((n, i) => n + (byI[i].c.handPlus || 0), 0),
+    abil: new Set([...act].map((i) => byI[i].c.ability).filter(Boolean)),
+    adminBonus: [...act].some((i) => byI[i].c.adminBonus), adminDisc: Math.max(0, ...[...act].map((i) => byI[i].c.adminDisc || 0)), spyUses: Math.max(1, ...[...act].map((i) => byI[i].c.spyUses || 0)), tvNet: [...act].some((i) => byI[i].c.tvNet),
+    spyProof: [...act].some((i) => byI[i].c.spyProof), press: [...act].some((i) => byI[i].c.press), corrige: [...act].some((i) => byI[i].c.corrige),
     shield: [...act].filter((i) => byI[i].c.shield).length, wonderDisc: [...act].some((i) => byI[i].c.wonderDiscount),
     off: bl.filter((x) => isOff(s, x.b)).map((x) => x.i),
   };
@@ -363,6 +377,7 @@ export function fisc(s, why, bonus = 0) {
     log(s, `🕵️ ${nm(p)} tem ${h} cubo(s) sorteado(s) — perde ${loss} 😊.`, 'bad', p.id);
     if (loss) addAppr(s, p, -loss, 'Fiscalização');
     s.lastFisc.res[p.id] = { h, loss, invest: h >= 3 };
+    s.players.forEach((q) => { if (q.id !== p.id && calc(s, q).tvNet) q.tvA = (q.tvA || 0) + h; if (q.id !== p.id && calc(s, q).press) { const g = Math.min(4, 2 * h); q.treasury += g; s.stats.press = (s.stats.press || 0) + g; log(s, `📰 ${nm(q)} ganha 💰${g} (Imprensa Investigativa).`, '', q.id); } });
     if (h >= 3) {
       s.stats.invest += 1;
       p.investRound = s.round;
@@ -428,6 +443,15 @@ function doOp(s, p, op, ctx) {
     case 'cap': p.caps[op.res] += op.n; log(s, `${nm(p)} ganha +${op.n} ${op.res === 'e' ? '⚡' : '💧'} de capacidade permanente.`, '', p.id); return null;
     case 'flag': p.t[op.k] = op.v; return null;
     case 'next': p.next[op.k] = (p.next[op.k] || 0) + op.v; return null;
+    case 'gainAdmin': {
+      const idx = s.market.row.map((id, i) => ({ id, i })).filter((x) => CARDS[x.id].type === 'admin').sort((a, b) => (CARDS[a.id].cost.v || 0) - (CARDS[b.id].cost.v || 0))[0];
+      if (!idx) return null;
+      s.market.row.splice(idx.i, 1);
+      p.discard.push(idx.id);
+      log(s, `${nm(p)} recebe ${CARDS[idx.id].name} de graça (Escola de Gestão).`, '', p.id);
+      refillRow(s, idx.i, p);
+      return null;
+    }
     case 'site': p.discard.push(op.id); log(s, `${nm(p)} recebe ${CARDS[op.id].name} no descarte.`, '', p.id); return null;
     case 'choice': return ask(s, p, 'option', { options: op.options, src: ctx.src });
     case 'drawDiscard': draw(s, p, op.draw); return p.hand.length ? ask(s, p, 'hand', { mode: 'discard', n: op.discard }) : null;
@@ -795,6 +819,7 @@ function refillRow(s, slot, by, quiet = false) {
 export function buyCost(s, p, id) {
   if (CARDS[id].regional) return { ...REGIONAL_COST };
   const c = { ...CARDS[id].cost };
+  if (CARDS[id].type === 'admin' && c.v && p.tiles) { const d = calc(s, p).adminDisc; if (d) c.v = Math.max(1, c.v - d); }
   if (id === 'P-01' && (p.terrain === 'planicie' || p.terrain === 'ilha')) c.v = 1;
   if (id === 'P-03' && p.terrain === 'planicie') c.v = 2;
   if (id === 'P-02' && p.terrain === 'planicie') c.v = 2;
@@ -935,7 +960,9 @@ function beginTurn(s) {
   p.t.startTreasury = p.treasury;
   const c = calc(s, p);
   p.pool = { v: p.treasury + c.inc.v, o: c.inc.o, a: c.inc.a };
+  if (p.bot && p.botLevel === 'dificil') p.pool.v += BOT_HARD_BONUS; // Difícil: vantagem declarada nas regras
   p.treasury = 0;
+  if (p.next.plusA) p.pool.a += p.next.plusA;
   if (p.next.minusV) p.pool.v = Math.max(0, p.pool.v - p.next.minusV);
   if (p.next.minusO) p.pool.o = Math.max(0, p.pool.o - p.next.minusO);
   const ex = p.next.capE || 0;
@@ -960,6 +987,7 @@ function endTurn(s) {
   let n = HAND;
   if (p.approval <= 2) n -= 1;
   if (c.bigLib) n += 1;
+  n += Math.min(2, c.handPlus || 0);
   draw(s, p, n);
   s.turnIdx += 1;
   if (s.turnIdx >= s.order.length) endRound(s);
@@ -1019,12 +1047,35 @@ function audit(s) {
   } else log(s, 'Empate na Auditoria: ninguém recebe.');
 }
 
+// Avaliação do Partido (fim de cada mandato): 1º ⭐2, 2º ⭐1 (3+ prefeitos); empate no topo divide em ⭐1 cada.
+// O Partido também confere as contas: o Saco é sorteado com Tensão +1. O próximo mandato começa pelo pior avaliado.
+function partyReview(s) {
+  const vals = s.players.map((p) => ({ p, v: partyScore(s, p) })).sort((a, b) => b.v - a.v);
+  log(s, `🏛️ Avaliação do Partido (fim do ${mandateOf(s)}º mandato): ${vals.map((x) => `${nm(x.p)} ${x.v}`).join(' · ')}.`, 'audit');
+  const top = vals.filter((x) => x.v === vals[0].v);
+  const got = {};
+  if (top.length === 1) {
+    got[top[0].p.id] = PARTY_REVIEW.first;
+    const rest = vals.filter((x) => x.v < vals[0].v);
+    if (s.players.length >= 3 && rest.length) rest.filter((x) => x.v === rest[0].v).forEach((x) => { got[x.p.id] = PARTY_REVIEW.second; });
+  } else top.forEach((x) => { got[x.p.id] = PARTY_REVIEW.second; });
+  Object.entries(got).forEach(([pid, n]) => addMerit(s, s.players[+pid], n, 'Avaliação do Partido'));
+  s.lastReview = { round: s.round, mandate: mandateOf(s), res: vals.map((x) => ({ pid: x.p.id, v: x.v, merit: got[x.p.id] || 0 })) };
+  const worst = vals[vals.length - 1].p;
+  s.nextFirst = worst.id;
+  fisc(s, 'Avaliação do Partido', 1);
+}
+
 function endRound(s) {
   audit(s);
+  if (hasMandates(s) && !s.over && (s.round % MANDATE === 0 || s.round >= maxRounds(s))) partyReview(s);
   s.players.forEach((p) => {
     const c = calc(s, p);
     if (c.poll >= 6) addAppr(s, p, -1, 'Poluição ≥ 6');
     [...c.act].forEach((i) => { if (p.tiles[i].b.id === 'E1-04' && p.approval <= 4) addAppr(s, p, 1, 'Posto de Saúde'); });
+    if (c.tvNet && p.approval <= 6) addAppr(s, p, 1, 'Rede Nacional de TV');
+    if (p.tvA) { p.next.plusA = (p.next.plusA || 0) + p.tvA; p.tvA = 0; }
+    if (c.corrige && p.cubesBag > 0) { p.cubesBag -= 1; p.cubesSupply += 1; log(s, `${nm(p)} limpa 1 🕵️ do Saco (Corregedoria).`, '', p.id); }
     if (hasDecree(p, 'D2-01') && !p.builtRound) addAppr(s, p, -1, 'Pacote de Estímulo (sem obras)');
     if (p.merit >= 6) addCubes(s, p, 1);
     p.builtRound = false;
@@ -1034,6 +1085,7 @@ function endRound(s) {
   if (s.over) return;
   if (s.finalRound || s.round >= maxRounds(s)) return finishByMerit(s);
   s.firstIdx = (s.firstIdx + 1) % s.players.length;
+  if (s.nextFirst != null) { s.firstIdx = s.nextFirst; s.nextFirst = null; } // novo mandato: o pior avaliado abre
   rotateRow(s);
   return startRound(s);
 }
@@ -1111,7 +1163,7 @@ function finish(s, reason, winners) {
 
 function newPlayer(id, cfg) {
   return {
-    id, name: cfg.name, bot: !!cfg.bot, color: PLAYER_COLORS[id], seat: id, terrain: null,
+    id, name: cfg.name, bot: !!cfg.bot, botLevel: BOT_LEVELS.includes(cfg.botLevel) ? cfg.botLevel : 'normal', color: PLAYER_COLORS[id], seat: id, terrain: null,
     merit: 0, seals: 0, approval: 6, treasury: 0,
     deck: [], hand: [], discard: [], exiled: [], played: [],
     tiles: [], cabinet: [null, null], fac: { tec: 0, ver: 0, emp: 0, sin: 0 }, facMark: {},
@@ -1127,7 +1179,7 @@ export function newGame({ players, solo = false, level = 'normal', target, noInt
   if (target == null) target = solo ? 10 : DEFAULT_TARGET;
   const N = players.length;
   const s = {
-    v: 3, rng: (seed ?? Math.floor(Math.random() * 2 ** 32)) >>> 0, solo, level, target, maxRounds: roundsFor(target, solo), noIntrigues,
+    v: 4, rng: (seed ?? Math.floor(Math.random() * 2 ** 32)) >>> 0, solo, level, target, maxRounds: roundsFor(target, solo), noIntrigues,
     players: players.map((c, i) => newPlayer(i, c)), phase: 'draft', round: 0, order: [], turnIdx: 0, firstIdx: 0,
     over: false, winners: [], reason: '', finalRound: false, mods: {}, card: null, tension: 3, cont: null,
     pending: [], log: [], tokens: { tec: null, ver: null, emp: null, sin: null },
@@ -1149,6 +1201,7 @@ function pickTerrain(s, p, tid) {
   p.terrain = tid;
   d.pool = d.pool.filter((x) => x !== tid);
   p.tiles = makeTiles(tid);
+  if (tid === 'montanha' || tid === 'ilha' || tid === 'deserto') p.approval += 1;
   p.ex.deck = shuffle(s, EXPLORE[tid].map((c) => c.id));
   log(s, `${nm(p)} escolhe ${TERRAINS[tid].name}.`, '', p.id);
   if (!s.solo) {
@@ -1214,6 +1267,7 @@ export function exec(s, cmd) {
       p.t.played += 1;
       log(s, `🃏 ${nm(p)} joga ${c.name}.`, '', p.id);
       c.fac.forEach((f) => advFac(s, p, f, 1));
+      if (c.type === 'admin' && !p.t.adminBonusUsed && calc(s, p).adminBonus) { p.t.adminBonusUsed = 1; p.pool.v += 1; s.stats.newfx = (s.stats.newfx || 0) + 1; }
       runOps(s, p, c.fx, { src: c.name });
       return null;
     }
@@ -1259,6 +1313,33 @@ export function exec(s, cmd) {
         if (p.t.rota >= (p.t.rotaTwice ? 2 : 1)) return 'Rota Marítima já usada neste turno.';
         if (cmd.dir === 'v2a') { if (p.pool.v < 2) return 'Faltam 💰.'; p.pool.v -= 2; p.pool.a += 1; } else { if (p.pool.a < 1) return 'Faltam 🗳️.'; p.pool.a -= 1; p.pool.v += 2; }
         p.t.rota += 1;
+        return null;
+      }
+      if (['cycle', 'spy', 'exile', 'sell', 'study'].includes(cmd.id)) {
+        const c = calc(s, p);
+        if (!c.abil.has(cmd.id)) return 'Você não tem esse prédio ativo.';
+        p.t.ab = p.t.ab || {};
+        if ((p.t.ab[cmd.id] || 0) >= (cmd.id === 'spy' ? c.spyUses : 1)) return 'Já usado neste turno.';
+        s.stats.ab = s.stats.ab || {};
+        if (cmd.id === 'spy') {
+          const tg = s.players[cmd.target];
+          if (!tg || tg.id === p.id) return 'Escolha um rival.';
+          if (calc(s, tg).spyProof) return 'Esse rival tem Corregedoria.';
+          addCubes(s, tg, 1);
+          log(s, `🕶️ ${nm(p)} usa a Inteligência: ${nm(tg)} adiciona 1 🕵️ ao Saco.`, '', p.id);
+        } else if (cmd.id === 'study') {
+          if (p.pool.a < 1) return 'Faltam 🗳️.';
+          p.pool.a -= 1;
+          draw(s, p, 1);
+        } else {
+          const id = p.hand[cmd.hi];
+          if (!id) return 'Escolha uma carta da mão.';
+          p.hand.splice(cmd.hi, 1);
+          if (cmd.id === 'cycle') { p.discard.push(id); draw(s, p, 1); }
+          else { p.exiled.push(id); if (cmd.id === 'sell') p.pool.v += 3; }
+        }
+        p.t.ab[cmd.id] = (p.t.ab[cmd.id] || 0) + 1;
+        s.stats.ab[cmd.id] = (s.stats.ab[cmd.id] || 0) + 1;
         return null;
       }
       if (cmd.id === 'recycle') {

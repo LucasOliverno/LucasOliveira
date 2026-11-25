@@ -166,10 +166,23 @@ intr('I3-01', 'Vazamento de Documentos', 5, 'O jogador com mais ⭐ coloca 3 �
 intr('I3-02', 'Auditoria Surpresa', 5, 'Dispare uma Fiscalização imediata.', true);
 intr('I3-03', 'Aliança Estratégica', 4, 'Você e um jogador escolhido avançam 1 em Facções diferentes, à escolha de cada um.');
 
+// ---- Gestão & Inteligência (doc 13): construções que mexem no deck e na mesa
+bld('S1-01', 'Biblioteca de Bairro', 'SER', 'tec', 3, 2, { cons: { e: 1 }, ability: 'study', t: 'No seu turno (1×), pague 🗳️1: compre 1 carta.' });
+bld('S1-02', 'Cartório Digital', 'INF', 'tec', 3, 2, { cons: { e: 1 }, ability: 'cycle', t: 'No seu turno (1×): descarte 1 carta da mão e compre 1.' });
+bld('S1-03', 'Agência de Empregos', 'SER', 'sin', 3, 2, { adminBonus: 1, t: 'A 1ª Administração que você jogar em cada turno rende +💰1.' });
+bld('S2-01', 'Agência de Inteligência', 'SER', 'emp', 5, 3, { cons: { e: 1 }, req: 4, ability: 'spy', t: 'No seu turno (1×): um rival à sua escolha adiciona 1 🕵️ ao Saco.' });
+bld('S2-02', 'Corregedoria Municipal', 'SER', 'ver', 4, 2, { corrige: 1, spyProof: 1, t: 'Fim de cada rodada: remova 1 🕵️ seu do Saco. A Inteligência dos rivais não te alcança.' });
+bld('S2-03', 'Escola de Gestão Pública', 'SER', 'tec', 5, 3, { req: 4, inc: [{ r: 'a', n: 1 }], onBuild: [{ op: 'gainAdmin' }], t: 'Renda 🗳️1. ' + 'Ao construir: ganhe de graça a Administração mais barata da Fila Especial.' });
+bld('S2-04', 'Gráfica Oficial', 'COM', 'emp', 5, 3, { cons: { e: 1 }, req: 4, inc: [{ r: 'v', n: 1 }], adminDisc: 2, t: 'Renda 💰1. Administração custa −💰2 para você (mín. 1).' });
+bld('S3-01', 'Data Center Municipal', 'INF', 'tec', 7, 3, { cons: { e: 2 }, handPlus: 1, t: 'Você compra +1 carta no fim do turno.' });
+bld('S3-02', 'Imprensa Investigativa', 'COM', 'ver', 6, 3, { req: 6, inc: [{ r: 'a', n: 1 }, { r: 'v', n: 1 }], press: 1, t: 'Renda 💰1 🗳️1. Quando a Fiscalização sortear cubos de um rival, ganhe 💰2 por cubo no Tesouro (máx. 💰4 por sorteio).' });
+bld('S3-03', 'Bolsa de Valores', 'COM', 'emp', 7, 3, { cons: { e: 1 }, req: 8, inc: [{ r: 'v', n: 2 }], ability: 'sell', t: 'Renda 💰2. No seu turno (1×): exile 1 carta da mão e ganhe 💰3.' });
+const NEWB = globalThis.process?.env?.NEWB !== '0';
+
 export const SPECIAL_TIERS = [
-  ['E1-01', 'E1-02', 'E1-03', 'E1-04', 'E1-05', 'E1-06', 'E1-07', 'E1-08', 'A1-01', 'A1-02', 'A1-03', 'A1-04', 'A1-05', 'A1-06', 'A1-07', 'D1-01', 'D1-02', 'I1-01', 'I1-02', 'I1-03'],
-  ['E2-01', 'E2-02', 'E2-03', 'E2-04', 'E2-05', 'E2-06', 'E2-07', 'E2-08', 'E2-09', 'A2-01', 'A2-02', 'A2-03', 'A2-04', 'A2-05', 'A2-06', 'A2-07', 'A2-08', 'D2-01', 'D2-02', 'D2-03', 'I2-01', 'I2-02', 'I2-03', 'I2-04'],
-  ['E3-01', 'E3-02', 'E3-03', 'E3-04', 'E3-05', 'E3-06', 'E3-07', 'A3-01', 'A3-02', 'A3-03', 'A3-04', 'A3-05', 'D3-01', 'I3-01', 'I3-02', 'I3-03'],
+  ['E1-01', 'E1-02', 'E1-03', 'E1-04', 'E1-05', 'E1-06', 'E1-07', 'E1-08', 'A1-01', 'A1-02', 'A1-03', 'A1-04', 'A1-05', 'A1-06', 'A1-07', 'D1-01', 'D1-02', 'I1-01', 'I1-02', 'I1-03', ...(NEWB ? ['S1-01', 'S1-02', 'S1-03'] : [])],
+  ['E2-01', 'E2-02', 'E2-03', 'E2-04', 'E2-05', 'E2-06', 'E2-07', 'E2-08', 'E2-09', 'A2-01', 'A2-02', 'A2-03', 'A2-04', 'A2-05', 'A2-06', 'A2-07', 'A2-08', 'D2-01', 'D2-02', 'D2-03', 'I2-01', 'I2-02', 'I2-03', 'I2-04', ...(NEWB ? ['S2-01', 'S2-02', 'S2-03', 'S2-04'] : [])],
+  ['E3-01', 'E3-02', 'E3-03', 'E3-04', 'E3-05', 'E3-06', 'E3-07', 'A3-01', 'A3-02', 'A3-03', 'A3-04', 'A3-05', 'D3-01', 'I3-01', 'I3-02', 'I3-03', ...(NEWB ? ['S3-01', 'S3-02', 'S3-03'] : [])],
 ];
 
 // ---- Obras-Prima (07 §6)
@@ -188,7 +201,11 @@ wnd('M-09', 'Memorial do Partido', null, { v: 4, o: 3, a: 4 }, { inc: [{ r: 'a',
 wnd('M-10', 'Eco-Distrito Modelo', 'ver', { v: 7, o: 5, a: 2 }, { buildReq: { ver: 3 }, onBuild: [appr(3)], poll: -2, t: '≥3 VER construídos. +3 😊; ☁️ −2.' });
 wnd('M-11', 'Smart Grid Central', 'tec', { v: 6, o: 4, a: 3 }, { power: { e: 4, w: 4 }, t: '⚡+4 e 💧+4.' });
 wnd('M-12', 'Parque Industrial Modelo', 'sin', { v: 7, o: 5, a: 1 }, { inc: [{ r: 'o', n: 3 }, { r: 'v', n: 2 }], poll: 2, t: 'Renda 🔨3 + 💰2; ☁️2.' });
-export const WONDERS = Object.keys(CARDS).filter((k) => k.startsWith('M-'));
+// Obras-Prima com poderes de deck e de interação (doc 13)
+wnd('M-13', 'Agência Nacional de Inteligência', 'emp', { v: 6, o: 4, a: 3 }, { ability: 'spy', spyProof: 1, inc: [{ r: 'a', n: 1 }], t: 'Renda 🗳️1. No seu turno (1×): um rival à sua escolha adiciona 1 🕵️ ao Saco. A Inteligência dos rivais não te alcança.' });
+wnd('M-14', 'Arquivo Nacional', 'tec', { v: 6, o: 4, a: 2 }, { ability: 'sell', t: 'No seu turno (1×): exile 1 carta da mão e ganhe 💰3.' });
+wnd('M-15', 'Rede Nacional de TV', 'ver', { v: 6, o: 4, a: 3 }, { tvNet: 1, inc: [{ r: 'a', n: 1 }], t: 'Renda 🗳️1. Fim de cada rodada: se 😊 ≤ 6, +1 😊. Quando a Fiscalização sortear cubos de um rival, ganhe 🗳️1 por cubo.' });
+export const WONDERS = Object.keys(CARDS).filter((k) => k.startsWith('M-') && (NEWB || +k.slice(2) <= 12));
 
 // ------------------------------------------------------------------ Metas (03 §4)
 
@@ -216,13 +233,17 @@ export const GOALS = [
 // ------------------------------------------------------------------ Deck de Rodada (03 §5)
 // metric: chave de ranking usada pela Auditoria; low = "menor é melhor"
 
-// Durações (Mérito para encerrar → número máximo de rodadas). O jogo de cidade pede partidas mais longas.
+// Mandatos: a partida é dividida em mandatos de 5 rodadas. No fim de cada um, a Avaliação do Partido dá Mérito
+// aos prefeitos mais bem avaliados (pontos = 😊×2 + edifícios ativos) e sorteia o Saco.
+export const MANDATE = 5;
+export const PARTY_REVIEW = { first: 2, second: 1 };
+// Durações (Mérito para encerrar → número de mandatos).
 export const DURATIONS = [
-  { target: 12, rounds: 12, label: 'Curto' },
-  { target: 16, rounds: 16, label: 'Padrão' },
-  { target: 20, rounds: 20, label: 'Épico' },
+  { target: 11, rounds: 10, mandates: 2, label: 'Curto' },
+  { target: 17, rounds: 15, mandates: 3, label: 'Padrão' },
+  { target: 23, rounds: 20, mandates: 4, label: 'Épico' },
 ];
-export const DEFAULT_TARGET = 16;
+export const DEFAULT_TARGET = 17;
 
 // Marcos da Cidade: ⭐1 cada, uma vez por partida, por construir uma cidade grande, populosa e completa.
 export const CITY_MARKS = [
@@ -289,7 +310,7 @@ export const TERRAINS = {
   montanha: {
     id: 'montanha', name: 'Montanha', sub: 'Serra Alta', icon: '⛰️', color: '#6C7A89', cap: { e: 3, w: 3 },
     grid: rows('EEEE', 'EPH.', '..JR', '.J..'),
-    trait: 'Riqueza Mineral', traitT: 'Jazidas (J) aceitam a Mina de Cobre. Hidrelétricas em Rio/Encosta custam −🔨1. A Prefeitura rende +💰1 (mineração).',
+    trait: 'Riqueza Mineral', traitT: 'Jazidas (J) aceitam a Mina de Cobre. Hidrelétricas em Rio/Encosta custam −🔨1. A Prefeitura rende +💰1 (mineração). Começa com 😊+1.',
     weak: 'Encostas', weakT: '5 casas Encosta (+🔨1 para construir). Poucas casas planas.',
     style: 'Indústria pesada, energia barata, construção cara.', stars: { eco: 3, con: 2, inf: 4 }, risk: 'Alta (Minas)', cx: 'Média',
     regionalGoal: { id: 'RG-MON', name: 'Veia Metálica', t: '2 IND ativos em Jazida e ☁️ ≤ 4.' },
@@ -307,7 +328,7 @@ export const TERRAINS = {
   deserto: {
     id: 'deserto', name: 'Deserto', sub: 'Mesa Árida', icon: '🏜️', color: '#D98A3D', cap: { e: 3, w: 1 },
     grid: rows('....', 'DPHD', 'D.A.', 'D.D.'),
-    trait: 'Sol Pleno', traitT: 'Seus INF de ⚡ solar têm +1 ⚡ e ☁️0. O Loteamento INF para ⚡ rende ⚡+2 sem ☁️.',
+    trait: 'Sol Pleno', traitT: 'Seus INF de ⚡ solar têm +1 ⚡ e ☁️0. O Loteamento INF para ⚡ rende ⚡+2 sem ☁️. Começa com 😊+1.',
     weak: 'Sede', weakT: '💧 inicial 1. 5 Dunas (+🔨1).',
     style: 'Energia solar abundante, água como gargalo.', stars: { eco: 3, con: 3, inf: 2 }, risk: 'Média', cx: 'Média',
     regionalGoal: { id: 'RG-DES', name: 'Oásis de Ouro', t: 'Ter construído o Poço do Oásis e ter excedente ≥ 4 de ⚡ e de 💧.' },
@@ -316,7 +337,7 @@ export const TERRAINS = {
   floresta: {
     id: 'floresta', name: 'Floresta', sub: 'Mata Fechada', icon: '🌲', color: '#3E6B4B', cap: { e: 3, w: 3 },
     grid: rows('FF..', 'FPH.', '...F', '..FF'),
-    trait: 'Pulmão Verde', traitT: 'A cada 2 Florestas intactas: ☁️ −1 (máx. −3). VER ou COM adjacente a Floresta intacta rende +💰1 (Ecoturismo). Ecovila: o Loteamento pode ir em Floresta sem desmatar.',
+    trait: 'Pulmão Verde', traitT: 'A cada 2 Florestas intactas: ☁️ −1 (máx. −2). VER ou COM adjacente a Floresta intacta rende +💰1 (Ecoturismo). Ecovila: o Loteamento pode ir em Floresta sem desmatar.',
     weak: 'Mata Fechada', weakT: '6 casas Floresta. Desmatar: pague +🔨1 antes de construir. A casa deixa de ser Floresta intacta.',
     style: 'Ecoturismo, Verde, mas expansão difícil.', stars: { eco: 2, con: 2, inf: 3 }, risk: 'Média', cx: 'Alta',
     regionalGoal: { id: 'RG-FLO', name: 'Guardiões', t: '≥ 4 Florestas intactas no fim do turno e 👥 ≥ 10.' },
@@ -325,7 +346,7 @@ export const TERRAINS = {
   ilha: {
     id: 'ilha', name: 'Ilha', sub: 'Arquipélago', icon: '🏝️', color: '#2BB3A3', cap: { e: 3, w: 3 }, island: true,
     tiles: islandTiles(),
-    trait: 'Rota Marítima', traitT: '1×/turno: troque 💰2 → 🗳️1 ou 🗳️1 → 💰2. A Prefeitura rende +🔨1 (porto), o Loteamento custa 💰1, comprar terreno custa −💰1 e o Porto Comercial custa −🔨1.',
+    trait: 'Rota Marítima', traitT: '1×/turno: troque 💰2 → 🗳️1 ou 🗳️1 → 💰2. A Prefeitura rende +🔨1 (porto), o Loteamento custa 💰1, comprar terreno custa −💰1 e o Porto Comercial custa −🔨1. Começa com 😊+1.',
     weak: 'Arquipélago', weakT: 'Adjacência só dentro da ilha (até ligar com Balsa).',
     style: 'Turismo de luxo, conversão de recursos, logística.', stars: { eco: 3, con: 2, inf: 2 }, risk: 'Baixa', cx: 'Alta',
     regionalGoal: { id: 'RG-ILH', name: 'Arquipélago Conectado', t: 'Balsas ligando as 3 ilhas e Renda 💰 total ≥ 6.' },
@@ -448,11 +469,11 @@ export const PACKAGES = [
 ];
 // Pacote de Posição calibrado por nº de jogadores (simulação com draft por preferência; ver README)
 export const PACKAGES_BY_N = {
-  2: [{}, { treasury: 2 }],
-  3: [{}, { treasury: 3 }, { treasury: 2 }],
+  2: [{ treasury: 1 }, {}],
+  3: [{ treasury: 2 }, { treasury: 1 }, {}],
   4: [{ treasury: 1 }, { treasury: 2 }, { treasury: 1 }, {}],
-  5: [{ treasury: 2 }, {}, {}, {}, { treasury: 2 }],
-  6: [{ treasury: 1 }, { treasury: 2 }, { treasury: 2 }, {}, { treasury: 1 }, { treasury: 1 }],
+  5: [{ treasury: 2 }, { treasury: 2 }, { treasury: 1 }, { treasury: 1 }, {}],
+  6: [{ treasury: 3 }, { treasury: 1 }, { treasury: 1 }, { treasury: 1 }, { treasury: 1 }, {}],
 };
 export const packageFor = (n, seat) => ((PACKAGES_BY_N[n] || PACKAGES)[seat] || {});
 

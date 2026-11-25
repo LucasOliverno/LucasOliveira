@@ -245,3 +245,23 @@ button.bag:hover { background: #fff7e8; }
 .city-island .tile .t-kind { color: rgba(92, 64, 30, .75); }
 .tp-island, .mini-island { background: #5aa7c3; border-radius: 6px; padding: 3px; }
 .tp-island .mt.k-C, .mini-island .mt.k-C { background: #ecd9a4; border-color: #8a6a3c; }
+
+/* Avaliação do Partido */
+.banner .b-party { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: .82rem; padding: 6px 10px; border: 1.5px dashed rgba(27, 42, 65, .35); border-radius: 10px; background: rgba(255, 255, 255, .5); }
+.tagk.party { border-color: var(--teal, #1F6F78); color: var(--teal, #1F6F78); }
+.party-rank { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 6px; }
+.party-rank li { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; background: rgba(27, 42, 65, .05); animation: tt-bob .01s, party-in .35s ease both; }
+.party-rank li.got { background: #fff3cf; border: 1.5px solid #E0A526; }
+.party-rank li span { margin-left: auto; font-variant-numeric: tabular-nums; }
+.party-rank li em { font-style: normal; font-weight: 800; color: #8a6400; }
+@keyframes party-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* nível dos bots */
+select.lvl { font: 600 .74rem var(--font-stamp, sans-serif); text-transform: uppercase; letter-spacing: .04em; border: 1.5px solid var(--ink, #1B2A41); border-radius: 8px; padding: 5px 6px; background: var(--paper, #F3EBDD); color: var(--ink, #1B2A41); cursor: pointer; }
+.seats li { grid-template-columns: auto 1fr auto 104px auto; }
+@media (max-width: 560px) { .seats li { grid-template-columns: auto 1fr auto; } .seats li select.lvl, .seats li > span:empty { grid-column: 2 / 4; } }
+
+/* habilidades dos prédios de Gestão & Inteligência */
+.abilities { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.abilities .btn { font-size: .74rem; }
+.abilities .hint { width: 100%; font-size: .7rem; color: #5b6676; }

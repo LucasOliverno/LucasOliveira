@@ -44,7 +44,7 @@ export class Rooms {
     this.saveTimer = null;
     const rooms = [...this.rooms.values()].map((r) => ({
       code: r.code, opts: r.opts, game: r.game, touched: r.touched, chat: r.chat || [],
-      seats: r.seats.map((s) => ({ name: s.name, bot: s.bot, token: s.token, host: s.host })),
+      seats: r.seats.map((s) => ({ name: s.name, bot: s.bot, level: s.level, token: s.token, host: s.host })),
     }));
     try {
       mkdirSync(dirname(this.file), { recursive: true });
@@ -98,7 +98,7 @@ export class Rooms {
   lobbyMsg(r, seat) {
     return {
       t: 'lobby', code: r.code, you: seat, host: r.seats.findIndex((s) => s.host), opts: r.opts, started: !!r.game,
-      seats: r.seats.map((s) => ({ name: s.name, bot: s.bot, online: s.bot || !!s.ws, host: !!s.host })),
+      seats: r.seats.map((s) => ({ name: s.name, bot: s.bot, level: s.bot ? s.level || 'normal' : undefined, online: s.bot || !!s.ws, host: !!s.host })),
     };
   }
 
@@ -217,7 +217,14 @@ export class Rooms {
         if (r.game) return err('A partida já começou.');
         if (r.seats.length >= MAX_SEATS) return err('Sala cheia.');
         const used = new Set(r.seats.map((s) => s.name));
-        r.seats.push({ name: BOT_NAMES.find((n) => !used.has(n)) || `Bot ${r.seats.length + 1}`, bot: true, token: null, ws: null, host: false });
+        r.seats.push({ name: BOT_NAMES.find((n) => !used.has(n)) || `Bot ${r.seats.length + 1}`, bot: true, level: 'normal', token: null, ws: null, host: false });
+        break;
+      }
+      case 'botLevel': {
+        if (r.game) return err('A partida já começou.');
+        const b = r.seats[Number(msg.seat)];
+        if (!b || !b.bot || !E.BOT_LEVELS.includes(msg.level)) return err('Nível inválido.');
+        b.level = msg.level;
         break;
       }
       case 'remove': {
@@ -297,7 +304,7 @@ export class Rooms {
       [r.seats[i], r.seats[j]] = [r.seats[j], r.seats[i]];
     }
     r.seats.forEach((s, i) => { if (s.ws) s.ws.ctx = { code: r.code, seat: i }; });
-    r.game = E.newGame({ players: r.seats.map((s) => ({ name: s.name, bot: s.bot })), target: r.opts.target, noIntrigues: r.opts.noIntrigues });
+    r.game = E.newGame({ players: r.seats.map((s) => ({ name: s.name, bot: s.bot, botLevel: s.level })), target: r.opts.target, noIntrigues: r.opts.noIntrigues });
   }
 
   command(ws, ctx, cmd) {

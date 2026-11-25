@@ -247,6 +247,58 @@
     "meshes": 9,
     "triangles": 1428
   },
+  "S1-01": {
+    "meshes": 8,
+    "triangles": 2831
+  },
+  "S1-02": {
+    "meshes": 10,
+    "triangles": 1536
+  },
+  "S1-03": {
+    "meshes": 12,
+    "triangles": 2616
+  },
+  "S2-01": {
+    "meshes": 10,
+    "triangles": 2896
+  },
+  "S2-02": {
+    "meshes": 7,
+    "triangles": 3128
+  },
+  "S2-03": {
+    "meshes": 11,
+    "triangles": 4232
+  },
+  "S2-04": {
+    "meshes": 9,
+    "triangles": 1730
+  },
+  "S3-01": {
+    "meshes": 7,
+    "triangles": 2072
+  },
+  "S3-02": {
+    "meshes": 10,
+    "triangles": 3232
+  },
+  "S3-03": {
+    "meshes": 7,
+    "triangles": 3164
+  },
+  "M-13": {
+    "meshes": 9,
+    "triangles": 1732
+  },
+  "M-14": {
+    "meshes": 8,
+    "triangles": 3728
+  },
+  "M-15": {
+    "meshes": 9,
+    "triangles": 1956
+  },
   "g-plain-grass": {
     "meshes": 5,
     "triangles": 876

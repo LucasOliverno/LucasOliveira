@@ -1,6 +1,6 @@
 // MANDATO — GreedyBot (08 §8 / 09 §14). Usa o mesmo motor e os mesmos comandos de um humano.
 import * as E from './engine.js';
-import { LOT_OPTS, STANDARD, FAC_KEYS, GOALS, TERRAINS } from './data.js';
+import { LOT_OPTS, STANDARD, FAC_KEYS, GOALS, TERRAINS, CITY_MARKS } from './data.js';
 
 const { CARDS } = E;
 // Ordem de preferência no draft (medida em simulação; ver test/sim.mjs)
@@ -8,6 +8,13 @@ export const DRAFT_RANK = ['deserto', 'planicie', 'floresta', 'montanha', 'litor
 // draft: 'rank' (padrão) ou 'random' (simulação para medir a força de cada terreno sem o efeito da ordem)
 export const BOT_OPTS = { draft: 'rank' };
 const W = { v: 1, o: 1.2, a: 1.5 };
+// Dificuldade: 'facil' erra de propósito (escolhas aleatórias, ignora o risco do Saco, não compra terreno);
+// 'dificil' joga para a Avaliação do Partido e os Marcos da Cidade (😊 e edifícios ativos valem mais) e protege a ficha.
+const LV = (p) => p.botLevel || 'normal';
+const envN = (k, d) => +(globalThis.process?.env?.[k] ?? d);
+const DIF = { bld: envN('DIF_BLD', 1.1), pop: envN('DIF_POP', 0.6), mark: envN('DIF_MARK', 6) };
+const chance = (s, x) => E.rnd(s) < x;
+const pickRandom = (s, arr) => arr[Math.floor(E.rnd(s) * arr.length)];
 
 // ------------------------------------------------------------------ avaliação
 
@@ -17,13 +24,14 @@ function opScore(p, ops = []) {
     switch (o.op) {
       case 'gain': sc += o.n * W[o.r]; break;
       case 'draw': sc += o.n * 1.5; break;
-      case 'appr': sc += o.n * 1.5; break;
-      case 'cube': sc += o.n > 0 ? -1.6 * o.n : Math.min(-o.n, p.cubesBag) * 1.0; break;
+      case 'appr': sc += o.n * (LV(p) === 'dificil' ? 2.6 : 1.5); break;
+      case 'cube': sc += o.n > 0 ? (LV(p) === 'facil' ? -0.4 : LV(p) === 'dificil' ? -2.2 : -1.6) * o.n : Math.min(-o.n, p.cubesBag) * 1.0; break;
       case 'adv': sc += o.n * 1.5; break;
       case 'advChoice': case 'advTwo': sc += 1.8; break;
       case 'explore': sc += 3; break;
       case 'choice': sc += 1.5; break;
       case 'site': sc += 3; break;
+      case 'gainAdmin': sc += 0; break;
       case 'cap': sc += 2.5; break;
       case 'drawDiscard': sc += 2; break;
       case 'off': sc -= 3; break;
@@ -35,23 +43,39 @@ function opScore(p, ops = []) {
   return sc;
 }
 
-function vOfCalc(c) {
+function vOfCalc(c, lvl = 'normal') {
   const inc = c.inc;
   let v = 3 * (inc.v + W.o * inc.o + W.a * inc.a) + 0.5 * c.pop;
+  if (lvl === 'dificil') v += DIF.bld * c.act.size + DIF.pop * c.pop; // Avaliação do Partido e Marcos da Cidade
   v -= 0.8 * Math.max(0, c.poll) + 1.5 * Math.max(0, c.poll - 4) + 5 * Math.max(0, c.poll - 5); // ☁️ ≥ 6 custa 😊 toda rodada
   v -= 6 * Math.min(3, Math.max(0, -c.sur.e)) + 6 * Math.min(3, Math.max(0, -c.sur.w)); // déficit custa 😊 todo turno
   v += 0.2 * Math.min(3, Math.max(0, c.sur.e)) + 0.2 * Math.min(3, Math.max(0, c.sur.w));
   return v;
 }
 
+// valor extra dos prédios de Gestão & Inteligência (o vOfCalc não enxerga efeitos de deck)
+const NEWV = { 'M-13': 6, 'M-14': 8, 'M-15': 6, 'S1-01': 4, 'S1-02': 3, 'S1-03': 3, 'S2-01': 4, 'S2-02': 3, 'S2-03': 5, 'S2-04': 3, 'S3-01': 9, 'S3-02': 3, 'S3-03': 5 };
 function placementGain(s, p, card, tileIdx, variant, upg) {
   const tile = p.tiles[tileIdx];
   const old = tile.b;
-  const before = vOfCalc(E.calc(s, p));
+  const lvl = LV(p);
+  const c0 = E.calc(s, p);
+  const before = vOfCalc(c0, lvl);
   tile.b = { id: card.id, ...(variant ? { v: variant } : {}) };
-  const after = vOfCalc(E.calc(s, p));
+  const c1 = E.calc(s, p);
+  const after = vOfCalc(c1, lvl);
   tile.b = old;
   let g = after - before;
+  if (!old || old.id !== card.id) g += NEWV[card.id] || 0;
+  if (lvl === 'dificil') { // fecha um Marco da Cidade = ⭐1
+    const got = p.cityMarks || {};
+    CITY_MARKS.forEach((m) => {
+      if (got[m.id]) return;
+      const v0 = m.kind === 'bld' ? p.tiles.filter((t) => t.b).length : m.kind === 'pop' ? c0.pop : 0;
+      const v1 = m.kind === 'bld' ? v0 + (old ? 0 : 1) : m.kind === 'pop' ? c1.pop : 0;
+      if (v0 < m.n && v1 >= m.n) g += DIF.mark;
+    });
+  }
   g += opScore(p, card.onBuild);
   g += (card.fac || []).length * 1.5;
   if (card.wonder) g += 16;
@@ -62,6 +86,7 @@ function placementGain(s, p, card, tileIdx, variant, upg) {
 
 function bestPlacement(s, p, card, src, hi) {
   let best = null;
+  const all = [];
   const variants = card.lot ? Object.keys(LOT_OPTS) : [undefined];
   for (let i = 0; i < p.tiles.length; i++) {
     for (const v of variants) {
@@ -70,9 +95,11 @@ function bestPlacement(s, p, card, src, hi) {
         if (r.err) continue;
         const g = placementGain(s, p, card, i, v, upg) - (r.desmate ? (p.terrain === 'floresta' ? 7 : 3) : 0); // floresta intacta vale (Pulmão Verde e Meta Regional)
         if (!best || g > best.g) best = { g, tile: i, v, upg, r };
+        if (g > 0) all.push({ g, tile: i, v, upg, r });
       }
     }
   }
+  if (LV(p) === 'facil' && all.length > 1 && chance(s, 0.6)) return pickRandom(s, all); // casa "qualquer"
   return best;
 }
 
@@ -155,9 +182,11 @@ export function decide(s, pe) {
 
 function playCards(s, p) {
   const cand = p.hand.map((id, hi) => ({ id, hi, c: CARDS[id] })).filter((x) => ['basic', 'standard', 'admin'].includes(x.c.type));
+  const lvl = LV(p);
   const safe = cand.filter((x) => {
     const cubes = (x.c.fx || []).filter((o) => o.op === 'cube' && o.n > 0).reduce((a, o) => a + o.n, 0);
-    if (!cubes) return true;
+    if (!cubes || lvl === 'facil') return true; // o fácil não se preocupa com o Saco
+    if (lvl === 'dificil') return p.cubesBag + cubes <= 3 && p.approval >= 6;
     return p.cubesBag + cubes <= 4 && p.approval >= 5;
   });
   if (!safe.length) return false;
@@ -187,7 +216,7 @@ function tryBuild(s, p) {
 }
 
 function tryWonder(s, p) {
-  if (p.wondersScored >= 2) return false;
+  if (p.wondersScored >= 2 || LV(p) === 'facil') return false;
   let best = null;
   s.market.vit.forEach((id, hi) => {
     const b = bestPlacement(s, p, CARDS[id], 'wonder', hi);
@@ -198,6 +227,7 @@ function tryWonder(s, p) {
 }
 
 function tryDecree(s, p) {
+  if (LV(p) === 'facil') return false;
   const hi = p.hand.findIndex((id) => CARDS[id].type === 'decree' && DECREE_OK(p, id));
   if (hi < 0) return false;
   const slot = p.cabinet.findIndex((x) => !x);
@@ -226,16 +256,19 @@ function tryBuy(s, p) {
     scored.push({ ...o, val, ratio: val - price * 0.45, price });
   }
   scored.sort((a, b) => b.ratio - a.ratio);
-  const top = scored[0];
+  let top = scored[0];
+  if (LV(p) === 'facil' && scored.length > 1) top = pickRandom(s, scored.slice(0, 4)); // compra "no impulso"
   if (!top || top.val < 0.8) return false;
-  return !E.exec(s, { t: 'buy', src: top.src, key: top.key });
+  const err = E.exec(s, { t: 'buy', src: top.src, key: top.key });
+  if (!err) p.t.botBought = true;
+  return !err;
 }
 
 // Compra terreno quando a grade está quase cheia (a cidade cresce até 5×5).
 function tryLand(s, p) {
-  if (p.t.landed || E.maxRounds(s) - s.round < 2) return false;
+  if (LV(p) === 'facil' || p.t.landed || E.maxRounds(s) - s.round < 2) return false;
   const free = p.tiles.filter((t) => !t.b && !(t.k === 'F' && !t.cleared) && t.k !== 'E' && t.k !== 'D').length;
-  if (free > 2) return false;
+  if (free > (LV(p) === 'dificil' ? 3 : 2)) return false;
   const cost = E.landCost(p);
   if (p.pool.v < cost.v) return false;
   const slots = E.landSlots(p);
@@ -245,11 +278,35 @@ function tryLand(s, p) {
   return !E.exec(s, { t: 'land', x: best.x, y: best.y, isl: best.isl });
 }
 
+// habilidades 1×/turno dos prédios novos: limpar o deck, ciclar a mão e espionar o líder
+function tryAbilities(s, p) {
+  const c = E.calc(s, p);
+  if (!c.abil || !c.abil.size) return false;
+  const ab = p.t.ab || {};
+  const deckSize = p.deck.length + p.discard.length + p.hand.length + p.played.length;
+  const weak = p.hand.findIndex((id) => id === 'B-01');
+  if (c.abil.has('sell') && !ab.sell && weak >= 0) return !E.exec(s, { t: 'ability', id: 'sell', hi: weak });
+  if (c.abil.has('exile') && !ab.exile && weak >= 0 && deckSize > 9) return !E.exec(s, { t: 'ability', id: 'exile', hi: weak });
+  if (c.abil.has('cycle') && !ab.cycle) {
+    const stuck = p.hand.findIndex((id) => CARDS[id].type === 'building' && !bestPlacement(s, p, CARDS[id], 'hand', p.hand.indexOf(id)));
+    const hi = stuck >= 0 ? stuck : weak;
+    if (hi >= 0) return !E.exec(s, { t: 'ability', id: 'cycle', hi });
+  }
+  if (c.abil.has('study') && !ab.study && p.pool.a >= 1) return !E.exec(s, { t: 'ability', id: 'study' });
+  if (c.abil.has('spy') && (ab.spy || 0) < (c.spyUses || 1)) {
+    const tgt = s.players.filter((q) => q.id !== p.id && !E.calc(s, q).spyProof).sort((a, b) => b.merit - a.merit)[0];
+    if (tgt) return !E.exec(s, { t: 'ability', id: 'spy', target: tgt.id });
+  }
+  return false;
+}
+
 function botTurn(s) {
   const p = s.players[s.order[s.turnIdx]];
+  const lazyGoals = LV(p) === 'facil' && chance(s, 0.5); // o fácil às vezes esquece de reivindicar Metas
   for (let i = 0; i < 80; i++) {
     if (s.pending.length || s.over) return;
-    if (tryGoals(s, p)) continue;
+    if (!lazyGoals && tryGoals(s, p)) continue;
+    if (tryAbilities(s, p)) continue;
     if (p.seals >= 2) { E.exec(s, { t: 'seals' }); continue; }
     if (playCards(s, p)) continue;
     if (tryDecree(s, p)) continue;

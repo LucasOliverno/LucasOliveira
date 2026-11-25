@@ -1,0 +1,23 @@
+REVISAO VISUAL - PREVIA LOCAL
+
+Comparacao: http://localhost:8787/mandato/revisao.html
+Os botoes Antes/Proposta alternam a mesma cena de demonstracao.
+Os controles de camera mostram cidades, centro e mesa toda.
+Abaixo, 12 comparacoes mostram arte da carta, antes e depois.
+
+A proposta foi aprovada e aplicada na partida normal. Nao altera regras,
+saves, multiplayer, cartas ou balanceamento. Nenhum commit/push efetuado.
+
+Escopo: 10 construcoes remodeladas (PREF, HOME, E1-01, E1-02, E1-03,
+E2-01, E3-01, E3-03, M-03, M-09); revisao compartilhada de vegetacao,
+varandas, equipamentos, telhados, paineis solares, containers e terrenos.
+O conjunto completo mantem os 73 IDs originais. Nao e uma reproducao
+literal de todos os detalhes das ilustracoes; sao miniaturas legiveis no jogo.
+
+Mesa: madeira com veios, feltro discreto, aros de acabamento, bases com
+molduras e cantoneiras; tabuleiro com secoes e titulos; bandejas regionais.
+Table3D/TableFurniture usam a proposta no jogo; a pagina de revisao permanece.
+
+Fontes: build_revision.py e baseline.py. Render: render_comparison.py.
+Arquivo editavel: mandato_revisao.blend. Exportacao: assets/mandato.glb.
+Arquivos para o navegador: frontend/public/mandato/revisao.

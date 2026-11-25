@@ -1,5 +1,5 @@
 // Mesa 3D no estilo "tabletop": uma mesa de madeira com o tabuleiro central (Metas, Facções e Fila Especial)
-// e a cidade de cada prefeito ao redor, com os prédios modelados no Blender (public/mandato/models/mandato.glb?v=art2,
+// e a cidade de cada prefeito ao redor, com os prédios modelados no Blender (public/mandato/models/mandato.glb?v=gestao1,
 // gerado por MANDATO/3d/build_sprites.py --glb). A câmera gira/aproxima como no Tabletop Simulator.
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -11,7 +11,7 @@ import { HAS_ART, artUrl } from './cardutil.js';
 import { TableFurniture, CityFrame, BoardFoundation, SectionTray, RegionalTray } from './TableFurniture.jsx';
 import { isoBuilding, isoGround, gridPos } from './iso.js';
 
-const MODEL = `${import.meta.env.BASE_URL}mandato/models/mandato.glb?v=art2`;
+const MODEL = `${import.meta.env.BASE_URL}mandato/models/mandato.glb?v=gestao1`;
 const S = 0.5; // escala das cidades: 1 casa = 2 m no modelo → 1 m na mesa
 const CARD = [0.9, 1.26]; // carta deitada na mesa (largura × altura)
 const SRGB = (t) => { (Array.isArray(t) ? t : [t]).forEach((x) => { x.colorSpace = THREE.SRGBColorSpace; x.anisotropy = 8; }); };

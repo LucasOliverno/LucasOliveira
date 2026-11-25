@@ -12,7 +12,7 @@ function load() {
   try {
     const raw = localStorage.getItem(KEY);
     const s = raw && JSON.parse(raw);
-    return s && s.v === 2 && Array.isArray(s.players) && !s.over ? s : null;
+    return s && s.v >= 2 && Array.isArray(s.players) && !s.over ? s : null; // v2 = antes da v1.5; v3+ carregam normalmente
   } catch {
     return null;
   }

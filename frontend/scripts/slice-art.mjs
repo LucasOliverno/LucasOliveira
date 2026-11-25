@@ -16,6 +16,9 @@ const seq = (p, a, b, pad = 2) => Array.from({ length: b - a + 1 }, (_, i) => `$
 
 // kind: land (4:3, cenas e edifícios) | portrait (4:5) | arch (4:5, exploração) | circle (1:1 com máscara) | sq (1:1)
 const SHEETS = [
+  // Gestão e Inteligência — expansão aprovada, guia 13 §5.
+  { find: 'Folha Gestao e Inteligencia', cols: 5, rows: 2, kind: 'land', inset: 0, ids: ['S1-01', 'S1-02', 'S1-03', 'S2-01', 'S2-02', 'S2-03', 'S2-04', 'S3-01', 'S3-02', 'S3-03'] },
+  { find: 'Folha Obras-Prima Gestao', cols: 3, rows: 1, kind: 'land', inset: 0, ids: ['M-13', 'M-14', 'M-15'] },
   // ---- Edificações
   { find: 'sx3fldsx3f', cols: 4, rows: 2, kind: 'land', inset: 0.07, ids: seq('E1-', 1, 8) },
   { find: 'zgqrknzgqr', cols: 3, rows: 3, kind: 'land', inset: 0.07, ids: seq('E2-', 1, 9) },
@@ -48,6 +51,9 @@ const SHEETS = [
   { find: 'quatro cores', cols: 2, rows: 2, kind: 'sq', ids: ['F-tec', 'F-ver', 'F-emp', 'F-sin'], pad: 0.02, inset: 0.01 },
   // folha extra (guia 12 §12): casas iniciais e o Loteamento em cada Zona; opcional até ser gerada
   { find: 'Prefeitura e Loteamento', cols: 3, rows: 2, kind: 'land', optional: true, ids: ['PREF', 'HOME', 'P-01-RES', 'P-01-COM', 'P-01-IND', 'P-01-INF'] },
+  // Gestão & Inteligência (doc 13 §5): 10 construções e 3 Obras-Prima
+  { find: 'Folha Gestao e Inteligencia', cols: 5, rows: 2, kind: 'land', optional: true, ids: ['S1-01', 'S1-02', 'S1-03', 'S2-01', 'S2-02', 'S2-03', 'S2-04', 'S3-01', 'S3-02', 'S3-03'] },
+  { find: 'Folha Obras-Prima Gestao', cols: 3, rows: 1, kind: 'land', cover: true, fy: 0.55, optional: true, ids: ['M-13', 'M-14', 'M-15'] },
 ];
 
 const KIND = {
@@ -169,6 +175,7 @@ async function cutCell(file, rect, o) {
 await mkdir(OUT, { recursive: true });
 const made = [];
 for (const s of SHEETS) {
+  if (only && !s.ids.some((id) => id && id.startsWith(only))) continue;
   if (s.optional && !files.some((n) => n.normalize('NFC').includes(s.find))) { console.log(`${s.find}: ainda não existe (pulado)`); continue; }
   const file = pick(s.find);
   const meta = await sharp(file).metadata();

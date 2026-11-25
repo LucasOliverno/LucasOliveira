@@ -129,7 +129,9 @@ function Lobby({ o }) {
               <span className="tags">
                 {s.host && <small className="botk">anfitrião</small>}
                 {i === L.you && <small className="botk you">você</small>}
-                {s.bot && <small className="botk">bot</small>}
+                {s.bot && (isHost && !L.started
+                  ? <select className="lvl" value={s.level || 'normal'} onChange={(e) => o.act('botLevel', { seat: i, level: e.target.value })} aria-label={`Nível de ${s.name}`}>{[['facil', 'Fácil'], ['normal', 'Normal'], ['dificil', 'Difícil']].map(([k, l]) => <option key={k} value={k}>Bot · {l}</option>)}</select>
+                  : <small className="botk">bot{s.level && s.level !== 'normal' ? ` · ${s.level === 'facil' ? 'fácil' : 'difícil'}` : ''}</small>)}
                 {!s.online && <small className="botk offl">offline</small>}
               </span>
               {isHost && !s.host ? <button type="button" className="x" onClick={() => o.act('remove', { seat: i })} aria-label={`Remover ${s.name}`}>×</button> : <span />}
@@ -143,7 +145,7 @@ function Lobby({ o }) {
         <div>
           <label className="lab">Duração</label>
           <div className="seg wide">
-            {DURATIONS.map((d) => [d.target, `${d.label} · ⭐${d.target} · ${d.rounds} rodadas`]).map(([n, l]) => (
+            {DURATIONS.map((d) => [d.target, `${d.label} · ⭐${d.target} · ${d.mandates} mandatos`]).map(([n, l]) => (
               <button type="button" key={n} className={L.opts.target === n ? 'on' : ''} disabled={!isHost} onClick={() => o.act('opts', { target: n })}>{l}</button>
             ))}
           </div>

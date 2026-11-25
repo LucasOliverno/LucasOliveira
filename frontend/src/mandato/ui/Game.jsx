@@ -9,7 +9,7 @@ import { Chat } from './chat.jsx';
 import { chime, sfx, loadMuted, saveMuted } from './sound.js';
 import { useView, setView, VIEWS } from './viewpref.js';
 const Table3D = lazy(() => import('./Table3D.jsx'));
-import { BagInfo, FiscReveal, AuditLeaders, DeckView, CardZoom, GoalDetail, Coach } from './explain.jsx';
+import { PartyLeaders, PartyReveal, BagInfo, FiscReveal, AuditLeaders, DeckView, CardZoom, GoalDetail, Coach } from './explain.jsx';
 import { REGIONAL_HOWTO } from './explainData.js';
 import { City, MetersMini, ResPool, MeritTrack, TurnStrip, CenterBoard, CityMarks } from './board.jsx';
 import { Draft, Curtain, Rules, GameOver } from './screens.jsx';
@@ -71,6 +71,10 @@ function RoundBanner({ s, onBag }) {
             </div>
           )}</div>
         </div>
+      )}
+      {E.hasMandates(s) && (
+        <div className="b-party"><span className="tagk party" title="No fim de cada mandato o Partido avalia os prefeitos: 😊×2 + edifícios ativos. 1º ⭐2, 2º ⭐1.">Partido</span>
+          <span>Mandato <b>{E.mandateOf(s)}/{E.mandateCount(s)}</b> · avaliação no fim da rodada {E.reviewRound(s)}</span><PartyLeaders s={s} /></div>
       )}
       <Bag s={s} onOpen={onBag} />
     </div>
@@ -229,6 +233,8 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
   const [zoom, setZoom] = useState(null);
   const [coach, setCoach] = useState(!!tutorial);
   const [fiscSeen, setFiscSeen] = useState(() => (game.lastFisc ? game.lastFisc.id : 0));
+  const [reviewSeen, setReviewSeen] = useState(() => (game.lastReview ? game.lastReview.round : 0));
+  const reviewNew = s.lastReview && s.lastReview.round !== reviewSeen;
   const logLen = useRef(game.log.length);
   const tt = useRef(null);
 
@@ -471,6 +477,11 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
         else if (c.id === 'I3-02' || c.id === 'I2-04') acts.push(<button key="u" type="button" className="btn btn-primary" disabled={!myTurn} onClick={() => { run({ t: 'intrigue', hi: sel.hi, target: null }); setSel(null); }}>Usar Intriga</button>);
         else s.players.filter((p) => p.id !== viewer).forEach((p) => acts.push(<button key={p.id} type="button" className="btn btn-primary" disabled={!myTurn} onClick={() => { run({ t: 'intrigue', hi: sel.hi, target: p.id }); setSel(null); }} style={{ '--pc': p.color }}>Usar contra {p.name}</button>));
       }
+      { // Gestão & Inteligência: trocar ou vender a carta selecionada (1× por turno cada)
+        const ab = E.calc(s, me).abil, used = me.t.ab || {};
+        if (myTurn && ab.has('cycle')) acts.push(<button key="cy" type="button" className="btn btn-ghost" disabled={!!used.cycle} onClick={() => { run({ t: 'ability', id: 'cycle', hi: sel.hi }); setSel(null); }}>🔁 Trocar por outra carta (Cartório){used.cycle ? ' — já usado' : ''}</button>);
+        if (myTurn && ab.has('sell')) acts.push(<button key="se" type="button" className="btn btn-ghost" disabled={!!used.sell} onClick={() => { run({ t: 'ability', id: 'sell', hi: sel.hi }); setSel(null); }}>💰 Exilar e ganhar 💰3{used.sell ? ' — já usado' : ''}</button>);
+      }
       if (E.calc(s, me).recycle && myTurn) acts.push(<button key="rc" type="button" className="btn btn-ghost" onClick={() => { run({ t: 'ability', id: 'recycle', hi: sel.hi }); setSel(null); }}>♻️ Exilar (Usina de Reciclagem)</button>);
     } else if (sel.k === 'pile' || sel.k === 'row' || sel.k === 'reg') {
       const why = sel.k === 'reg' && E.regionalFull(me, c.id) ? 'Você já tem todas as cópias deste projeto.' : buyCheck(c.id);
@@ -622,6 +633,22 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
           <div className="seat-info">
             <MetersMini s={s} p={p} />
             <CityMarks s={s} p={p} />
+            {mine && turn && myTurn && (() => { // habilidades dos prédios de Gestão & Inteligência
+              const c = E.calc(s, p), used = p.t.ab || {};
+              const rivals = s.players.filter((q) => q.id !== p.id);
+              if (!c.abil.has('study') && !c.abil.has('spy') && !c.abil.has('cycle') && !c.abil.has('sell')) return null;
+              return (
+                <div className="abilities">
+                  {c.abil.has('study') && <button type="button" className="btn sm" disabled={!!used.study || p.pool.a < 1} onClick={() => run({ t: 'ability', id: 'study' })}>📚 Comprar 1 carta · 🗳️1</button>}
+                  {c.abil.has('spy') && rivals.map((q) => {
+                    const left = (c.spyUses || 1) - (used.spy || 0);
+                    const proof = E.calc(s, q).spyProof;
+                    return <button key={q.id} type="button" className="btn sm" disabled={left <= 0 || proof} title={proof ? 'Tem Corregedoria: a Inteligência não alcança' : 'Esse rival adiciona 1 🕵️ ao Saco'} onClick={() => run({ t: 'ability', id: 'spy', target: q.id })}><i className="disc sm" style={{ background: q.color }} /> 🕶️ Espionar {q.name}</button>;
+                  })}
+                  {(c.abil.has('cycle') || c.abil.has('sell')) && <small className="hint">Trocar / vender carta: selecione a carta na mão.</small>}
+                </div>
+              );
+            })()}
             {mine && turn && myTurn && (() => {
               const cost = E.landCost(p).v, slots = E.landSlots(p);
               const why = p.t.landed ? 'já comprou neste turno' : !slots.length ? 'grade no limite (5×5)' : p.pool.v < cost ? `faltam 💰 (custa ${cost})` : '';
@@ -783,7 +810,8 @@ export default function Game({ game, setGame, onExit, online, tutorial }) {
       {bagOpen && <BagInfo s={s} onClose={() => setBagOpen(false)} />}
       {deckOpen && <DeckView p={me} onClose={() => setDeckOpen(false)} />}
       {zoom && <CardZoom id={zoom} onClose={() => setZoom(null)} />}
-      {s.lastFisc && s.lastFisc.id !== fiscSeen && !needCurtain && !s.over && <FiscReveal s={s} onClose={() => setFiscSeen(s.lastFisc.id)} />}
+      {reviewNew && !needCurtain && <PartyReveal s={s} onClose={() => setReviewSeen(s.lastReview.round)} />}
+      {s.lastFisc && s.lastFisc.id !== fiscSeen && !reviewNew && !needCurtain && !s.over && <FiscReveal s={s} onClose={() => setFiscSeen(s.lastFisc.id)} />}
       {coach && !needCurtain && <Coach onClose={() => setCoach(false)} />}
       {s.over && !hideOver && (
         <GameOver

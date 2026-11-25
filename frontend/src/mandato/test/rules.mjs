@@ -210,8 +210,8 @@ const give = (p, ...ids) => { p.hand.unshift(...ids); };
   const s = game(2, ['litoral', 'montanha']);
   ok(s.target === D.DEFAULT_TARGET && s.maxRounds === D.DURATIONS.find((d) => d.target === D.DEFAULT_TARGET).rounds, `duração padrão: ⭐${s.target} em ${s.maxRounds} rodadas`);
   ok(!s.log.some((l) => l.kind === 'event'), 'nenhum evento de rodada no diário');
-  const s2 = E.newGame({ players: [{ name: 'a', bot: true }, { name: 'b', bot: true }], seed: 3, target: 20 });
-  ok(s2.maxRounds === 20, 'Épico: 20 rodadas');
+  const s2 = E.newGame({ players: [{ name: 'a', bot: true }, { name: 'b', bot: true }], seed: 3, target: 23 });
+  ok(s2.maxRounds === 20, 'Épico: 4 mandatos = 20 rodadas');
   const solo = E.newGame({ players: [{ name: 'a' }], solo: true, seed: 3 });
   ok(solo.target === 10 && E.maxRounds(solo) === 12, 'solo continua ⭐10 em 12 rodadas');
 }
@@ -254,6 +254,51 @@ const give = (p, ...ids) => { p.hand.unshift(...ids); };
   const marks = Object.keys(p.cityMarks).length;
   E.exec(s, { t: 'end' });
   ok(Object.keys(p.cityMarks).length >= marks && p.cityMarks.b8, 'marco fica registrado (não pontua de novo)');
+}
+
+// Avaliação do Partido: no fim de cada mandato (5 rodadas), 1º ⭐2 e 2º ⭐1; o pior avaliado abre o próximo mandato
+{
+  const s = E.newGame({ players: [{ name: 'a', bot: true }, { name: 'b', bot: true }, { name: 'c', bot: true }], seed: 11 });
+  const B = await import('../bot.js');
+  for (let k = 0; k < 2e5 && !s.over && !(s.round === 6 && s.phase === 'play'); k++) B.runBots(s, 1);
+  const r = s.lastReview;
+  ok(r && r.round === 5 && r.mandate === 1, `Avaliação no fim da rodada 5 (got ${r && r.round})`);
+  const best = r.res[0], second = r.res[1];
+  ok(best.merit === 2 || (best.merit === 1 && second.v === best.v), 'o melhor avaliado ganha ⭐2 (ou ⭐1 se empatar no topo)');
+  ok(r.res.every((x, i) => i === 0 || r.res[i - 1].v >= x.v), 'ranking ordenado pelos pontos do Partido');
+  ok(s.order[0] === r.res[r.res.length - 1].pid, 'o pior avaliado abre o 2º mandato');
+  ok(s.log.some((l) => /Avaliação do Partido/.test(l.msg) && /Fiscalização/.test(l.msg)), 'o Partido sorteia o Saco na Avaliação');
+  const solo = E.newGame({ players: [{ name: 'a' }], solo: true, seed: 3 });
+  ok(!E.hasMandates(solo), 'solo não tem Avaliação do Partido');
+}
+
+// Gestão & Inteligência: habilidades 1×/turno, mão maior, desconto, Corregedoria
+{
+  const s = game(2, ['planicie', 'litoral']);
+  const p = s.players[E.actor(s)], q = s.players.find((x) => x.id !== p.id);
+  settleAll(s);
+  const put = (pl, id) => { const t = pl.tiles.find((x) => !x.b && x.k === '.'); t.b = { id }; };
+  put(p, 'S1-01'); put(p, 'S1-02'); put(p, 'S2-01'); put(p, 'S2-04'); put(p, 'S3-03'); put(p, 'S3-01');
+  p.tiles.find((t) => t.b && t.b.id === 'HOME').b.popBonus = 10; // 👥 suficiente para o Req da Bolsa
+  p.pool = { v: 0, o: 0, a: 2 };
+  const ab = E.calc(s, p).abil;
+  ok(['study', 'cycle', 'spy', 'sell'].every((k) => ab.has(k)), 'habilidades ativas pelos prédios');
+  const h0 = p.hand.length;
+  ok(!E.exec(s, { t: 'ability', id: 'study' }) && p.hand.length === h0 + 1 && p.pool.a === 1, 'Biblioteca: paga 🗳️1 e compra 1');
+  ok(!!E.exec(s, { t: 'ability', id: 'study' }), 'Biblioteca só 1× por turno');
+  const first = p.hand[0];
+  ok(!E.exec(s, { t: 'ability', id: 'cycle', hi: 0 }) && p.discard.includes(first) && p.hand.length === h0 + 1, 'Cartório: descarta 1 e compra 1');
+  const n0 = p.exiled.length, v0 = p.pool.v;
+  ok(!E.exec(s, { t: 'ability', id: 'sell', hi: 0 }) && p.exiled.length === n0 + 1 && p.pool.v === v0 + 3, 'Bolsa: exila 1 carta e ganha 💰3');
+  const c0 = q.cubesBag;
+  ok(!E.exec(s, { t: 'ability', id: 'spy', target: q.id }) && q.cubesBag === c0 + 1, 'Inteligência: o rival põe 1 🕵️ no Saco');
+  ok(!!E.exec(s, { t: 'ability', id: 'spy', target: q.id }), 'Inteligência só 1× por turno');
+  ok(E.buyCost(s, p, 'A2-01').v === 3, `Gráfica: Administração de 💰5 sai por 💰3 (got ${E.buyCost(s, p, 'A2-01').v})`);
+  const c = E.calc(s, p);
+  ok(c.handPlus === 1, 'Data Center: +1 carta no fim do turno');
+  put(q, 'S2-02');
+  p.t.ab = {};
+  ok(!!E.exec(s, { t: 'ability', id: 'spy', target: q.id }), 'Corregedoria protege da Inteligência');
 }
 
 console.log(fails ? `\n${fails} FALHAS` : '\ntodos os cenários passaram');

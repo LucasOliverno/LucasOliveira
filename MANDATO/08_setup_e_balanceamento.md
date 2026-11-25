@@ -1,5 +1,13 @@
 # 08 — Setup, Draft de Terrenos e Balanceamento
 
+> **Atualização v1.6 (Mandatos e Avaliação do Partido).** A partida tem **mandatos de 5 rodadas** — Curto ⭐11 em 2
+> mandatos (10 rodadas), **Padrão ⭐17 em 3 mandatos (15 rodadas)**, Épico ⭐23 em 4 mandatos (20 rodadas); o solo segue
+> ⭐10/12 sem mandatos. No fim de cada mandato o **Partido avalia os prefeitos** por **😊×2 + edifícios ativos**: 1º ⭐2,
+> 2º ⭐1 (3+ prefeitos; empate no topo dá ⭐1 a cada um). Depois o Partido confere as contas: o Saco é sorteado com
+> Tensão +1. O próximo mandato começa pelo pior avaliado. A Auditoria por rodada continua.
+> Montanha, Ilha e Deserto começam com 😊+1; a Floresta reduz ☁️ no máx. −2 (era −3). Pacotes de Posição de 2, 3, 5 e 6
+> jogadores recalibrados.
+
 > **Atualização v1.5 (jogo de cidade).** Vale sobre o texto abaixo onde houver conflito:
 > - **Sem Eventos de Rodada.** A carta de Rodada só define a **Auditoria** (Selo para o 1º no critério). Os eventos
 >   desequilibravam os terrenos (diferença entre o melhor e o pior caiu de 0,57 para 0,21 sem eles, em simulação).

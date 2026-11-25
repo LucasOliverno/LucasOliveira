@@ -78,6 +78,40 @@ export function FiscReveal({ s, onClose }) {
   );
 }
 
+// ---------------------------------------------------------------- Avaliação do Partido (fim de cada mandato)
+export function PartyLeaders({ s }) {
+  if (!E.hasMandates(s)) return null;
+  const vals = s.players.map((p) => ({ p, v: E.partyScore(s, p) })).sort((a, b) => b.v - a.v);
+  return (
+    <span className="audit-lead" title="Pontos do Partido agora: 😊×2 + edifícios ativos. No fim do mandato, o 1º ganha ⭐2 e o 2º ⭐1.">
+      {vals.map(({ p, v }, i) => (
+        <span key={p.id} className={i === 0 ? 'first' : ''}><i className="disc sm" style={{ background: p.color }} />{v}</span>
+      ))}
+    </span>
+  );
+}
+
+export function PartyReveal({ s, onClose }) {
+  const r = s.lastReview;
+  if (!r) return null;
+  const pl = (pid) => s.players[pid];
+  return (
+    <Modal title={`🏛️ Avaliação do Partido — fim do ${r.mandate}º mandato`} onClose={onClose}>
+      <p className="lead">O Partido avalia cada prefeito pela <b>aprovação (😊×2)</b> e pelos <b>edifícios ativos</b>. Os mais bem avaliados recebem Mérito; depois o Partido confere as contas e sorteia o Saco.</p>
+      <ol className="party-rank">
+        {r.res.map((x, i) => (
+          <li key={x.pid} className={x.merit ? 'got' : ''} style={{ animationDelay: `${i * 0.25}s` }}>
+            <i className="disc" style={{ background: pl(x.pid).color }} /> <b>{pl(x.pid).name}</b> <span>{x.v} pontos</span>
+            {x.merit ? <em>+⭐{x.merit}</em> : null}
+          </li>
+        ))}
+      </ol>
+      {s.round < E.maxRounds(s) && !s.over && <p className="hint">O próximo mandato começa por <b>{pl(r.res[r.res.length - 1].pid).name}</b> (o pior avaliado joga primeiro).</p>}
+      <button type="button" className="btn btn-primary" onClick={onClose}>Ok</button>
+    </Modal>
+  );
+}
+
 // ---------------------------------------------------------------- Auditoria: quem lidera agora
 export function AuditLeaders({ s }) {
   const rd = ROUNDS.find((r) => r.id === s.card);
@@ -165,7 +199,7 @@ const TOUR = [
   { sel: '.pane-side', title: 'Mercado', text: 'Gaste 💰 comprando cartas. Elas vão para o descarte e voltam na sua mão nos próximos turnos. Mercado Padrão está sempre disponível; a Fila Especial gira e traz cartas mais fortes; Seus Projetos Regionais são exclusivos do seu terreno.' },
   { sel: '.seat.mine', title: 'Sua cidade', text: 'Edificações na mão são construídas aqui: clique na carta, depois em "Construir" e numa casa destacada. Cada edifício rende todo turno, mas consome ⚡/💧 e alguns pedem população mínima (Req 👥).' },
   { sel: '.center', title: 'Metas e Facções', text: 'Metas dão ⭐2 ao 1º que cumprir e ⭐1 ao 2º (clique numa para ver o que pede). Cartas com ícone de Facção te avançam na trilha: chegar a 3 vale ⭐1.' },
-  { sel: '.banner', title: 'Rodada e Auditoria', text: 'Cada rodada tem uma Auditoria: no fim, quem for melhor no critério ganha um Selo (2 Selos = ⭐1). Os números ao lado mostram quem lidera.' },
+  { sel: '.banner', title: 'Rodada, Auditoria e Partido', text: 'Cada rodada tem uma Auditoria: no fim, quem for melhor no critério ganha um Selo (2 Selos = ⭐1). A partida é dividida em mandatos de 5 rodadas: no fim de cada um, o Partido avalia os prefeitos (😊×2 + edifícios ativos) e dá ⭐2 ao 1º e ⭐1 ao 2º. Os números mostram quem lidera agora.' },
   { sel: '.bag', title: 'O Saco', text: 'Cartas corruptas põem cubos seus no Saco. Quando uma carta 🔔 entra na Fila, há sorteio: cubo seu sorteado custa 😊. Clique no Saco para entender tudo.' },
   { sel: '.topbar', title: 'Objetivo', text: 'A trilha de cima mostra o Mérito (⭐) de todos. Quem chegar a ⭐10 encerra o jogo no fim da rodada; senão, vence quem tiver mais ⭐ após 12 rodadas. Boa campanha, prefeito!' },
 ];

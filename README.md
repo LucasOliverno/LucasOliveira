@@ -131,6 +131,32 @@ para ~0,2 por partida). Resultado: assentos 22–28% em 4p, terrenos entre 0,6×
 - Limitação conhecida: os bots não perseguem 👥, então Metrópole/Bairro Planejado e as Metas Regionais de Planície e
   Floresta quase não saem em simulação (são possíveis para humanos).
 
+**Mandatos e Avaliação do Partido v1.6:** a partida é dividida em mandatos de 5 rodadas (`MANDATE`, `DURATIONS` em
+`data.js`): Curto ⭐11/2 mandatos, **Padrão ⭐17/3 mandatos**, Épico ⭐23/4 mandatos. No fim de cada mandato o Partido avalia
+os prefeitos por 😊×2 + edifícios ativos (`partyScore`): 1º ⭐2, 2º ⭐1, Saco sorteado com Tensão +1, e o pior avaliado abre o
+próximo mandato. O topo da mesa mostra o mandato e quem lidera; o resultado aparece numa janela no fim do mandato.
+- Validado antes por simulação: a ordem de jogo quase não pesa (o último a jogar na rodada faz só 5–10% menos ⭐), então
+  mandatos de 5 rodadas funcionam com qualquer número de jogadores. A fórmula 👥 + 😊 − ☁️ foi descartada (Planície e
+  Floresta chegavam a 2× a média); 😊×2 + edifícios foi a mais equilibrada.
+- Resultado (bots, draft aleatório, Padrão): assentos 2p 46/54, 3p 32–35%, 4p 21–30%, 5p 16–23%, 6p 15–20%; terrenos com
+  diferença de 0,3–0,8; ~55–70% das partidas terminam por alguém chegar à meta; o Partido rende 15–20% do Mérito.
+
+**Dificuldade dos bots:** cada bot tem um nível (`botLevel`: `facil` / `normal` / `dificil`), escolhido na partida local
+(ao lado de cada assento de bot) e na sala online (o anfitrião escolhe no lobby). Fácil erra de propósito (casas e compras ao
+acaso, ignora o risco do Saco, não compra terreno nem usa Obras-Prima e Decretos, às vezes esquece Metas); Difícil joga para a
+Avaliação do Partido e os Marcos da Cidade, protege a ficha no Saco e recebe **+💰2** no início de cada turno (vantagem
+declarada nas Regras; só heurística não o deixava claramente mais forte). Medido em simulação (1 bot do nível contra Normais):
+4 jogadores — Fácil vence 6%, Normal ~21–25%, Difícil 30%; 3 jogadores — Fácil 9%, Difícil 39% (justo = 33%).
+
+**Gestão & Inteligência v1.7** (`MANDATO/13_proposta_gestao_e_inteligencia.md`): 10 construções (S1-01…S3-03) e 3
+Obras-Prima (M-13…M-15) com poderes de deck-builder e de interação — comprar carta pagando 🗳️, trocar carta, exilar/vender
+carta por 💰3, +1 carta por turno, Administração mais barata ou que rende mais, Inteligência (põe 🕵️ de um rival no Saco),
+Corregedoria (limpa e protege), Imprensa/TV (ganham quando um rival é pego). Habilidades 1×/turno: comando `ability`
+(`study`, `cycle`, `sell`, `spy`), botões no painel da cidade e no Inspetor. Testadas por simulação ("começa com a carta na
+mão"): construções novas vencem 28–38% contra 31% do controle e ficam no nível ou acima das do mesmo tier; jogo completo
+com 4p 23–27% por assento. Arte em `MANDATO/images/Folha Gestao e Inteligencia.png` e `Folha Obras-Prima Gestao.png`
+(recorte em `slice-art.mjs`); modelos no gerador do Blender (`MANDATO/3d/revisao_visual`).
+
 **Arte das cartas:** as folhas geradas por IA ficam em `MANDATO/images/` (ordem e prompts em
 `MANDATO/12_guia_de_prompts_ia.md`). `frontend/scripts/slice-art.mjs` recorta cada folha em uma imagem por ID
 (`public/mandato/art/<ID>.webp`: edificações, regionais, administração, básicas/padrão, decretos, intrigas,

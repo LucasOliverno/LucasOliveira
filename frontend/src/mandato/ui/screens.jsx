@@ -2,7 +2,7 @@ import { Glossary } from './explain.jsx';
 import { useState } from 'react';
 import { TERRAINS, RIVAL, ZONES, PLAYER_COLORS, FACTIONS, FAC_KEYS, CARGOS, packageFor } from '../data.js';
 import { calc, MAX_ROUNDS, actor } from '../engine.js';
-import { DURATIONS, DEFAULT_TARGET, CITY_MARKS, LAND } from '../data.js';
+import { DURATIONS, DEFAULT_TARGET, CITY_MARKS, LAND, MANDATE, PARTY_REVIEW } from '../data.js';
 import { Ico, Rich, TerrainGlyph } from './icons.jsx';
 import { artUrl, terrainMap } from './cardutil.js';
 
@@ -107,6 +107,11 @@ export function Setup({ mode, onBack, onStart }) {
                   <button type="button" className={!x.bot ? 'on' : ''} onClick={() => setSeat(i, { bot: false })}>Humano</button>
                   <button type="button" className={x.bot ? 'on' : ''} onClick={() => setSeat(i, { bot: true })}>Bot</button>
                 </div>
+                {x.bot ? (
+                  <select className="lvl" value={x.level || 'normal'} onChange={(e) => setSeat(i, { level: e.target.value })} aria-label={`Nível do bot ${i + 1}`} title="Fácil erra de propósito; Difícil joga para o Partido e recebe +💰2 por turno">
+                    {[['facil', 'Fácil'], ['normal', 'Normal'], ['dificil', 'Difícil']].map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+                  </select>
+                ) : <span />}
                 <button type="button" className="x" onClick={() => delSeat(i)} disabled={seats.length <= 2} aria-label="Remover assento">×</button>
               </li>
             ))}
@@ -119,7 +124,7 @@ export function Setup({ mode, onBack, onStart }) {
         <div>
           <label className="lab">Duração</label>
           <div className="seg wide">
-            {(solo ? [[8, 'Curto · ⭐8'], [10, 'Padrão · ⭐10'], [12, 'Épico · ⭐12']] : DURATIONS.map((d) => [d.target, `${d.label} · ⭐${d.target} · ${d.rounds} rodadas`])).map(([n, l]) => (
+            {(solo ? [[8, 'Curto · ⭐8'], [10, 'Padrão · ⭐10'], [12, 'Épico · ⭐12']] : DURATIONS.map((d) => [d.target, `${d.label} · ⭐${d.target} · ${d.mandates} mandatos`])).map(([n, l]) => (
               <button type="button" key={n} className={target === n ? 'on' : ''} onClick={() => setTarget(n)}>{l}</button>
             ))}
           </div>
@@ -138,7 +143,7 @@ export function Setup({ mode, onBack, onStart }) {
         disabled={!valid}
         onClick={() => onStart(solo
           ? { solo: true, level, target, noIntrigues: true, players: [{ name: name.trim() || 'Prefeito(a)', bot: false }] }
-          : { solo: false, target, noIntrigues, players: seats.map((x) => ({ name: x.name.trim() || 'Jogador', bot: x.bot })) })}
+          : { solo: false, target, noIntrigues, players: seats.map((x) => ({ name: x.name.trim() || 'Jogador', bot: x.bot, botLevel: x.level || 'normal' })) })}
       >
         {solo ? 'Escolher terreno' : 'Iniciar draft de terrenos'}
       </button>
@@ -254,6 +259,8 @@ export function Rules({ onClose }) {
         <section>
           <h3>Objetivo</h3>
           <p>Chegue à <b>meta de Mérito</b> da partida (⭐{DURATIONS.map((d) => d.target).join(' / ⭐')} conforme a duração; ⭐10 no solo) antes dos outros. Quando alguém chega lá, a rodada em andamento é completada e vence quem tiver mais ⭐ (desempate: maior 😊 → menor ☁️ → maior Tesouro). Se ninguém chegar, a última rodada ({DURATIONS.map((d) => d.rounds).join(' / ')}; {MAX_ROUNDS} no solo) encerra o jogo.</p>
+          <p><b>Mandatos e Avaliação do Partido:</b> a partida tem {DURATIONS.map((d) => d.mandates).join(' / ')} mandatos de {MANDATE} rodadas. No fim de cada mandato o Partido avalia os prefeitos por <b>😊×2 + edifícios ativos</b>: o 1º ganha ⭐{PARTY_REVIEW.first} e o 2º ⭐{PARTY_REVIEW.second} (com 3+ prefeitos; empate no topo dá ⭐1 a cada um). Depois o Partido confere as contas: o Saco é sorteado com Tensão +1. O próximo mandato começa pelo pior avaliado.</p>
+          <p><b>Bots:</b> <b>Fácil</b> erra de propósito (casas e compras ao acaso, não compra terreno nem usa Obras-Prima e Decretos, esquece Metas); <b>Normal</b> é o bot padrão; <b>Difícil</b> joga para a Avaliação do Partido e os Marcos da Cidade, protege a ficha no Saco e recebe <b>+💰2</b> no início de cada turno.</p>
           <p><b>Marcos da Cidade</b> (⭐1 cada, uma vez): {CITY_MARKS.map((m) => m.label).join(' · ')}. <b>Comprar terreno:</b> 1 por turno, vizinho da sua cidade, até a grade 5×5 (💰{LAND.base}, depois +💰{LAND.step} a cada compra).</p>
         </section>
         <section>
