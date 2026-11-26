@@ -1,0 +1,281 @@
+INFO Draco mesh compression is available, use library at C:\Users\soare\AppData\Local\GarimpoBlenderPortable\blender-4.3.2-windows-x64\4.3\python\lib\site-packages\extern_draco.dll
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.001
+15:43:58 | INFO: Primitives created: 4
+15:43:58 | INFO: Finished glTF 2.0 export in 0.05017232894897461 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.053
+15:43:58 | INFO: Primitives created: 6
+15:43:58 | INFO: Finished glTF 2.0 export in 0.01450800895690918 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.082
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.008050680160522461 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.101
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.006320476531982422 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.110
+15:43:58 | INFO: Primitives created: 5
+15:43:58 | INFO: Finished glTF 2.0 export in 0.016318798065185547 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.119
+15:43:58 | INFO: Primitives created: 7
+15:43:58 | INFO: Finished glTF 2.0 export in 0.017215967178344727 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.152
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.0065152645111083984 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.172
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.00806283950805664 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.179
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.007642269134521484 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.204
+15:43:58 | INFO: Primitives created: 4
+15:43:58 | INFO: Finished glTF 2.0 export in 0.010413885116577148 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.015
+15:43:58 | INFO: Primitives created: 3
+15:43:58 | INFO: Finished glTF 2.0 export in 0.01039433479309082 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Icosphere.010
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.006693363189697266 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.016
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.007677793502807617 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.219
+15:43:58 | INFO: Primitives created: 1
+15:43:58 | INFO: Finished glTF 2.0 export in 0.004929780960083008 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.017
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.007582187652587891 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.222
+15:43:58 | INFO: Primitives created: 1
+15:43:58 | INFO: Finished glTF 2.0 export in 0.0034923553466796875 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.018
+15:43:58 | INFO: Primitives created: 9
+15:43:58 | INFO: Finished glTF 2.0 export in 0.02167034149169922 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.023
+15:43:58 | INFO: Primitives created: 10
+15:43:58 | INFO: Finished glTF 2.0 export in 0.02556467056274414 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.028
+15:43:58 | INFO: Primitives created: 10
+15:43:58 | INFO: Finished glTF 2.0 export in 0.02465963363647461 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.033
+15:43:58 | INFO: Primitives created: 10
+15:43:58 | INFO: Finished glTF 2.0 export in 0.021752357482910156 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.038
+15:43:58 | INFO: Primitives created: 9
+15:43:58 | INFO: Finished glTF 2.0 export in 0.023631811141967773 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.298
+15:43:58 | INFO: Primitives created: 1
+15:43:58 | INFO: Finished glTF 2.0 export in 0.0045244693756103516 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Icosphere.087
+15:43:58 | INFO: Primitives created: 1
+15:43:58 | INFO: Finished glTF 2.0 export in 0.005009174346923828 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.299
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.006524324417114258 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.053
+15:43:58 | INFO: Primitives created: 4
+15:43:58 | INFO: Finished glTF 2.0 export in 0.012494087219238281 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.054
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.008523225784301758 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.324
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.009527921676635742 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.061
+15:43:58 | INFO: Primitives created: 3
+15:43:58 | INFO: Finished glTF 2.0 export in 0.008613348007202148 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.062
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.006684541702270508 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Icosphere.120
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.006532907485961914 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.063
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.026633024215698242 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Icosphere.127
+15:43:58 | INFO: Primitives created: 1
+15:43:58 | INFO: Finished glTF 2.0 export in 0.004403829574584961 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cone.028
+15:43:58 | INFO: Primitives created: 1
+15:43:58 | INFO: Finished glTF 2.0 export in 0.006031513214111328 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Icosphere.128
+15:43:58 | INFO: Primitives created: 1
+15:43:58 | INFO: Finished glTF 2.0 export in 0.005006551742553711 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.064
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.008473396301269531 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.065
+15:43:58 | INFO: Primitives created: 3
+15:43:58 | INFO: Finished glTF 2.0 export in 0.010051727294921875 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cone.031
+15:43:58 | INFO: Primitives created: 3
+15:43:58 | INFO: Finished glTF 2.0 export in 0.013383150100708008 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Torus.010
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.007607936859130859 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.356
+15:43:58 | INFO: Primitives created: 1
+15:43:58 | INFO: Finished glTF 2.0 export in 0.006020307540893555 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cone.039
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.007020235061645508 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Icosphere.133
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.006886720657348633 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cone.042
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.009023189544677734 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Torus.012
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.007519245147705078 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.374
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.00713658332824707 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.069
+15:43:58 | INFO: Primitives created: 3
+15:43:58 | INFO: Finished glTF 2.0 export in 0.009020328521728516 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.071
+15:43:58 | INFO: Primitives created: 5
+15:43:58 | INFO: Finished glTF 2.0 export in 0.015726089477539062 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.072
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.006698131561279297 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.073
+15:43:58 | INFO: Primitives created: 6
+15:43:58 | INFO: Finished glTF 2.0 export in 0.018062114715576172 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Torus.020
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.00855255126953125 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.388
+15:43:58 | INFO: Primitives created: 1
+15:43:58 | INFO: Finished glTF 2.0 export in 0.005521059036254883 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.075
+15:43:58 | INFO: Primitives created: 1
+15:43:58 | INFO: Finished glTF 2.0 export in 0.005558490753173828 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.409
+15:43:58 | INFO: Primitives created: 1
+15:43:58 | INFO: Finished glTF 2.0 export in 0.004566669464111328 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.410
+15:43:58 | INFO: Primitives created: 2
+15:43:58 | INFO: Finished glTF 2.0 export in 0.006527423858642578 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cylinder.080
+15:43:58 | INFO: Primitives created: 3
+15:43:58 | INFO: Finished glTF 2.0 export in 0.008979558944702148 s
+
+15:43:58 | INFO: Starting glTF 2.0 export
+15:43:58 | INFO: Extracting primitive: Cube.421
+15:43:58 | INFO: Primitives created: 3
+15:43:58 | INFO: Finished glTF 2.0 export in 0.044336795806884766 s
+
+Info: Saved "garimpo_modelos_v3.blend"
+EXPORTADOS 55
+Blender 4.3.2 (hash 32f5fdce0a0a built 2024-12-17 03:35:23)
+
+Blender quit

@@ -1,0 +1,7 @@
+# Modelos 3D — versão 2
+
+Os 55 IDs do guia, incluindo quatro cores de jogador e DLCs, estão em `assets/` como arquivos GLB individuais. `garimpo_modelos_v2.blend` reúne os modelos editáveis; os objetos estão separados em uma grade para inspeção. Os arquivos individuais têm origem no centro inferior, são exportados com eixo Y para cima e usam números em centímetros: por exemplo, um cubo de 0,8 cm tem extensão 0,8 no GLB. Configure a escala de importação da engine conforme seu sistema de unidades.
+
+O Blender reimportou todos os 55 GLBs: cada arquivo contém uma malha, com dimensões e base conferidas. A contagem de triângulos está em `relatorio_v2.json` e ficou dentro dos limites da tabela. Os 55 renders sobre fundo neutro estão em `renders/`; `catalogo_v2.jpg` facilita a revisão. Scripts `gerar_modelos_v2.py`, `render_v2.py` e `validar_v2.py` reproduzem a geração e verificação.
+
+São modelos low-poly procedurais de primeira versão, sem atlas de textura e sem limpeza de todas as faces internas das peças compostas. Os chefes, a Medusa e o Cérbero são interpretações simplificadas e precisam de refinamento artístico. O tabuleiro e a caixa usam as imagens geradas como texturas, ainda sujeitas às correções visuais registradas em PROGRESSO.md. O tabuleiro pessoal e demais objetos usam materiais simples; não há garantia de geometria adequada para impressão 3D. Os renders usam materiais de prévia, não iluminação final de jogo.
