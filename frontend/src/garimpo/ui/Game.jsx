@@ -291,7 +291,12 @@ export default function Game({ s, you, actor, send, top = null, note = null, cha
       <main className="gm-main">
         <section className="gm-board">
           {view3d ? (
-            <Suspense fallback={<div className="gm-loading">Montando a mesa…</div>}><Table3D s={s} you={you} /></Suspense>
+            <Suspense fallback={<div className="gm-loading">Montando a mesa…</div>}>
+              <Table3D s={s} you={you} myTurn={myTurn} rideTo={rides}
+                onMove={(to, ride) => send(ride ? { t: 'ride', to } : { t: 'move', to })}
+                onExplore={(dir) => send({ t: 'explore', dir })}
+                pickNodes={pickNodes} onPickNode={(node) => send({ t: 'choose', node })} />
+            </Suspense>
           ) : (
             <Mine s={s} you={you} myTurn={myTurn} rideTo={rides}
               onMove={(to, ride) => send(ride ? { t: 'ride', to } : { t: 'move', to })}
