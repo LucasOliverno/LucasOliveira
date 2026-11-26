@@ -1,4 +1,4 @@
-// Servidor único: serve o site (frontend/dist) e o WebSocket do MANDATO online em /mandato/ws.
+// Servidor único: serve o site (frontend/dist) e os WebSockets do MANDATO (/mandato/ws) e do GARIMPO (/garimpo/ws).
 //   npm run build && npm start        (produção, ex.: Railway — usa a variável PORT)
 //   npm run server                    (só o WebSocket, para o `npm run dev` com proxy do Vite)
 import { createServer } from 'node:http';
@@ -8,9 +8,11 @@ import { extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
 import { Rooms } from './rooms.mjs';
+import { GarimpoRooms } from './garimpoRooms.mjs';
 
 const DIST = resolve(fileURLToPath(new URL('../dist', import.meta.url)));
 const WS_PATH = '/mandato/ws';
+const GARIMPO_WS = '/garimpo/ws';
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml',
@@ -43,10 +45,11 @@ async function serve(req, res) {
   if (url.pathname === '/healthz') { res.writeHead(200, { 'content-type': 'text/plain' }); res.end('ok'); return; }
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); res.end(); return; }
   if (url.pathname === '/mandato') { res.writeHead(301, { location: `/mandato/${url.search}` }); res.end(); return; }
+  if (url.pathname === '/garimpo') { res.writeHead(301, { location: `/garimpo/${url.search}` }); res.end(); return; }
 
   let f = await fileFor(url.pathname);
   // o portfólio é uma SPA: rotas sem arquivo caem no index.html (o jogo só existe em /mandato/)
-  if (!f && !url.pathname.startsWith('/mandato/') && !extname(url.pathname)) f = await fileFor('/index.html');
+  if (!f && !url.pathname.startsWith('/mandato/') && !url.pathname.startsWith('/garimpo/') && !extname(url.pathname)) f = await fileFor('/index.html');
   if (!f) { res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' }); res.end('Não encontrado'); return; }
 
   const ext = extname(f.path).toLowerCase();
@@ -67,22 +70,26 @@ async function serve(req, res) {
 
 // Salas salvas em arquivo (MANDATO_DATA_FILE). Em produção, aponte para um volume persistente para sobreviver a deploys.
 const DATA_FILE = process.env.MANDATO_DATA_FILE || resolve(fileURLToPath(new URL('../data/rooms.json', import.meta.url)));
+const GARIMPO_FILE = process.env.GARIMPO_DATA_FILE || resolve(fileURLToPath(new URL('../data/garimpo-rooms.json', import.meta.url)));
 
-export function start({ port = Number(process.env.PORT) || 8787, host = '0.0.0.0', file = DATA_FILE } = {}) {
+export function start({ port = Number(process.env.PORT) || 8787, host = '0.0.0.0', file = DATA_FILE, garimpoFile = file === null ? null : GARIMPO_FILE } = {}) {
   const rooms = new Rooms({ file });
+  const garimpo = new GarimpoRooms({ file: garimpoFile });
   const server = createServer((req, res) => { serve(req, res).catch(() => { res.writeHead(500); res.end(); }); });
   const wss = new WebSocketServer({ noServer: true, maxPayload: 8 * 1024 });
+  const gwss = new WebSocketServer({ noServer: true, maxPayload: 8 * 1024 });
 
   server.on('upgrade', (req, socket, head) => {
     const { pathname } = new URL(req.url, 'http://x');
     const origin = req.headers.origin;
     let okOrigin = true;
     if (origin) { try { okOrigin = new URL(origin).host === req.headers.host; } catch { okOrigin = false; } }
-    if (pathname !== WS_PATH || !okOrigin) { socket.destroy(); return; }
-    wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws, req));
+    if (!okOrigin || (pathname !== WS_PATH && pathname !== GARIMPO_WS)) { socket.destroy(); return; }
+    const target = pathname === GARIMPO_WS ? gwss : wss;
+    target.handleUpgrade(req, socket, head, (ws) => target.emit('connection', ws, req));
   });
 
-  wss.on('connection', (ws) => {
+  const onConnection = (rs) => (ws) => {
     ws.alive = true;
     ws.ctx = null;
     let n = 0;
@@ -94,14 +101,16 @@ export function start({ port = Number(process.env.PORT) || 8787, host = '0.0.0.0
       if (++n > 60) { ws.close(1008, 'Muitas mensagens'); return; }
       let msg;
       try { msg = JSON.parse(raw.toString()); } catch { return; }
-      try { rooms.handle(ws, msg); } catch (e) { console.error('erro na sala:', e); ws.send(JSON.stringify({ t: 'error', msg: 'Erro interno do servidor.' })); }
+      try { rs.handle(ws, msg); } catch (e) { console.error('erro na sala:', e); ws.send(JSON.stringify({ t: 'error', msg: 'Erro interno do servidor.' })); }
     });
-    ws.on('close', () => { try { rooms.disconnected(ws); } catch (e) { console.error(e); } });
+    ws.on('close', () => { try { rs.disconnected(ws); } catch (e) { console.error(e); } });
     ws.on('error', () => {});
-  });
+  };
+  wss.on('connection', onConnection(rooms));
+  gwss.on('connection', onConnection(garimpo));
 
   const beat = setInterval(() => {
-    for (const ws of wss.clients) {
+    for (const ws of [...wss.clients, ...gwss.clients]) {
       if (!ws.alive) { ws.terminate(); continue; }
       ws.alive = false;
       try { ws.ping(); } catch { /* conexão já caiu */ }
@@ -109,12 +118,13 @@ export function start({ port = Number(process.env.PORT) || 8787, host = '0.0.0.0
   }, 25000);
   beat.unref();
 
-  return new Promise((ok) => server.listen(port, host, () => ok({ server, wss, rooms, port: server.address().port, close: () => { clearInterval(beat); rooms.flush(); for (const r of rooms.rooms.values()) clearTimeout(r.botTimer); rooms.sweeper && clearInterval(rooms.sweeper); for (const c of wss.clients) c.terminate(); server.close(); } })));
+  return new Promise((ok) => server.listen(port, host, () => ok({ server, wss, rooms, gwss, garimpo, port: server.address().port, close: () => { clearInterval(beat); rooms.flush(); garimpo.flush(); for (const r of garimpo.rooms.values()) clearTimeout(r.botTimer); clearInterval(garimpo.sweeper); for (const c of gwss.clients) c.terminate(); for (const r of rooms.rooms.values()) clearTimeout(r.botTimer); rooms.sweeper && clearInterval(rooms.sweeper); for (const c of wss.clients) c.terminate(); server.close(); } })));
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   start().then((s) => {
     console.log(`MANDATO online em http://localhost:${s.port}/mandato/  (ws: ${WS_PATH})`);
+    console.log(`GARIMPO online no ws: ${GARIMPO_WS}`);
     const bye = () => { s.close(); process.exit(0); };
     process.on('SIGTERM', bye); // deploy/reinício: grava as salas antes de sair
     process.on('SIGINT', bye);
