@@ -181,15 +181,15 @@ function Glow({ r = 1.5, color = '#e8b53a' }) {
   return <mesh ref={ref} position={[0, 0.09, 0]} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[r, r + 0.28, 40]} /><meshBasicMaterial color={color} transparent opacity={0.6} depthWrite={false} /></mesh>;
 }
 
-function Room({ s, n, nodes, pos, clickable, picking, here, onClick, hover, setHover }) {
+function Room({ s, n, nodes, pos, clickable, picking, here, onClick, hover, setHover, onInfo }) {
   const kind = s.map.nodes[n].kind || 'vazia';
   const seed = n.length + n.charCodeAt(n.length - 1);
   const relic = s.relics[n];
   return (
     <group position={pos}
-      onClick={(e) => { if (clickable || picking) { e.stopPropagation(); onClick(n); } }}
-      onPointerOver={(e) => { e.stopPropagation(); setHover(n); if (clickable || picking) document.body.style.cursor = 'pointer'; }}
-      onPointerOut={() => { setHover(null); document.body.style.cursor = ''; }}>
+      onClick={(e) => { e.stopPropagation(); if (clickable || picking) onClick(n); else onInfo?.({ room: n, pinned: true }); }}
+      onPointerOver={(e) => { e.stopPropagation(); setHover(n); onInfo?.({ room: n }); document.body.style.cursor = 'pointer'; }}
+      onPointerOut={() => { setHover(null); onInfo?.(null); document.body.style.cursor = ''; }}>
       <mesh position={[0, 0.06, 0]} receiveShadow castShadow>
         <cylinderGeometry args={[1.45, 1.55, 0.14, 32]} />
         <meshStandardMaterial color={ROOM_COLOR[kind] || '#5b4a3a'} roughness={0.85} emissive={hover === n && (clickable || picking) ? '#4a3510' : '#000000'} />
@@ -227,14 +227,14 @@ function Tunnel({ a, b, e, nodes, blocked }) {
   );
 }
 
-function Stub({ p, side, ok, rubble, onClick }) {
+function Stub({ p, side, ok, rubble, onClick, onHover }) {
   const ref = useRef();
   useFrame((st) => { if (ref.current && ok) ref.current.position.y = TOP + 0.6 + Math.sin(st.clock.elapsedTime * 3) * 0.12; });
   return (
     <group>
       <mesh ref={ref} position={[p[0], TOP + 0.6, p[2]]}
         onClick={(e) => { if (ok) { e.stopPropagation(); onClick(side); } }}
-        onPointerOver={() => { if (ok) document.body.style.cursor = 'pointer'; }} onPointerOut={() => { document.body.style.cursor = ''; }}>
+        onPointerOver={() => { onHover?.(true); if (ok) document.body.style.cursor = 'pointer'; }} onPointerOut={() => { onHover?.(false); document.body.style.cursor = ''; }}>
         <octahedronGeometry args={[0.45]} />
         <meshStandardMaterial color={rubble ? '#6a6460' : ok ? '#e8b53a' : '#5a4a3a'} emissive={ok ? '#7a5a10' : '#000000'} transparent opacity={ok ? 1 : 0.6} />
       </mesh>
@@ -243,7 +243,7 @@ function Stub({ p, side, ok, rubble, onClick }) {
   );
 }
 
-function Mine({ s, nodes, you, myTurn, rideTo, onMove, onExplore, pickNodes, onPickNode }) {
+function Mine({ s, nodes, you, myTurn, rideTo, onMove, onExplore, pickNodes, onPickNode, onInfo }) {
   const [hover, setHover] = useState(null);
   const rides = rideTo || {};
   const ids = E.nodeIds(s);
@@ -280,13 +280,13 @@ function Mine({ s, nodes, you, myTurn, rideTo, onMove, onExplore, pickNodes, onP
           return (
             <group key={`${k}${side}`}>
               <Tunnel a={pos(ex.node)} b={p} e={{ type: st.pass.type === 'rubble' ? 't' : st.pass.type, den: st.pass.den }} nodes={nodes} blocked={false} />
-              <Stub p={p} side={side} ok={ok} rubble={st.pass.type === 'rubble'} onClick={onExplore} />
+              <Stub p={p} side={side} ok={ok} rubble={st.pass.type === 'rubble'} onClick={onExplore} onHover={(on) => onInfo?.(on ? { stub: { node: ex.node, dir: side } } : null)} />
             </group>
           );
         });
       })}
       {ids.map((n) => <Room key={n} s={s} n={n} nodes={nodes} pos={pos(n)} clickable={reach.has(n) || !!rides[n]} picking={!!pickNodes?.includes(n)} here={me?.node === n}
-        hover={hover} setHover={setHover} onClick={(id) => (pickNodes?.includes(id) ? onPickNode(id) : onMove(id, !reach.has(id) && !!rides[id]))} />)}
+        hover={hover} setHover={setHover} onInfo={onInfo} onClick={(id) => (pickNodes?.includes(id) ? onPickNode(id) : onMove(id, !reach.has(id) && !!rides[id]))} />)}
       {s.map.edges.filter((e) => e.type === 'elev').map((e) => { const b = pos(e.b); return <Label key={e.key} text="elevador até a Boca" position={[b[0], TOP + 0.2, b[2] - 1.9]} width={3} color="#9fd0e8" />; })}
       {s.players.filter(E.inMine).map((p) => {
         const here = s.players.filter((q) => E.inMine(q) && q.node === p.node);

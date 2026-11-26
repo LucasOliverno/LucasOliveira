@@ -97,33 +97,35 @@ export const CARDS = {
   MAPV: { name: 'Mapa do Veio', type: 'fixed', cost: 7, pts: 7, qty: 12 },
   RATO: { name: 'Rato-de-Mina', type: 'beast', fixed: true, fight: 2, reward: { gold: 1 } },
   // Túnel — ferramentas
-  CARB: { name: 'Lanterna de Carbureto', type: 'tool', cost: 3, qty: 3, luz: 2, est: -1 },
-  ACO: { name: 'Picareta de Aço', type: 'tool', cost: 3, qty: 3, pic: 2 },
-  SISAL: { name: 'Corda de Sisal', type: 'tool', cost: 2, qty: 2, luz: 1, fx: 'ropeUp' },
-  CAPA: { name: 'Capacete Amassado', type: 'tool', cost: 2, qty: 2, pic: 1, est: -1 },
+  CARB: { name: 'Lanterna de Carbureto', type: 'tool', cost: 3, qty: 3, luz: 2, combo: { est: -2 } },
+  ACO: { name: 'Picareta de Aço', type: 'tool', cost: 3, qty: 3, pic: 2, combo: { pic: 1 } },
+  SISAL: { name: 'Corda de Sisal', type: 'tool', cost: 2, qty: 2, luz: 1, fx: 'ropeUp', combo: { luz: 1 } },
+  CAPA: { name: 'Capacete Amassado', type: 'tool', cost: 2, qty: 2, pic: 1, est: -1, combo: { draw: 1 } },
   DINA: { name: 'Dinamite', type: 'tool', cost: 4, qty: 2, pic: 4, est: 3, fx: 'dyn', quake: true },
-  BPRA: { name: 'Bateia de Prata', type: 'tool', cost: 4, qty: 2, gold: 2, pts: 1 },
+  BPRA: { name: 'Bateia de Prata', type: 'tool', cost: 4, qty: 2, gold: 2, pts: 1, combo: { gold: 1 } },
   DETE: { name: 'Detector de Veio', type: 'tool', cost: 4, qty: 1, draw: 2, fx: 'detector', pts: 1 },
   CARR: { name: 'Carrinho Desgovernado', type: 'tool', cost: 3, qty: 2, fx: 'freeRide', est: 1 },
   MAPG: { name: 'Mapa da Galeria Esquecida', type: 'tool', cost: 5, qty: 1, luz: 1, fx: 'darkCheap', pts: 3 },
   // companheiros
-  TIAO: { name: 'Seu Tião, o Guia', type: 'ally', cost: 5, qty: 1, luz: 2, draw: 1, pts: 2 },
-  ZEFA: { name: 'Dona Zefa, Cozinheira', type: 'ally', cost: 3, qty: 1, folego: 2, prosa: 1 },
-  MASC: { name: 'Mascate Ambulante', type: 'ally', cost: 4, qty: 3, prosa: 3, acq: { gold: 1 } },
-  FERR: { name: 'Irmãos Ferreira', type: 'ally', cost: 5, qty: 1, pic: 3, luz: 1, pts: 2 },
-  MOLE: { name: 'Moleque Ligeiro', type: 'ally', cost: 3, qty: 2, luz: 1, draw: 1 },
-  CANT: { name: 'Cantadeira de Moda', type: 'ally', cost: 4, qty: 1, prosa: 1, est: -3, pts: 1 },
-  CAPT: { name: 'Capataz Arrependido', type: 'ally', cost: 4, qty: 1, prosa: 2, fx: 'gainCheap' },
+  TIAO: { name: 'Seu Tião, o Guia', type: 'ally', cost: 5, qty: 1, luz: 2, pts: 2, combo: { draw: 1 } },
+  ZEFA: { name: 'Dona Zefa, Cozinheira', type: 'ally', cost: 3, qty: 1, folego: 2, prosa: 1, combo: { draw: 1 } },
+  MASC: { name: 'Mascate Ambulante', type: 'ally', cost: 4, qty: 3, prosa: 2, acq: { gold: 1 }, combo: { prosa: 1, gold: 1 } },
+  FERR: { name: 'Irmãos Ferreira', type: 'ally', cost: 5, qty: 1, pic: 3, luz: 1, pts: 2, combo: { pic: 1 } },
+  MOLE: { name: 'Moleque Ligeiro', type: 'ally', cost: 3, qty: 2, luz: 1, draw: 1, combo: { luz: 1 } },
+  CANT: { name: 'Cantadeira de Moda', type: 'ally', cost: 4, qty: 1, prosa: 1, est: -3, pts: 1, combo: { prosa: 1 } },
+  CAPT: { name: 'Capataz Arrependido', type: 'ally', cost: 4, qty: 1, prosa: 1, fx: 'gainCheap', perOther: { prosa: 1 } },
   BENZ: { name: 'Benzedeira', type: 'ally', cost: 4, qty: 1, folego: 1, fx: 'trash' },
   CONT: { name: 'Contrabandista', type: 'ally', cost: 3, qty: 3, prosa: 3, est: 2, quake: true },
   FIAD: { name: 'Caderneta de Fiado', type: 'tool', cost: 2, qty: 3, prosa: 2 },
-  LMAO: { name: 'Lampião de Mão', type: 'tool', cost: 2, qty: 3, luz: 1, prosa: 1 },
-  COMP: { name: 'Comprador de Ouro', type: 'ally', cost: 4, qty: 2, prosa: 2, gold: 1 },
+  LMAO: { name: 'Lampião de Mão', type: 'tool', cost: 2, qty: 3, luz: 1, prosa: 1, combo: { prosa: 1 } },
+  COMP: { name: 'Comprador de Ouro', type: 'ally', cost: 4, qty: 2, prosa: 2, gold: 1, combo: { gold: 1 } },
   // achados
-  PEPE: { name: 'Pepita Encravada', type: 'find', cost: 5, qty: 2, gold: 1, pts: 4 },
-  FOSS: { name: 'Fóssil de Preguiça-Gigante', type: 'find', cost: 6, qty: 1, pts: 5, acq: { est: 2 } },
-  DIAR: { name: 'Diário do Engenheiro', type: 'find', cost: 3, qty: 1, draw: 2, fx: 'discard1', pts: 1 },
-  TOLO: { name: 'Ouro-de-Tolo', type: 'find', cost: 2, qty: 2, est: 1, acq: { gold: 3 } },
+  PEPE: { name: 'Pepita Encravada', type: 'find', cost: 5, qty: 2, gold: 1, pts: 4, combo: { gold: 1 } },
+  FOSS: { name: 'Fóssil de Preguiça-Gigante', type: 'find', cost: 6, qty: 1, pts: 5, acq: { est: 2 }, combo: { gold: 1 } },
+  DIAR: { name: 'Diário do Engenheiro', type: 'find', cost: 3, qty: 1, draw: 2, fx: 'discard1', pts: 1, combo: { gold: 1 } },
+  TOLO: { name: 'Ouro-de-Tolo', type: 'find', cost: 2, qty: 2, est: 1, acq: { gold: 3 }, combo: { gold: 1 } },
+  AMOS: { name: 'Amostra de Minério', type: 'find', cost: 3, qty: 3, prosa: 1, gold: 1, combo: { prosa: 1 } },
+  LUPA: { name: 'Lupa de Garimpeiro', type: 'find', cost: 3, qty: 2, luz: 1, pts: 1, combo: { luz: 1 } },
   // bichos (Fila)
   MORC: { name: 'Morcego-Vampiro', type: 'beast', qty: 3, fight: 2, reward: { gold: 1, luz: 1 } },
   ARAN: { name: 'Aranha-Caranguejeira', type: 'beast', qty: 2, fight: 3, reward: { gold: 2 } },
@@ -139,8 +141,8 @@ export const CARDS = {
 
   // ---------------- DLC 1: Cérbero, o Cão do Portão (dlc: 'cerbero')
   BOLO: { name: 'Bolo de Mel', type: 'tool', dlc: 'cerbero', cost: 3, qty: 2, est: -1, fx: 'calm' },
-  LIRA: { name: 'Viola de Três Cordas', type: 'ally', dlc: 'cerbero', cost: 5, qty: 1, prosa: 2, fx: 'calm', pts: 1 },
-  OSSO: { name: 'Osso Gigante', type: 'find', dlc: 'cerbero', cost: 4, qty: 2, pic: 1, fx: 'lure', pts: 1 },
+  LIRA: { name: 'Viola de Três Cordas', type: 'ally', dlc: 'cerbero', cost: 5, qty: 1, prosa: 2, fx: 'calm', pts: 1, combo: { draw: 1 } },
+  OSSO: { name: 'Osso Gigante', type: 'find', dlc: 'cerbero', cost: 4, qty: 2, pic: 1, fx: 'lure', pts: 1, combo: { gold: 1 } },
   UIVO: { name: 'Uivo Triplo', type: 'hazard', dlc: 'cerbero', qty: 2, onEnter: 'wakeHead' },
   TCER: { name: 'Coleira do Cérbero', type: 'trophy', pts: 4 },
 
@@ -152,7 +154,16 @@ export const CARDS = {
   PEDR: { name: 'Petrificado', type: 'curse', pts: -1 },
   TMED: { name: 'Escama da Górgona', type: 'trophy', pts: 4 },
 };
-for (const [id, c] of Object.entries(CARDS)) c.id = id;
+// Famílias: Companheiro = Turma, Ferramenta = Oficina, Achado = Coleção. Iniciais, loja base, Bichos e Perigos não têm.
+// combo: bônus quando você joga, no mesmo turno, outra carta da mesma família (vale o turno inteiro, a ordem não importa)
+// perOther: bônus para cada outra carta da família jogada no turno (antes ou depois)
+export const FAMILIES = {
+  turma: { name: 'Turma', color: '#c8553a', desc: 'Companheiros: gente que trabalha junto' },
+  oficina: { name: 'Oficina', color: '#3e8c7e', desc: 'Ferramentas: equipamento que se completa' },
+  colecao: { name: 'Coleção', color: '#c98a2e', desc: 'Achados: quem junta, enriquece' },
+};
+const FAM_OF_TYPE = { ally: 'turma', tool: 'oficina', find: 'colecao' };
+for (const [id, c] of Object.entries(CARDS)) { c.id = id; if (FAM_OF_TYPE[c.type]) c.fam = FAM_OF_TYPE[c.type]; }
 
 export const STARTER = (globalThis.process?.env?.STARTER || 'LAMP*1,BARG*7,PICG,TROP').split(',').flatMap((x) => { const [id, n] = x.split('*'); return Array(Number(n || 1)).fill(id); });
 export const FIXED = ['QUER', 'CABO', 'MAPV'];
@@ -190,23 +201,23 @@ RELICS.R20c = { name: 'Véu da Górgona', pts: 20, model: 'reliquia_veu', dlc: '
 // Cada nível tem vagas; na preparação as salas são sorteadas do baralho da profundidade.
 // first: efeito na primeira visita de cada jogador · enter: efeito a cada entrada (uma vez por turno)
 export const ROOMS = {
-  vazia: { name: 'Galeria Vazia' },
+  vazia: { name: 'Galeria Vazia', desc: 'só passagem: nada acontece aqui' },
   entrada: { name: 'Galeria de Entrada', desc: 'onde todo mundo começa, logo abaixo da Boca' },
   altar: { name: 'Altar', desc: 'ao ser revelada, recebe a próxima Relíquia da pilha desta profundidade' },
   elevador: { name: 'Poço do Elevador', desc: 'ligada à Boca por um elevador de gaiola (🤝2, 💥1)' },
   respiro: { name: 'Respiro', enter: 'breathe', desc: 'ao entrar, 🫧+1 (uma vez por turno)' },
-  geodo: { name: 'Geodo', desc: 'primeira visita: pegue 💠 e faça 💥2 (2 Cristais por Geodo)' },
+  geodo: { name: 'Geodo', desc: 'primeira visita: pegue 💠 (5 pontos) e faça 💥2. O brilho cansa: acaba o seu movimento no turno' },
   veio: { name: 'Veio de Ouro', first: 'gold2', desc: 'primeira visita: +🟡2' },
   eco: { name: 'Câmara do Eco', enter: 'echo', desc: 'ao entrar, 💥1' },
   capela: { name: 'Capela Soterrada', first: 'pray', desc: 'primeira visita: pode destruir 1 carta da mão ou do descarte' },
   deposito: { name: 'Depósito Abandonado', first: 'stash', desc: 'primeira visita: ganhe de graça 1 carta da Fila de custo até 🤝4' },
   mascate: { name: 'Mascate', desc: 'compre itens com 🟡' },
-  ninho: { name: 'Ninho da Mãe-do-Ouro', desc: 'a Escama (✦35) fica aqui desde o começo' },
+  ninho: { name: 'Ninho da Mãe-do-Ouro', desc: 'a Escama da Mãe-do-Ouro aparece aqui. Pegá-la sobe a Fúria 2 casas' },
   // DLC Cérbero
-  covil: { name: 'Portão de Bronze', dlc: 'cerbero', lair: 'cerb', desc: 'Covil do Cérbero' },
+  covil: { name: 'Portão de Bronze', dlc: 'cerbero', lair: 'cerb', desc: 'Covil do Cérbero: ele aparece aqui dormindo e volta para cá quando é enfrentado' },
   canil: { name: 'Canil Abandonado', dlc: 'cerbero', first: 'bone', desc: 'primeira visita: ganhe um Osso Gigante' },
   // DLC Medusa
-  estatuas: { name: 'Jardim de Estátuas', dlc: 'medusa', lair: 'medusa', desc: 'onde a Medusa começa' },
+  estatuas: { name: 'Jardim de Estátuas', dlc: 'medusa', lair: 'medusa', desc: 'onde a Medusa desperta' },
   espelhos: { name: 'Salão dos Espelhos', dlc: 'medusa', enter: 'mirror', desc: 'ao entrar, ganhe um espelho' },
   pedreira: { name: 'Pedreira de Pedra-Sabão', dlc: 'medusa', enter: 'unstone', desc: 'ao entrar, destrua 1 Petrificado' },
 };

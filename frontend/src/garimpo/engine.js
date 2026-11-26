@@ -4,11 +4,11 @@
 import {
   HAND, ROW_SIZE, MAX_FOLEGO, CUBES_PER_PLAYER, START_STONES, FURY_DRAWS, SELO, furyStart, OUT_DRAWS,
   PLAYER_COLORS, CRYSTALS_PER_GEODE, RELICS, MASCATE, CARDS, STARTER, FIXED, FIXED_BEAST,
-  tunnelFor, DLCS, LEVELS, ROOMS, NINHO_RELIC, tierOfDist,
+  tunnelFor, DLCS, LEVELS, ROOMS, NINHO_RELIC, tierOfDist, FAMILIES,
 } from './data.js';
 import * as M from './map.js';
 
-export { CARDS, RELICS, MASCATE, DLCS, LEVELS, ROOMS };
+export { CARDS, RELICS, MASCATE, DLCS, LEVELS, ROOMS, FAMILIES };
 export const { lvOf, kindOf, neighbors, edgeBetween, nodeIds, stubs, roomName, zoneOf, rotationsFor, buildTile } = M;
 export const bocaOf = (s) => s.map.boca || 'S1';
 
@@ -176,7 +176,7 @@ function startEnd(s, p) {
 // ------------------------------------------------------------------ turno
 function startTurn(s) {
   const p = currentPlayer(s);
-  p.t = { luz: 0, prosa: 0, pic: 0, tired: false, bright: false, ropeUp: false, dyn: 0, freeRide: 0, darkCheap: false, calm: 0, lure: 0, mascate: false, rest: false };
+  p.t = { luz: 0, prosa: 0, pic: 0, tired: false, fam: {}, armed: [], combos: [], scalers: [], bright: false, ropeUp: false, dyn: 0, freeRide: 0, darkCheap: false, calm: 0, lure: 0, mascate: false, rest: false };
   p.area = 0;
   if (!inMine(p)) return nextTurn(s);
   if (hasItem(p, 'capacete')) p.t.luz += 1;
@@ -365,6 +365,7 @@ function playCard(s, p, hi) {
   if (c.gold) p.gold += c.gold;
   if (c.folego) heal(p, c.folego);
   if (c.draw) draw(s, p, c.draw);
+  if (c.fam) familyPlayed(s, p, id);
   switch (c.fx) {
     case 'ropeUp': p.t.ropeUp = true; break;
     case 'dyn': p.t.dyn++; break;
@@ -387,6 +388,39 @@ function playCard(s, p, hi) {
   }
   return null;
 }
+// ------------------------------------------------------------------ famílias e combos
+// O combo vale no turno inteiro: se já tem outra carta da família jogada, dispara na hora; senão fica armado
+// e dispara quando a próxima da família for jogada. perOther: bônus por cada outra da família (antes e depois).
+function gainBonus(s, p, b) {
+  if (b.luz) p.t.luz += b.luz;
+  if (b.prosa) p.t.prosa += b.prosa;
+  if (b.pic) p.t.pic += b.pic;
+  if (b.gold) p.gold += b.gold;
+  if (b.est) p.area += b.est;
+  if (b.folego) heal(p, b.folego);
+  if (b.draw) draw(s, p, b.draw);
+}
+function fireCombo(s, p, id) {
+  const c = CARDS[id];
+  gainBonus(s, p, c.combo);
+  p.t.combos.push(id);
+  log(s, `${p.name}: combo de ${FAMILIES[c.fam].name} — ${c.name}`, 'combo', p.id);
+}
+function familyPlayed(s, p, id) {
+  const c = CARDS[id];
+  p.t.fam ||= {}; p.t.armed ||= []; p.t.combos ||= []; p.t.scalers ||= [];
+  const before = p.t.fam[c.fam] || 0;
+  // cartas armadas desta família esperavam um par: disparam agora
+  const waiting = p.t.armed.filter((x) => CARDS[x].fam === c.fam);
+  p.t.armed = p.t.armed.filter((x) => CARDS[x].fam !== c.fam);
+  for (const x of waiting) fireCombo(s, p, x);
+  // quem ganha por cada outra da família recebe por esta
+  for (const x of p.t.scalers) if (CARDS[x].fam === c.fam) gainBonus(s, p, CARDS[x].perOther);
+  p.t.fam[c.fam] = before + 1;
+  if (c.combo) { if (before >= 1) fireCombo(s, p, id); else p.t.armed.push(id); }
+  if (c.perOther) { for (let i = 0; i < before; i++) gainBonus(s, p, c.perOther); p.t.scalers.push(id); }
+}
+
 const isBuyable = (id) => !['beast', 'hazard'].includes(CARDS[id].type);
 
 // ------------------------------------------------------------------ fim do turno

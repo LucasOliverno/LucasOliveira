@@ -4,15 +4,20 @@ import { lazy, Suspense, useMemo, useState } from 'react';
 import * as E from '../engine.js';
 import { CARDS, MASCATE, DLCS, FURY_DRAWS, MAX_FOLEGO, OUT_DRAWS } from '../data.js';
 import Mine from './Mine.jsx';
-import { art, hasArt, cardLines, cardType, relicName, PLAYER_HEX, roomLabel, asset, ROOM_COLOR, ROOM_GLYPH } from './text.js';
+import { InfoCard, Guide } from './Info.jsx';
+import { art, hasArt, cardLines, cardType, relicName, PLAYER_HEX, roomLabel, asset, ROOM_COLOR, ROOM_GLYPH, comboLine, famOf } from './text.js';
 
 const Table3D = lazy(() => import('./Table3D.jsx'));
 
-export function Card({ id, onClick, disabled, footer, small, hidden }) {
+export function Card({ id, onClick, disabled, footer, small, hidden, combo = null }) {
   if (hidden || !id) return <div className={`gm-card back${small ? ' small' : ''}`} style={{ backgroundImage: `url(${asset('verso.webp')})` }} />;
   const c = CARDS[id];
+  const fam = famOf(id);
+  const cl = comboLine(id);
   return (
-    <button type="button" className={`gm-card t-${c.type}${small ? ' small' : ''}${onClick && !disabled ? ' can' : ''}`} onClick={disabled ? undefined : onClick} disabled={!onClick || disabled}>
+    <button type="button" className={`gm-card t-${c.type}${small ? ' small' : ''}${onClick && !disabled ? ' can' : ''}${combo ? ` combo-${combo}` : ''}`} onClick={disabled ? undefined : onClick} disabled={!onClick || disabled}
+      style={fam ? { '--fam': fam.color } : undefined}>
+      {fam && <span className="gm-fam" title={fam.desc}>{fam.name}</span>}
       <div className="gm-card-art" style={hasArt(id) ? { backgroundImage: `url(${art(id)})` } : undefined}>{!hasArt(id) && <span className="gm-card-ph">{c.luz ? '🔦' : c.prosa ? '🤝' : c.pic ? '⛏' : c.type === 'beast' ? '🐾' : '✦'}</span>}{c.quake && <span className="gm-quake" title="Rachadura: dispara a Fúria ao entrar na Fila">🌋</span>}</div>
       <div className="gm-card-head">
         <span className="gm-card-name">{c.name}</span>
@@ -20,7 +25,7 @@ export function Card({ id, onClick, disabled, footer, small, hidden }) {
         {c.fight !== undefined && <span className="gm-card-cost fight">⛏{c.fight}</span>}
       </div>
       <div className="gm-card-type">{cardType(id)}{c.pts ? ` · ✦${c.pts}` : ''}</div>
-      <ul className="gm-card-text">{cardLines(id).map((l) => <li key={l}>{l}</li>)}</ul>
+      <ul className="gm-card-text">{cardLines(id).map((l) => <li key={l}>{l}</li>)}{cl && <li className="gm-combo" title="Vale se você jogar outra carta da mesma família neste turno, antes ou depois">⚡ {cl}</li>}</ul>
       {footer && <div className="gm-card-foot">{footer}</div>}
     </button>
   );
@@ -193,6 +198,15 @@ function Actions({ s, me, send }) {
   return <div className="gm-actions">{btn}</div>;
 }
 
+// Estado do combo de uma carta na mão: 'on' se já tem outra da família jogada neste turno ou na mão
+function comboState(me, id, hi) {
+  const c = CARDS[id];
+  if (!c?.fam || !(c.combo || c.perOther)) return null;
+  if (me.play.some((x) => CARDS[x]?.fam === c.fam)) return 'on';
+  if (me.hand.some((x, j) => j !== hi && CARDS[x]?.fam === c.fam)) return 'ready';
+  return null;
+}
+
 // Pilha de cartas (baralho, jogadas, descarte): mostra a de cima e a quantidade; clique abre a lista
 function Pile({ label, ids, hidden, onOpen }) {
   const top = ids[ids.length - 1];
@@ -266,6 +280,10 @@ export default function Game({ s, you, actor, send, top = null, note = null, cha
   const [tab, setTab] = useState('loja');
   const [piles, setPiles] = useState(null);
   const [handOpen, setHandOpen] = useState(true);
+  const [info, setInfo] = useState(null);
+  const [guide, setGuide] = useState(false);
+  // passar o mouse mostra; clicar fixa (o fixado só sai com outro clique ou no ×)
+  const onInfo = (x) => setInfo((cur) => (x ? (x.pinned || !cur?.pinned ? x : cur) : cur?.pinned ? cur : null));
   const me = s.players[you];
   const myTurn = actor === you && !s.over && !s.pending.length && E.currentPlayer(s).id === you;
   const waitingMe = actor === you && s.pending.length && s.pending[0].pid === you;
@@ -295,14 +313,16 @@ export default function Game({ s, you, actor, send, top = null, note = null, cha
               <Table3D s={s} you={you} myTurn={myTurn} rideTo={rides}
                 onMove={(to, ride) => send(ride ? { t: 'ride', to } : { t: 'move', to })}
                 onExplore={(dir) => send({ t: 'explore', dir })}
-                pickNodes={pickNodes} onPickNode={(node) => send({ t: 'choose', node })} />
+                pickNodes={pickNodes} onPickNode={(node) => send({ t: 'choose', node })} onInfo={onInfo} />
             </Suspense>
           ) : (
             <Mine s={s} you={you} myTurn={myTurn} rideTo={rides}
               onMove={(to, ride) => send(ride ? { t: 'ride', to } : { t: 'move', to })}
               onExplore={(dir) => send({ t: 'explore', dir })}
-              pickNodes={pickNodes} onPickNode={(node) => send({ t: 'choose', node })} />
+              pickNodes={pickNodes} onPickNode={(node) => send({ t: 'choose', node })} onInfo={onInfo} />
           )}
+          <button type="button" className="gm-guidebtn" onClick={() => setGuide(true)} title="Guia da mina: o que cada sala e túnel faz">?</button>
+          <InfoCard s={s} you={you} info={info} myTurn={myTurn} onGo={(to) => { send({ t: 'move', to }); setInfo(null); }} onClose={() => setInfo(null)} />
           <div className={`gm-turnflag${myTurn ? ' mine' : ''}`} style={actor != null ? { '--pc': PLAYER_HEX[s.players[actor].color] } : undefined}>{status}</div>
           {myTurn && !view3d && <div className="gm-hint">Clique numa sala com borda dourada para andar, ou num <b>?</b> na borda da sua sala para explorar.</div>}
           {note && <div className="gm-note">{note}</div>}
@@ -356,7 +376,7 @@ export default function Game({ s, you, actor, send, top = null, note = null, cha
               <div className="gm-fan">
                 {me.hand.map((id, i) => (
                   <div key={`${id}${i}`} className="gm-fancell" style={{ '--i': i - (me.hand.length - 1) / 2, '--n': me.hand.length }}>
-                    <Card id={id} onClick={myTurn ? () => send({ t: 'play', hi: i }) : undefined} />
+                    <Card id={id} onClick={myTurn ? () => send({ t: 'play', hi: i }) : undefined} combo={comboState(me, id, i)} />
                   </div>
                 ))}
                 {!me.hand.length && <p className="gm-empty">Mão vazia — no fim do turno você compra 5.</p>}
@@ -371,6 +391,7 @@ export default function Game({ s, you, actor, send, top = null, note = null, cha
         </footer>
       )}
       {piles && me && <DeckView me={me} open={piles} onClose={() => setPiles(null)} />}
+      {guide && <Guide s={s} onClose={() => setGuide(false)} />}
       <Pending s={s} you={you} send={send} />
     </div>
   );

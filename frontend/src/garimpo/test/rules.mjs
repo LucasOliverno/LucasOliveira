@@ -330,5 +330,53 @@ const tileOf = (lay, k, t, e, zone = 'fundo') => ({ lay, k, t, e, zone });
   ok(!bad && !unfinished, `300 partidas exploradas: todas terminam e o mapa não tem passagem quebrada (quebras ${bad}, sem fim ${unfinished})`);
 }
 
+
+// 12) famílias e combos (valem no turno inteiro)
+{
+  const mk = () => { const s = game(2); const p = cur(s); p.deck = ['LAMP', 'LAMP', 'LAMP', 'LAMP', 'LAMP', 'LAMP']; return [s, p]; };
+  {
+    const [s, p] = mk();
+    p.hand = ['MOLE', 'FERR'];
+    X(s, { t: 'play', hi: 0 });
+    ok(p.t.luz === 1 && p.t.armed.includes('MOLE'), 'Moleque sozinho: 🔦1 e o combo fica armado');
+    X(s, { t: 'play', hi: p.hand.indexOf('FERR') });
+    ok(p.t.luz === 1 + 1 + 1 && p.t.pic === 3 + 1 && p.t.combos.length === 2, 'Irmãos Ferreira entra: dispara o combo armado do Moleque (+🔦1) e o próprio (+⛏1)');
+  }
+  {
+    const [s, p] = mk(); const [s2, p2] = mk();
+    p.hand = ['MOLE', 'FERR']; p2.hand = ['FERR', 'MOLE'];
+    X(s, { t: 'playAll' }); X(s2, { t: 'playAll' });
+    ok(p.t.luz === p2.t.luz && p.t.pic === p2.t.pic, 'a ordem não importa: mesmo resultado jogando em qualquer ordem');
+  }
+  {
+    const [s, p] = mk();
+    p.hand = ['MOLE', 'ACO'];
+    X(s, { t: 'playAll' });
+    ok(p.t.combos.length === 0 && p.t.armed.length === 2, 'famílias diferentes não fazem combo');
+  }
+  {
+    const [s, p] = mk();
+    p.hand = ['MOLE', 'CAPT', 'ZEFA'];
+    X(s, { t: 'play', hi: 0 });
+    X(s, { t: 'play', hi: p.hand.indexOf('CAPT') }); while (s.pending.length) X(s, E.defaultChoice(s));
+    ok(p.t.prosa === 1 + 1, 'Capataz: 🤝1 + 🤝1 pelo Moleque jogado antes');
+    X(s, { t: 'play', hi: p.hand.indexOf('ZEFA') });
+    ok(p.t.prosa === 2 + 1 + 1, 'Dona Zefa depois: 🤝1 dela + 🤝1 do Capataz por mais um da Turma');
+  }
+  {
+    const [s, p] = mk();
+    p.hand = ['LAMP', 'BARG', 'QUER'];
+    X(s, { t: 'playAll' });
+    ok(!p.t.armed.length && !p.t.combos.length, 'iniciais e loja base não têm família');
+    ok(D.CARDS.MOLE.fam === 'turma' && D.CARDS.ACO.fam === 'oficina' && D.CARDS.PEPE.fam === 'colecao', 'famílias vêm do tipo da carta');
+  }
+  {
+    const [s, p] = mk();
+    p.hand = ['MOLE', 'FERR', 'TIAO'];
+    X(s, { t: 'playAll' });
+    ok(p.t.combos.filter((x) => x === 'MOLE').length === 1, 'cada combo dispara uma vez por turno');
+  }
+}
+
 console.log(fails ? `\n${fails} FALHA(S)` : '\nTudo certo.');
 process.exitCode = fails ? 1 : 0;
