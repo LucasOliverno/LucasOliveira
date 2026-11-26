@@ -45,10 +45,11 @@ async function serve(req, res) {
   if (url.pathname === '/healthz') { res.writeHead(200, { 'content-type': 'text/plain' }); res.end('ok'); return; }
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); res.end(); return; }
   if (url.pathname === '/mandato') { res.writeHead(301, { location: `/mandato/${url.search}` }); res.end(); return; }
+  if (url.pathname === '/garimpo') { res.writeHead(301, { location: `/garimpo/${url.search}` }); res.end(); return; }
 
   let f = await fileFor(url.pathname);
   // o portfólio é uma SPA: rotas sem arquivo caem no index.html (o jogo só existe em /mandato/)
-  if (!f && !url.pathname.startsWith('/mandato/') && !extname(url.pathname)) f = await fileFor('/index.html');
+  if (!f && !url.pathname.startsWith('/mandato/') && !url.pathname.startsWith('/garimpo/') && !extname(url.pathname)) f = await fileFor('/index.html');
   if (!f) { res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' }); res.end('Não encontrado'); return; }
 
   const ext = extname(f.path).toLowerCase();

@@ -87,7 +87,7 @@ await run('partida: visão escondida, vez de cada um, comandos validados, recone
   const me = sa.you; const other = v.players.find((p) => p.id !== me);
   assert.ok(v.players[me].hand.every((x) => typeof x === 'string'), 'vejo a minha mão');
   assert.ok(other.hand.every((x) => x === null), 'não vejo a mão dos outros');
-  assert.ok(v.players[me].deck.every((x) => x === null), 'nem a ordem do meu baralho');
+  assert.ok(v.players.every((p) => p.deck.every((x, i, d) => typeof x === 'string' && (i === 0 || d[i - 1] <= x))), 'baralhos vão ordenados: a ordem de compra fica escondida');
   assert.ok(v.tunnel.every((x) => x === null) && Object.values(v.map.decks).flat().every((x) => x === null), 'Túnel e montes de Sala escondidos');
   assert.ok(Object.values(v.map.piles).flat().every((x) => x === null), 'pilhas de Relíquia escondidas');
   assert.equal(v.rng, 0); assert.equal(v.seed, 0);

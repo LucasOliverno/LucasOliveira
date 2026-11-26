@@ -1,5 +1,5 @@
 # GARIMPO — A Cova da Mãe-do-Ouro
-### Documento de Design — versão 0.2 (título provisório)
+### Documento de Design — versão 0.3 (título provisório)
 
 Deck builder de **corrida e fuga** para 1 a 4 jogadores (ideal 3–4, com bots no digital). Cada pessoa é um garimpeiro que desce numa mina abandonada da Serra do Ouro, monta um baralho melhor durante a descida, pega **Relíquias** lá no fundo e tenta **sair vivo** antes que o barulho acorde a **Mãe-do-Ouro**, a serpente de fogo da lenda que guarda o veio.
 
@@ -49,7 +49,19 @@ Três pilhas, cada uma do menor para o maior valor. Cada Altar revelado pega a p
 
 Quanto mais a mina é explorada, mais valiosas ficam as Relíquias que aparecem.
 
-### 0.4 Deckbuilding (o centro do jogo)
+### 0.4 Deckbuilding (o centro do jogo) — revisado na v0.3
+
+> Na v0.2, cada jogador comprava só ~3,7 cartas na partida inteira. Num jogo da família do Clank isso mata o deckbuilding: você deveria comprar quase todo turno. A v0.3 refez a economia. Hoje são **~8,7 compras por jogador**, compra em **~74% dos turnos**, ~3,2 de 🤝 por turno e baralho final com ~18,5 cartas.
+
+**O que mudou na v0.3:**
+- **Baralho inicial:** 7 Barganha (🤝1), 1 Lamparina (🔦1), 1 Picareta Gasta (⛏1) e 1 Tropeção (🔦1 · 💥2). É muita compra e pouco movimento: para descer, você *precisa* comprar Luz.
+- **Cartas novas de economia na Fila:** Caderneta de Fiado (🤝2, custa 2, ×3), Lampião de Mão (🔦1 + 🤝1, custa 2, ×3) e Comprador de Ouro (🤝2 + 🟡1, custa 4, ×2). Mascate Ambulante e Contrabandista passaram a ter 3 cópias.
+- **Lampião a Querosene** (loja base) passou de 🤝3 para 🤝4, para não ser a única Luz boa.
+- **Fila que gira sem castigo:** a carta que entra pela rotação do fim da rodada **não** dispara Fúria. Só disparam as que repõem cartas compradas ou derrotadas. A Fúria caiu de ~20 para ~17 de 🫧 por partida.
+- **Ninho:** a Escama vale ✦30 (era 35) e está entre as 4 primeiras peças do monte fundo. Uma peça a mais do monte médio desce.
+- **Ordem:** o 1º jogador põe 1 cubo na Bateia e ninguém ganha bônus de 🔦.
+
+**Como era na v0.2 (para comparar):**
 - **Pontos de compra = 🤝 Prosa.** Você compra na **loja base** (Mercado Fixo: Lampião a Querosene, Cabo da Turma, Mapa do Veio e o Rato-de-Mina, que sempre está lá) ou na **loja especial** (a Fila do Túnel, 6 cartas).
 - **Baralho inicial (v0.2):** 5 Barganha (🤝1), 3 Lamparina (🔦1), 1 Picareta Gasta (⛏1), 1 Tropeção (🔦1 · 💥2). O movimento vem das cartas que você compra.
 - **A Fila gira:** no fim de cada rodada, a carta mais antiga sai e entra uma nova (pode revelar 🌋 e disparar a Fúria). O mercado não fica parado.
@@ -317,22 +329,25 @@ O grafo do mapa (32 nós e arestas com tipo/custo) fica em `data.js`. Cada nó t
 
 **Já existe** em `frontend/src/garimpo/`: `data.js`, `engine.js` (regras base + DLCs), `bot.js`, `test/rules.mjs` (`npm run test:garimpo`) e `test/sim.mjs` (`npm run sim:garimpo -- 500 4 cerbero,medusa`). Ainda falta a interface e a mesa 3D.
 
-## 10. Simulação e balanceamento (v0.2, mapa explorado)
+## 10. Simulação e balanceamento (v0.3)
 
-Bots, 500 partidas, 4 jogadores:
+Bots, 4 jogadores, 400–500 partidas, jogo base:
 
-| Modo | Rodadas | Saem vivos | Soterrados fundo | Ninho aparece e é pego | Vitórias por posição |
-|---|---|---|---|---|---|
-| Base | 10,6 | 77% | 13% | 5% | 19 / 26 / 26 / 30% |
-| + Cérbero | 11,0 | 75% | 14% | 6% | 19 / 23 / 30 / 29% |
-| + Medusa | 10,9 | 77% | 13% | 10% | 20 / 24 / 30 / 27% |
-| + as duas | 11,3 | 73% | 13% | 10% | 15 / 23 / 32 / 31% |
+| Métrica | v0.2 | v0.3 |
+|---|---|---|
+| Compras por jogador | 3,7 | **8,7** |
+| Turnos com compra | 47% | **74%** |
+| 🤝 por turno | 2,3 | **3,2** |
+| Baralho final | 13 cartas | **18,5 cartas** |
+| Rodadas por partida | 10,6 | **14,1** |
+| Saem vivos | 77% | 78% |
+| Ninho aparece e é pego | 5% | 11% |
+| Vitórias por posição | 19 / 26 / 26 / 30% | 21 / 26 / 26 / 27% |
 
-Por partida: ~17 salas descobertas, primeira saída na rodada ~4,3 e ~3,7 compras por jogador.
+O bot da v0.3 joga como um humano no Clank: não foge cedo com tesouro barato (menos de ✦15 antes da rodada 9) e, com Relíquia na mão, só sai quando a água sobe, o fôlego cai, a Fúria passa de 5, a relíquia é boa ou a partida está no fim.
 
-**Pendências de balanceamento:**
-- **O deckbuilding ainda é raso.** São ~3,7 compras por jogador, e o Lampião a Querosene está em ~94% dos baralhos vencedores. Próximos passos: mais cartas baratas e boas na Fila, mais motivos para ficar na mina (Cristais, cartas de ponto), um bot que compra melhor e testar 🤝6 de início com 6 Barganhas.
-- **Saída cedo:** a primeira saída é na rodada ~4, com Relíquia de ✦8–12. Testar Selo maior para Relíquias de tier médio ou alto, ou Altar raso só no nível 2 do lado oposto à entrada.
-- **Ninho:** quase ninguém chega lá (5–10%), e quem chega quase sempre vence. Testar Ninho mais acessível (entre as 4 primeiras peças do monte fundo).
-- **Posição 1** vence ~19%: compensar quem abre o mapa (ex.: 🟡2 ou 1 carta grátis da Fila no primeiro turno).
-- Com 2 jogadores, o Ninho continua forte demais.
+**Pendências:**
+- **Lampião a Querosene** ainda aparece em ~97% dos baralhos vencedores. Luz continua sendo o gargalo, o que é parecido com o Clank, mas dá para abrir mais caminhos (cartas de Luz melhores na Fila, Luz em companheiros).
+- **Ninho:** quem pega vence ~78%, mas só 11% das partidas chegam lá. Testar com pessoas antes de mexer mais: o bot que chega é o mais ganancioso.
+- **Posição 1** vence ~21%: quem joga primeiro abre as salas para os outros.
+- **Arte e modelos:** as cartas novas (Fiado, Lampião de Mão, Comprador de Ouro) ainda não têm ilustração.

@@ -202,7 +202,7 @@ function flood(s) {
 
 // ------------------------------------------------------------------ pontuação
 export function scoreOf(s, p) {
-  const cards = allCards(p).reduce((a, id) => a + (CARDS[id].pts || 0), 0);
+  const cards = allCards(p).reduce((a, id) => a + ((id && CARDS[id]?.pts) || 0), 0);
   const relics = p.relics.reduce((a, r) => a + RELICS[r].pts, 0);
   const items = p.items.reduce((a, k) => a + (MASCATE[k].pts || 0), 0);
   const selo = p.status === 'out' ? SELO : 0;
@@ -287,6 +287,8 @@ function roomEffects(s, p, node) {
     if (room.first === 'bone') { p.discard.push('OSSO'); log(s, `${p.name} acha um Osso Gigante no Canil`, 'gain', p.id); }
   }
 }
+export const grisuChoices = (s) => grisuOptions(s);
+export const parseTileExits = (str, mirror) => M.parseTileFor(str, mirror).exits;
 function grisuOptions(s) {
   const ids = M.nodeIds(s).filter((n) => lvOf(s, n) >= 1 && !s.grisu.includes(n));
   const deep = ids.filter((n) => lvOf(s, n) >= 3);
@@ -377,14 +379,17 @@ function endTurn(s) {
   if (inMine(p) && n) { p.cubes -= n; s.bag.p[p.id] += n; log(s, `${p.name} põe ${n} cubo(s) na Bateia`, 'clank', p.id); }
   p.area = 0;
   // fim da rodada: a carta mais antiga da Fila sai (o mercado gira)
-  if (s.turn === s.order.length - 1 && s.row.length) { const old = s.row.shift(); s.tunnelOut.push(old); log(s, `Fim da rodada: ${CARDS[old].name} sai da Fila`, 'row'); }
-  // repõe a Fila
+  let calm = 0; // a carta que entra pela rotação não dispara Fúria
+  if (s.turn === s.order.length - 1 && s.row.length) { const old = s.row.shift(); s.tunnelOut.push(old); calm = 1; log(s, `Fim da rodada: ${CARDS[old].name} sai da Fila`, 'row'); }
+  // repõe a Fila (as primeiras cartas repõem as compradas; a última, a da rotação)
   let quake = false; let grisu = 0;
+  const refill = ROW_SIZE - s.row.length;
   while (s.row.length < ROW_SIZE && s.tunnel.length) {
     const id = s.tunnel.pop();
     const c = CARDS[id];
     log(s, `Entra na Fila: ${c.name}${c.quake ? ' 🌋' : ''}`, 'row');
-    if (c.quake) quake = true;
+    const fromRotation = calm && s.row.length === ROW_SIZE - 1 && refill > 0;
+    if (c.quake && !fromRotation) quake = true;
     if (c.onEnter === 'grisu') grisu++;
     else if (c.onEnter) onEnter(s, c.onEnter);
     if (c.type === 'hazard') s.tunnelOut.push(id); else s.row.push(id);

@@ -69,7 +69,7 @@ export const RELICS = {
   R20a: { name: 'Coroa de Quartzo-Rosa', pts: 20, model: 'reliquia_coroa' },
   R20b: { name: 'Ferradura de Ouro', pts: 20, model: 'reliquia_ferradura' },
   R25: { name: 'Olho de Topázio', pts: 28, model: 'reliquia_topazio' },
-  R30: { name: 'Escama da Mãe-do-Ouro', pts: 35, model: 'reliquia_escama', fury: 2 },
+  R30: { name: 'Escama da Mãe-do-Ouro', pts: 30, model: 'reliquia_escama', fury: 2 },
 };
 
 export const MASCATE = {
@@ -90,7 +90,7 @@ export const CARDS = {
   PICG: { name: 'Picareta Gasta', type: 'start', pic: 1 },
   TROP: { name: 'Tropeção', type: 'start', luz: 1, est: 2 },
   // mercado fixo
-  QUER: { name: 'Lampião a Querosene', type: 'fixed', cost: 3, luz: 2, qty: 12 },
+  QUER: { name: 'Lampião a Querosene', type: 'fixed', cost: 4, luz: 2, qty: 12 },
   CABO: { name: 'Cabo da Turma', type: 'fixed', cost: 3, pic: 2, qty: 12 },
   MAPV: { name: 'Mapa do Veio', type: 'fixed', cost: 7, pts: 7, qty: 12 },
   RATO: { name: 'Rato-de-Mina', type: 'beast', fixed: true, fight: 2, reward: { gold: 1 } },
@@ -107,13 +107,16 @@ export const CARDS = {
   // companheiros
   TIAO: { name: 'Seu Tião, o Guia', type: 'ally', cost: 5, qty: 1, luz: 2, draw: 1, pts: 2 },
   ZEFA: { name: 'Dona Zefa, Cozinheira', type: 'ally', cost: 3, qty: 1, folego: 2, prosa: 1 },
-  MASC: { name: 'Mascate Ambulante', type: 'ally', cost: 4, qty: 2, prosa: 3, acq: { gold: 1 } },
+  MASC: { name: 'Mascate Ambulante', type: 'ally', cost: 4, qty: 3, prosa: 3, acq: { gold: 1 } },
   FERR: { name: 'Irmãos Ferreira', type: 'ally', cost: 5, qty: 1, pic: 3, luz: 1, pts: 2 },
   MOLE: { name: 'Moleque Ligeiro', type: 'ally', cost: 3, qty: 2, luz: 1, draw: 1 },
   CANT: { name: 'Cantadeira de Moda', type: 'ally', cost: 4, qty: 1, prosa: 1, est: -3, pts: 1 },
   CAPT: { name: 'Capataz Arrependido', type: 'ally', cost: 4, qty: 1, prosa: 2, fx: 'gainCheap' },
   BENZ: { name: 'Benzedeira', type: 'ally', cost: 4, qty: 1, folego: 1, fx: 'trash' },
-  CONT: { name: 'Contrabandista', type: 'ally', cost: 3, qty: 2, prosa: 3, est: 2, quake: true },
+  CONT: { name: 'Contrabandista', type: 'ally', cost: 3, qty: 3, prosa: 3, est: 2, quake: true },
+  FIAD: { name: 'Caderneta de Fiado', type: 'tool', cost: 2, qty: 3, prosa: 2 },
+  LMAO: { name: 'Lampião de Mão', type: 'tool', cost: 2, qty: 3, luz: 1, prosa: 1 },
+  COMP: { name: 'Comprador de Ouro', type: 'ally', cost: 4, qty: 2, prosa: 2, gold: 1 },
   // achados
   PEPE: { name: 'Pepita Encravada', type: 'find', cost: 5, qty: 2, gold: 1, pts: 4 },
   FOSS: { name: 'Fóssil de Preguiça-Gigante', type: 'find', cost: 6, qty: 1, pts: 5, acq: { est: 2 } },
@@ -149,7 +152,7 @@ export const CARDS = {
 };
 for (const [id, c] of Object.entries(CARDS)) c.id = id;
 
-export const STARTER = [...Array(3).fill('LAMP'), ...Array(5).fill('BARG'), 'PICG', 'TROP'];
+export const STARTER = (globalThis.process?.env?.STARTER || 'LAMP*1,BARG*7,PICG,TROP').split(',').flatMap((x) => { const [id, n] = x.split('*'); return Array(Number(n || 1)).fill(id); });
 export const FIXED = ['QUER', 'CABO', 'MAPV'];
 export const FIXED_BEAST = 'RATO';
 export const tunnelFor = (dlc = []) => Object.values(CARDS)
@@ -220,7 +223,7 @@ export const TILE_DECKS = {
   ],
   media: [ // nível 3 (4 de 13 descem)
     'vazia L:t R:dark D:lad', 'vazia L:dark R:t+den', 'geodo L:t R:t', 'geodo L:dark R:t U:lad',
-    'veio L:t R:t+den D:shaft', 'eco L:t R:dark', 'respiro L:t R:t', 'capela L:dark R:t',
+    'veio L:t R:t+den D:shaft', 'eco L:t R:dark D:lad', 'respiro L:t R:t', 'capela L:dark R:t',
     'deposito L:t R:t U:lad', 'elevador L:t R:t', 'altar L:t R:dark', 'altar L:t+den R:t D:lad', 'altar L:dark R:t D:rubble',
   ],
   funda: [ // níveis 4–5 (3 de 12 descem)
@@ -233,7 +236,7 @@ export const TILE_DECKS = {
 export const TILE_MIN_LEVEL = { ninho: 5, covil: 4, estatuas: 3, altar: 2 };
 export const DECK_OF_LEVEL = { 1: 'rasa', 2: 'rasa', 3: 'media', 4: 'funda', 5: 'funda' };
 export const NINHO_TILE = 'ninho L:t R:t U:lad';
-export const NINHO_WITHIN = 6; // o Ninho é embaralhado entre as 6 primeiras peças do monte fundo
+export const NINHO_WITHIN = 4; // o Ninho é embaralhado entre as 6 primeiras peças do monte fundo
 export const ENTRY_TILE = 'entrada L:t R:t D:lad';
 // salas de DLC embaralhadas nos montes
 export const DLC_TILES = {

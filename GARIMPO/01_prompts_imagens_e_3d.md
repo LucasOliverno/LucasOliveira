@@ -399,6 +399,17 @@ As **saídas** (túnel, túnel escuro, trilho, Toca, escada, poço, desabamento)
 | `saida_tunel` / `saida_escuro` / `saida_trilho` / `saida_toca` / `saida_escada` / `saida_poco` / `saida_desabamento` | 2 × 1.5 × 0.6 | 150 cada | Small clip-on markers placed on a tile edge: a timber tunnel arch / the same arch filled with dark shadow / a rail stub / an arch with a small paw print / a ladder stub / a round hole with rope / a pile of rocks. |
 | `reliquia_moeda` · `reliquia_pente` · `reliquia_bussola` · `reliquia_idolo` | ~2 × 2 × 1.5 | 500–800 | Same style as the other relics (section 5.4). |
 
+## 5.9 v0.3: cartas novas de economia (folha 3 + 6 vazias, ou junte numa folha futura)
+```
+[STYLE BIBLE] [SHEET RULES: N=3, COLS=3, ROWS=1] Cell ratio 4:5.
+1. Caderneta de Fiado: a worn little credit notebook tied with string on a shop counter, a pencil stub, coins next to it (no writing visible).
+2. Lampião de Mão: a small brass hand lantern held up by a miner's hand, warm light, a coin purse hanging from the wrist.
+3. Comprador de Ouro: a sharp-dressed gold buyer with a small brass scale and a magnifying loupe, weighing a nugget, friendly smirk.
+```
+
+## 5.10 Onde a arte entra no jogo
+A tela do GARIMPO usa recortes WebP gerados das folhas de `imagens/`: `frontend/public/garimpo/cards/<ID>.webp` (ID da carta, como `LAMP`, `CARB`, `R30`), `icons/`, `verso.webp`, `capa.webp` e `tabuleiro.webp`. Os modelos ficam em `frontend/public/garimpo/models/garimpo.glb`. Quando uma folha for refeita, basta recortar de novo com a mesma ordem de células deste guia. Quando chegarem modelos novos no GLB, a mesa 3D (`src/garimpo/ui/Table3D.jsx`) os usa pelo nome do objeto, e o que ainda não foi modelado aparece com geometria simples no mesmo lugar.
+
 ## 6. Checklist de entrega (o que pedir de volta ao outro chat)
 
 - [ ] 6 folhas de arte de carta aprovadas (2.1 a 2.6) + folha das DLCs (5.7) e o Petrificado, em PNG grande
