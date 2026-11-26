@@ -14,7 +14,10 @@
     "start": "node server/index.mjs",
     "server": "node server/index.mjs",
     "test:online": "node src/mandato/test/online.mjs",
-    "audit:mandato": "node src/mandato/test/audit.mjs"
+    "audit:mandato": "node src/mandato/test/audit.mjs",
+    "test:garimpo": "node src/garimpo/test/rules.mjs",
+    "sim:garimpo": "node src/garimpo/test/sim.mjs",
+    "test:garimpo:online": "node src/garimpo/test/online.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
