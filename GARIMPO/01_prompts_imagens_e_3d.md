@@ -462,6 +462,14 @@ pan (bateia) seen from above, empty. No text, no numbers.
 | `medidor_folego` | 22 × 3 × 0,5 | 300 | Wooden strip with 10 square sockets for damage cubes. |
 | `trilha_furia` | 18 × 3 × 0,5 | 300 | Replaces `furia_trilha`: 7 sockets instead of 6. |
 
+## 5.12 v0.5: cartas novas da Coleção e faixa de família
+```
+[STYLE BIBLE] [SHEET RULES: N=2, COLS=2, ROWS=1] Cell ratio 4:5.
+1. Amostra de Minério: a small labeled-free cloth sample bag spilling ore chunks with gold flecks onto a wooden tray, a magnifier beside it.
+2. Lupa de Garimpeiro: a brass loupe held over a glittering rock, the lantern light focused into a bright spot.
+```
+As cartas agora têm uma **faixa de família** no canto: Turma (tijolo #C8553A), Oficina (cobre #3E8C7E) e Coleção (ocre #C98A2E). O jogo desenha a faixa por cima da arte, então ela **não** vai na ilustração. As cartas Caderneta de Fiado, Lampião de Mão e Comprador de Ouro (seção 5.9) ainda precisam de arte.
+
 ## 6. Checklist de entrega (o que pedir de volta ao outro chat)
 
 - [ ] 6 folhas de arte de carta aprovadas (2.1 a 2.6) + folha das DLCs (5.7) e o Petrificado, em PNG grande

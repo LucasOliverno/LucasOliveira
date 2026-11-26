@@ -1,5 +1,5 @@
 // Textos da interface do GARIMPO, gerados a partir dos dados (as regras ficam só em data.js).
-import { CARDS, RELICS, MASCATE, ROOMS } from '../data.js';
+import { CARDS, RELICS, MASCATE, ROOMS, FAMILIES } from '../data.js';
 
 const BASE = import.meta.env?.BASE_URL || '/';
 export const art = (id) => `${BASE}garimpo/cards/${id}.webp`;
@@ -57,6 +57,18 @@ export function cardLines(id) {
   if (c.type === 'curse') r.push('sem efeito');
   return r;
 }
+const resText = (b) => [b.luz && `+🔦${b.luz}`, b.prosa && `+🤝${b.prosa}`, b.pic && `+⛏${b.pic}`, b.gold && `+🟡${b.gold}`, b.draw && `compre ${b.draw}`, b.folego && `🫧+${b.folego}`, b.est && `💥${b.est}`].filter(Boolean).join(' ');
+// linha de combo: "Turma: compre 1"
+export function comboLine(id) {
+  const c = CARDS[id];
+  if (!c.fam) return null;
+  const f = FAMILIES[c.fam].name;
+  if (c.combo) return `${f}: ${resText(c.combo)}`;
+  if (c.perOther) return `${resText(c.perOther)} por outro da ${f}`;
+  return null;
+}
+export const famOf = (id) => (CARDS[id]?.fam ? FAMILIES[CARDS[id].fam] : null);
+export const HAS_ART_EXTRA = ['AMOS', 'LUPA'];
 export const cardType = (id) => TYPE[CARDS[id].type] || '';
 export const relicName = (r) => `${RELICS[r].name} (✦${RELICS[r].pts})`;
 export const itemName = (k) => MASCATE[k].name;

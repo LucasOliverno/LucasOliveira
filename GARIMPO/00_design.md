@@ -1,5 +1,5 @@
 # GARIMPO — A Cova da Mãe-do-Ouro
-### Documento de Design — versão 0.4 (título provisório)
+### Documento de Design — versão 0.5 (título provisório)
 
 Deck builder de **corrida e fuga** para 1 a 4 jogadores (ideal 3–4, com bots no digital). Cada pessoa é um garimpeiro que desce numa mina abandonada da Serra do Ouro, monta um baralho melhor durante a descida, pega **Relíquias** lá no fundo e tenta **sair vivo** antes que o barulho acorde a **Mãe-do-Ouro**, a serpente de fogo da lenda que guarda o veio.
 
@@ -61,6 +61,36 @@ Deck builder de **corrida e fuga** para 1 a 4 jogadores (ideal 3–4, com bots n
 Vitórias por posição entre 23% e 28%. O Ninho aparece e é pego em ~23% das partidas, e quem pega vence ~51% (com a Escama a ✦25). Com 2 e 3 jogadores, saem vivos 86–88%.
 
 **Pendências:** o Lampião a Querosene ainda está em ~98% dos baralhos vencedores. Também falta testar com pessoas o valor da Escama e os 3 cubos por turno de quem já saiu.
+
+### 00.7 Famílias de cartas e combos (v0.5)
+Toda carta da Fila tem uma família, que vem do tipo:
+
+| Família | Cartas | Estilo |
+|---|---|---|
+| **Turma** | Companheiros | movimento, compra de carta e 🤝 |
+| **Oficina** | Ferramentas | ⛏, barulho baixo e Luz |
+| **Coleção** | Achados | 🟡 e pontos |
+
+- **⚡ Combo:** a carta ganha um bônus pequeno (+1 recurso ou comprar 1) se você jogar **outra carta da mesma família no mesmo turno**. Vale o turno inteiro: se o par já foi jogado, o combo dispara na hora; se não, ele fica armado e dispara quando o par entrar. A ordem não importa, e cada combo dispara uma vez por turno.
+- **Capataz Arrependido:** +🤝1 para cada outro membro da Turma jogado no turno, antes ou depois dele.
+- Iniciais, loja base, Bichos e Perigos não têm família.
+- Para não inflar o jogo, algumas cartas perderam parte do efeito fixo: o Seu Tião só compra com a Turma, o Mascate Ambulante caiu para 🤝2 (+🤝1 e +🟡1 no combo), o Capataz para 🤝1 e a Lanterna de Carbureto perdeu o 💥-1 fixo (o combo dá 💥-2).
+- **Cartas novas da Coleção:** Amostra de Minério (🤝1 +🟡1; combo +🤝1; custa 3; ×3) e Lupa de Garimpeiro (🔦1, ✦1; combo +🔦1; custa 3; ×2).
+
+**Equilíbrio medido** (bots, 2000 partidas com 4 jogadores; build = família com metade ou mais das cartas de família do baralho):
+
+| Build | Jogadores | Vitórias (justo 25%) |
+|---|---|---|
+| Oficina | 53% | 25% |
+| Turma | 20% | 25% |
+| Coleção | 7% | 30% |
+| Mista | 10% | 26% |
+| Sem família | 10% | 20% |
+
+Com as duas DLCs: entre 24% e 31%. Com 3 jogadores: entre 33% e 38% (o justo é 33%). Nenhuma build passa de ~1,2× o justo. Montar família vale a pena (sem família vence menos), mas nenhuma é obrigatória. São ~10 combos por partida.
+
+### 00.8 Guia e inspetor na tela
+Passar o mouse numa sala, num túnel ou numa saída mostra o que ela faz e o estado atual (relíquia, cristais, Grisu, chefe, quem está lá e o custo para ir). Funciona no tabuleiro e na mesa 3D. Clicar numa sala onde você não pode ir fixa o cartão. O botão **?** abre o Guia da mina: como andar, salas, túneis, vida, Fúria e fim de jogo, e famílias.
 
 > As seções 0 a 10 abaixo são das versões anteriores. Onde elas falam de níveis, água, Galerias ou peças de uma sala, vale esta seção 00.
 

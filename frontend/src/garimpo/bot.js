@@ -4,7 +4,7 @@ import * as E from './engine.js';
 import { CARDS, RELICS, MASCATE, DLCS, furyStart } from './data.js';
 import { FIXED } from './data.js';
 
-export const BOT_OPTS = { greed: 1, risk: 1 };
+export const BOT_OPTS = { greed: 1, risk: 1, comboWeight: +(globalThis.process?.env?.COMBO_W ?? 1) };
 const BUY_MIN = +(globalThis.process?.env?.BUY_MIN ?? 1.5);
 
 // arcos dirigidos com custo de planejamento (🔦) para o jogador p
@@ -201,20 +201,36 @@ function moveLoop(s, p) {
 }
 
 // valor de compra de uma carta para este jogador agora
+// valor de um pacote de recursos para este jogador agora
+function resValue(s, p, r, late) {
+  return (r.luz || 0) * 2.2 + (r.pic || 0) * 1.3 + (r.prosa || 0) * (late ? 0.6 : 1.5) + (r.draw || 0) * 1.8
+    + (r.gold || 0) * 1 + (r.folego || 0) * 0.8 + Math.max(0, -(r.est || 0)) * 0.7 - Math.max(0, r.est || 0) * 0.6;
+}
+// chance de jogar no mesmo turno outra carta da família (mão de 5 tirada do baralho todo)
+function famChance(p, fam, extra = 0) {
+  const all = E.allCards(p).filter(Boolean);
+  const k = all.filter((x) => CARDS[x].fam === fam).length + extra;
+  const n = all.length + 1;
+  return 1 - (1 - Math.min(1, k / n)) ** 4;
+}
 function cardValue(s, p, id) {
   const c = CARDS[id];
   const late = p.relics.length > 0 || s.ending;
-  let v = 0;
-  v += (c.luz || 0) * 2.2 + (c.pic || 0) * 1.3 + (c.prosa || 0) * (late ? 0.6 : 1.5) + (c.draw || 0) * 1.8;
-  v += (c.gold || 0) * 1 + (c.folego || 0) * 0.8 + (c.pts || 0) * (late ? 1.2 : 0.6);
-  v -= Math.max(0, c.est || 0) * 0.6;
-  v += Math.max(0, -(c.est || 0)) * 0.7;
+  let v = resValue(s, p, c, late) + (c.pts || 0) * (late ? 1.2 : 0.6);
   if (c.acq?.gold) v += c.acq.gold * 0.9;
   if (c.fx === 'calm' && s.cerb) v += 2;
   if (c.fx === 'mirror' && s.medusa) v += 1.5;
   if (c.fx === 'trash') v += 2;
   if (c.fx === 'freeRide') v += 1.5;
   if (c.fx === 'darkCheap' || c.fx === 'ropeUp') v += 1;
+  if (c.fam) {
+    const ch = famChance(p, c.fam);
+    if (c.combo) v += resValue(s, p, c.combo, late) * ch * BOT_OPTS.comboWeight;
+    if (c.perOther) v += resValue(s, p, c.perOther, late) * ch * 1.6 * BOT_OPTS.comboWeight;
+    // esta carta também arma combos das que já estão no baralho
+    const mates = E.allCards(p).filter((x) => x && CARDS[x].fam === c.fam && CARDS[x].combo).length;
+    v += Math.min(2, mates * 0.35) * BOT_OPTS.comboWeight;
+  }
   return v;
 }
 

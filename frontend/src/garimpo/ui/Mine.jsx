@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import * as E from '../engine.js';
 import { RELICS, LEVELS } from '../data.js';
-import { ROOM_COLOR, ROOM_GLYPH, PLAYER_HEX, roomLabel, roomDesc, relicName } from './text.js';
+import { ROOM_COLOR, ROOM_GLYPH, PLAYER_HEX, roomLabel } from './text.js';
 
 const U = 58; // tamanho de uma "subcasa" (a peça tem 3×3)
 const TILE = U * 3;
@@ -34,17 +34,15 @@ function useCosts(s, you, myTurn) {
   return { me, reach, costs };
 }
 
-function Room({ s, n, p, you, me, reach, costs, rides, picking, onMove, onPickNode, r = RR }) {
+function Room({ s, n, p, you, me, reach, rides, picking, onMove, onPickNode, onInfo, r = RR }) {
   const kind = s.map.nodes[n].kind || 'vazia';
   const canMove = reach.has(n) || rides[n];
   const cls = `gm-room${canMove ? ' can' : ''}${picking ? ' pick' : ''}${me?.node === n ? ' here' : ''}${kind === 'boca' ? ' boca' : ''}`;
-  const onClick = picking ? () => onPickNode(n) : rides[n] && !reach.has(n) ? () => onMove(n, true) : canMove ? () => onMove(n) : undefined;
+  const onClick = picking ? () => onPickNode(n) : rides[n] && !reach.has(n) ? () => onMove(n, true) : canMove ? () => onMove(n) : () => onInfo?.({ room: n, pinned: true });
   const relic = s.relics[n];
   const pl = s.players.filter((q) => q.node === n && E.inMine(q));
-  const tip = `${roomLabel(kind)}${roomDesc(kind) ? ` — ${roomDesc(kind)}` : ''}${relic ? `\nRelíquia: ${relicName(relic)}` : ''}${costs[n] ? `\nIr: 🔦${costs[n].luz}${costs[n].prosa ? ` 🤝${costs[n].prosa}` : ''}${costs[n].den ? ' + Toca (⛏1 ou 🫧1)' : ''}` : ''}`;
   return (
-    <g className={cls} onClick={onClick}>
-      <title>{tip}</title>
+    <g className={cls} onClick={onClick} onMouseEnter={() => onInfo?.({ room: n })} onMouseLeave={() => onInfo?.(null)}>
       <circle cx={p.x} cy={p.y} r={r} fill={ROOM_COLOR[kind] || '#5b4a3a'} />
       <circle cx={p.x} cy={p.y} r={r - 4} fill="url(#gm-roomshade)" pointerEvents="none" />
       <text x={p.x} y={p.y + 6} textAnchor="middle" className="gm-glyph big">{ROOM_GLYPH[kind] || '⛏'}</text>
@@ -59,8 +57,8 @@ function Room({ s, n, p, you, me, reach, costs, rides, picking, onMove, onPickNo
   );
 }
 
-function TileMine({ s, you, myTurn, onMove, onExplore, onPickNode, pickNodes, rideTo }) {
-  const { me, reach, costs } = useCosts(s, you, myTurn);
+function TileMine({ s, you, myTurn, onMove, onExplore, onPickNode, pickNodes, rideTo, onInfo }) {
+  const { me, reach } = useCosts(s, you, myTurn);
   const rides = rideTo || {};
   const tiles = Object.entries(s.map.tiles).map(([k, t]) => ({ k, t, tx: Number(k.split(',')[0]), ty: Number(k.split(',')[1]) }));
   // área: peças existentes + uma margem curta (as saídas para o escuro ficam na borda)
@@ -117,7 +115,8 @@ function TileMine({ s, you, myTurn, onMove, onExplore, onPickNode, pickNodes, ri
         const blocked = s.rubble.includes(e.key);
         const mx = (a.x + b.x) / 2; const my = (a.y + b.y) / 2;
         return (
-          <g key={e.key}>
+          <g key={e.key} className="gm-edge" onMouseEnter={() => onInfo?.({ edge: e.key })} onMouseLeave={() => onInfo?.(null)}>
+            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="transparent" strokeWidth="18" />
             {(e.type === 't' || e.type === 'ramp') && <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#3a2412" strokeWidth={st.w + 5} strokeLinecap="round" />}
             <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={st.stroke} strokeWidth={st.w} strokeLinecap="round" markerEnd={st.arrow ? 'url(#gm-arrow)' : undefined} />
             {(e.type === 't' || e.type === 'ramp') && <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#b07a46" strokeWidth="1.5" strokeDasharray="3 7" />}
@@ -147,8 +146,8 @@ function TileMine({ s, you, myTurn, onMove, onExplore, onPickNode, pickNodes, ri
           <g key={`${k}${side}`}>
             {(st || blockedSide) && <line x1={a.x} y1={a.y} x2={x2} y2={y2} stroke={edgeStyle({ type: ex.type }).stroke} strokeWidth={edgeStyle({ type: ex.type }).w - 1} strokeLinecap="round" opacity={blockedSide ? 0.4 : 0.9} />}
             {st && (
-              <g className={`gm-stub${ok ? ' can' : ''}${rubble ? ' rubble' : ''}`} onClick={ok ? () => onExplore(side) : undefined}>
-                <title>{rubble ? 'Desabamento: limpe com ⛏3 ou Dinamite' : `Explorar ${({ N: 'ao norte', S: 'ao sul', E: 'a leste', W: 'a oeste' })[side]}${c && !c.err ? ` (🔦${c.luz})` : ''}${st.pass.den ? ' · Toca de Bicho' : ''}`}</title>
+              <g className={`gm-stub${ok ? ' can' : ''}${rubble ? ' rubble' : ''}`} onClick={ok ? () => onExplore(side) : () => onInfo?.({ stub: { node: ex.node, dir: side }, pinned: true })}
+                onMouseEnter={() => onInfo?.({ stub: { node: ex.node, dir: side } })} onMouseLeave={() => onInfo?.(null)}>
                 <circle cx={x2} cy={y2} r="11" />
                 <text x={x2} y={y2 + 4} textAnchor="middle">{rubble ? '🪨' : '?'}</text>
               </g>
@@ -156,7 +155,7 @@ function TileMine({ s, you, myTurn, onMove, onExplore, onPickNode, pickNodes, ri
           </g>
         );
       }))}
-      {E.nodeIds(s).map((n) => <Room key={n} s={s} n={n} p={pos(n)} you={you} me={me} reach={reach} costs={costs} rides={rides} picking={pickNodes?.includes(n)} onMove={onMove} onPickNode={onPickNode} r={s.map.nodes[n].kind === 'boca' ? RR + 5 : RR} />)}
+      {E.nodeIds(s).map((n) => <Room key={n} s={s} n={n} p={pos(n)} you={you} me={me} reach={reach} rides={rides} picking={pickNodes?.includes(n)} onMove={onMove} onPickNode={onPickNode} onInfo={onInfo} r={s.map.nodes[n].kind === 'boca' ? RR + 5 : RR} />)}
     </svg>
     </div>
   );
@@ -164,8 +163,8 @@ function TileMine({ s, you, myTurn, onMove, onExplore, onPickNode, pickNodes, ri
 
 // Mapa clássico (tutorial): corte lateral em níveis
 const CW = 104; const CH = 84;
-function ClassicMine({ s, you, myTurn, onMove, onPickNode, pickNodes, rideTo }) {
-  const { me, reach, costs } = useCosts(s, you, myTurn);
+function ClassicMine({ s, you, myTurn, onMove, onPickNode, pickNodes, rideTo, onInfo }) {
+  const { me, reach } = useCosts(s, you, myTurn);
   const rides = rideTo || {};
   const pos = (n) => { const nd = s.map.nodes[n]; return { x: 40 + nd.x * 0.8 * CW + CW / 2, y: 30 + nd.lv * CH + CH / 2 }; };
   const width = 80 + 9 * CW; const height = 60 + 6 * CH;
@@ -174,7 +173,7 @@ function ClassicMine({ s, you, myTurn, onMove, onPickNode, pickNodes, rideTo }) 
       <rect width={width} height={height} fill="#1d1813" />
       {LEVELS.map((name, lv) => <text key={lv} x="8" y={30 + lv * CH + 14} className="gm-lvl">{name}</text>)}
       {s.map.edges.map((e) => { const a = pos(e.a); const b = pos(e.b); const st = edgeStyle(e); return <line key={e.key} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={s.rubble.includes(e.key) ? '#5a5550' : st.stroke} strokeWidth={st.w} strokeDasharray={st.dash} />; })}
-      {E.nodeIds(s).map((n) => <Room key={n} s={s} n={n} p={pos(n)} you={you} me={me} reach={reach} costs={costs} rides={rides} picking={pickNodes?.includes(n)} onMove={onMove} onPickNode={onPickNode} r={22} />)}
+      {E.nodeIds(s).map((n) => <Room key={n} s={s} n={n} p={pos(n)} you={you} me={me} reach={reach} rides={rides} picking={pickNodes?.includes(n)} onMove={onMove} onPickNode={onPickNode} onInfo={onInfo} r={22} />)}
     </svg>
   );
 }
