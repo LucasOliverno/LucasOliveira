@@ -1,0 +1,497 @@
+[
+  {
+    "id": "board_corte",
+    "dimensoes_cm": [
+      80.0,
+      50.0,
+      3.0
+    ],
+    "triangulos": 624
+  },
+  {
+    "id": "board_boca_mina",
+    "dimensoes_cm": [
+      8.0,
+      6.0,
+      7.0
+    ],
+    "triangulos": 168
+  },
+  {
+    "id": "board_elevador",
+    "dimensoes_cm": [
+      5.0,
+      5.0,
+      14.0
+    ],
+    "triangulos": 324
+  },
+  {
+    "id": "board_elevador_gaiola",
+    "dimensoes_cm": [
+      3.0,
+      3.0,
+      4.0
+    ],
+    "triangulos": 108
+  },
+  {
+    "id": "board_mascate",
+    "dimensoes_cm": [
+      6.0,
+      4.0,
+      5.0
+    ],
+    "triangulos": 180
+  },
+  {
+    "id": "board_barracao",
+    "dimensoes_cm": [
+      7.0,
+      5.0,
+      5.0
+    ],
+    "triangulos": 212
+  },
+  {
+    "id": "board_escada",
+    "dimensoes_cm": [
+      1.5,
+      0.5,
+      6.0
+    ],
+    "triangulos": 96
+  },
+  {
+    "id": "board_trilho",
+    "dimensoes_cm": [
+      10.0,
+      2.0,
+      0.5
+    ],
+    "triangulos": 84
+  },
+  {
+    "id": "board_trilho_curva",
+    "dimensoes_cm": [
+      6.0,
+      6.0,
+      0.5
+    ],
+    "triangulos": 300
+  },
+  {
+    "id": "board_carrinho",
+    "dimensoes_cm": [
+      3.0,
+      2.0,
+      2.0
+    ],
+    "triangulos": 292
+  },
+  {
+    "id": "board_poco",
+    "dimensoes_cm": [
+      3.0,
+      3.0,
+      1.0
+    ],
+    "triangulos": 236
+  },
+  {
+    "id": "board_geodo",
+    "dimensoes_cm": [
+      3.0,
+      3.0,
+      2.5
+    ],
+    "triangulos": 50
+  },
+  {
+    "id": "board_respiro",
+    "dimensoes_cm": [
+      2.5,
+      2.5,
+      4.0
+    ],
+    "triangulos": 164
+  },
+  {
+    "id": "board_altar",
+    "dimensoes_cm": [
+      2.5,
+      2.5,
+      1.2
+    ],
+    "triangulos": 36
+  },
+  {
+    "id": "board_ninho",
+    "dimensoes_cm": [
+      14.0,
+      10.0,
+      4.0
+    ],
+    "triangulos": 796
+  },
+  {
+    "id": "board_agua",
+    "dimensoes_cm": [
+      80.0,
+      50.0,
+      0.2
+    ],
+    "triangulos": 12
+  },
+  {
+    "id": "peao_garimpeiro",
+    "dimensoes_cm": [
+      2.0,
+      2.0,
+      4.0
+    ],
+    "triangulos": 312
+  },
+  {
+    "id": "peao_garimpeiro_urucum",
+    "dimensoes_cm": [
+      2.0,
+      2.0,
+      4.0
+    ],
+    "triangulos": 312
+  },
+  {
+    "id": "peao_garimpeiro_anil",
+    "dimensoes_cm": [
+      2.0,
+      2.0,
+      4.0
+    ],
+    "triangulos": 312
+  },
+  {
+    "id": "peao_garimpeiro_mata",
+    "dimensoes_cm": [
+      2.0,
+      2.0,
+      4.0
+    ],
+    "triangulos": 312
+  },
+  {
+    "id": "peao_garimpeiro_ipe",
+    "dimensoes_cm": [
+      2.0,
+      2.0,
+      4.0
+    ],
+    "triangulos": 312
+  },
+  {
+    "id": "cubo_jogador",
+    "dimensoes_cm": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "triangulos": 12
+  },
+  {
+    "id": "cubo_pedra",
+    "dimensoes_cm": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "triangulos": 20
+  },
+  {
+    "id": "tabuleiro_pessoal",
+    "dimensoes_cm": [
+      24.0,
+      8.0,
+      0.4
+    ],
+    "triangulos": 212
+  },
+  {
+    "id": "chefe_mae_do_ouro",
+    "dimensoes_cm": [
+      12.0,
+      10.0,
+      9.0
+    ],
+    "triangulos": 1212
+  },
+  {
+    "id": "bateia",
+    "dimensoes_cm": [
+      10.0,
+      10.0,
+      3.0
+    ],
+    "triangulos": 476
+  },
+  {
+    "id": "furia_trilha",
+    "dimensoes_cm": [
+      18.0,
+      3.0,
+      0.5
+    ],
+    "triangulos": 276
+  },
+  {
+    "id": "furia_marcador",
+    "dimensoes_cm": [
+      1.2,
+      1.2,
+      1.5
+    ],
+    "triangulos": 66
+  },
+  {
+    "id": "agua_marcador",
+    "dimensoes_cm": [
+      1.5,
+      1.5,
+      1.5
+    ],
+    "triangulos": 82
+  },
+  {
+    "id": "desabamento",
+    "dimensoes_cm": [
+      3.0,
+      2.0,
+      2.0
+    ],
+    "triangulos": 72
+  },
+  {
+    "id": "grisu",
+    "dimensoes_cm": [
+      2.5,
+      2.5,
+      2.5
+    ],
+    "triangulos": 364
+  },
+  {
+    "id": "pepita",
+    "dimensoes_cm": [
+      1.0,
+      1.0,
+      0.6
+    ],
+    "triangulos": 20
+  },
+  {
+    "id": "cristal",
+    "dimensoes_cm": [
+      1.0,
+      1.0,
+      1.8
+    ],
+    "triangulos": 10
+  },
+  {
+    "id": "folego",
+    "dimensoes_cm": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "triangulos": 60
+  },
+  {
+    "id": "reliquia_bateia",
+    "dimensoes_cm": [
+      2.0,
+      2.0,
+      0.8
+    ],
+    "triangulos": 476
+  },
+  {
+    "id": "reliquia_lampiao",
+    "dimensoes_cm": [
+      1.5,
+      1.5,
+      2.5
+    ],
+    "triangulos": 342
+  },
+  {
+    "id": "reliquia_sino",
+    "dimensoes_cm": [
+      1.5,
+      1.5,
+      2.0
+    ],
+    "triangulos": 256
+  },
+  {
+    "id": "reliquia_coroa",
+    "dimensoes_cm": [
+      2.0,
+      2.0,
+      1.5
+    ],
+    "triangulos": 152
+  },
+  {
+    "id": "reliquia_ferradura",
+    "dimensoes_cm": [
+      2.0,
+      0.5,
+      2.0
+    ],
+    "triangulos": 216
+  },
+  {
+    "id": "reliquia_topazio",
+    "dimensoes_cm": [
+      1.8,
+      1.8,
+      2.0
+    ],
+    "triangulos": 126
+  },
+  {
+    "id": "reliquia_escama",
+    "dimensoes_cm": [
+      2.5,
+      0.6,
+      2.5
+    ],
+    "triangulos": 30
+  },
+  {
+    "id": "mascate_capacete",
+    "dimensoes_cm": [
+      2.0,
+      2.0,
+      1.5
+    ],
+    "triangulos": 124
+  },
+  {
+    "id": "mascate_corda",
+    "dimensoes_cm": [
+      2.0,
+      2.0,
+      1.0
+    ],
+    "triangulos": 384
+  },
+  {
+    "id": "mascate_mochila",
+    "dimensoes_cm": [
+      2.0,
+      1.5,
+      2.0
+    ],
+    "triangulos": 36
+  },
+  {
+    "id": "mascate_cantil",
+    "dimensoes_cm": [
+      1.2,
+      1.2,
+      2.0
+    ],
+    "triangulos": 184
+  },
+  {
+    "id": "chefe_cerbero",
+    "dimensoes_cm": [
+      10.0,
+      8.0,
+      8.0
+    ],
+    "triangulos": 620
+  },
+  {
+    "id": "cerbero_cabeca",
+    "dimensoes_cm": [
+      1.5,
+      1.5,
+      0.6
+    ],
+    "triangulos": 84
+  },
+  {
+    "id": "chefe_medusa",
+    "dimensoes_cm": [
+      8.0,
+      8.0,
+      10.0
+    ],
+    "triangulos": 1388
+  },
+  {
+    "id": "reliquia_coleira",
+    "dimensoes_cm": [
+      2.0,
+      2.0,
+      1.0
+    ],
+    "triangulos": 384
+  },
+  {
+    "id": "reliquia_veu",
+    "dimensoes_cm": [
+      2.0,
+      0.6,
+      2.5
+    ],
+    "triangulos": 72
+  },
+  {
+    "id": "estatua_garimpeiro",
+    "dimensoes_cm": [
+      2.0,
+      2.0,
+      4.0
+    ],
+    "triangulos": 312
+  },
+  {
+    "id": "carta",
+    "dimensoes_cm": [
+      6.3,
+      8.8,
+      0.03
+    ],
+    "triangulos": 12
+  },
+  {
+    "id": "pilha_cartas",
+    "dimensoes_cm": [
+      6.3,
+      8.8,
+      2.0
+    ],
+    "triangulos": 60
+  },
+  {
+    "id": "lampiao_mesa",
+    "dimensoes_cm": [
+      6.0,
+      6.0,
+      14.0
+    ],
+    "triangulos": 342
+  },
+  {
+    "id": "caixa_jogo",
+    "dimensoes_cm": [
+      30.0,
+      30.0,
+      7.0
+    ],
+    "triangulos": 24
+  }
+]
