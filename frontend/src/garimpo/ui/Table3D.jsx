@@ -1,7 +1,8 @@
 // Mesa 3D do GARIMPO: a mina em peças deitada na mesa, com as salas montadas em miniatura,
 // garimpeiros, relíquias, chefes e a Bateia. É jogável: clique numa sala com anel dourado para andar
 // e num marcador dourado na borda para explorar.
-// Usa os modelos de public/garimpo/models/garimpo.glb (em cm) pelo nome; o resto é geometria simples.
+// Usa os modelos v3 de public/garimpo/models/v3/<id>.glb (em cm, base no chão), ajustados ao tamanho da mesa;
+// o que ainda não tem modelo continua em geometria simples.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
@@ -10,7 +11,9 @@ import * as E from '../engine.js';
 import { RELICS } from '../data.js';
 import { ROOM_COLOR, PLAYER_HEX, roomLabel } from './text.js';
 
-const MODEL = `${import.meta.env.BASE_URL}garimpo/models/garimpo.glb?v=1`;
+const V3 = (id) => `${import.meta.env.BASE_URL}garimpo/models/v3/${id}.glb?v=3`;
+const V3_IDS = new Set(['bateia', 'board_altar', 'board_barracao', 'board_boca_mina', 'board_carrinho', 'board_elevador_gaiola', 'board_geodo', 'board_mascate', 'board_ninho', 'board_respiro', 'board_trilho', 'cerbero_cabeca', 'chefe_cerbero', 'chefe_mae_do_ouro', 'chefe_medusa', 'cristal', 'cubo_jogador', 'cubo_pedra', 'desabamento', 'estatua_garimpeiro', 'furia_marcador', 'furia_trilha', 'grisu', 'lampiao_mesa', 'peao_garimpeiro_urucum', 'peao_garimpeiro_anil', 'peao_garimpeiro_mata', 'peao_garimpeiro_ipe', 'pepita', 'reliquia_bateia', 'reliquia_coleira', 'reliquia_coroa', 'reliquia_escama', 'reliquia_ferradura', 'reliquia_lampiao', 'reliquia_sino', 'reliquia_topazio', 'reliquia_veu']);
+const hasModel = (id) => V3_IDS.has(id);
 const SUB = 3.4; // cm entre salas dentro de uma peça (a peça tem 3×3)
 const TOP = 0.7; // altura do tampo das peças
 
@@ -43,11 +46,23 @@ function Label({ text, position, width = 2.6, color = '#f3ebdd' }) {
   );
 }
 const M = (color, extra = {}) => <meshStandardMaterial color={color} roughness={0.8} {...extra} />;
-function Piece({ nodes, name, color, ...props }) {
-  const n = nodes[name];
-  const mat = useMemo(() => (color && n ? new THREE.MeshStandardMaterial({ color, roughness: 0.7 }) : n?.material), [color, n]);
-  if (!n) return null;
-  return <mesh geometry={n.geometry} material={mat} castShadow receiveShadow {...props} />;
+
+// Modelo v3 pelo id. fit = maior medida horizontal desejada; size = [x, y, z] força cada eixo (para trilhos).
+// tint troca a cor (cubos do jogador). Cada instância é uma cópia da cena carregada.
+function Model({ id, fit = 1, size = null, tint = null, ...props }) {
+  const { scene } = useGLTF(V3(id));
+  const box = useMemo(() => new THREE.Box3().setFromObject(scene).getSize(new THREE.Vector3()), [scene]);
+  const obj = useMemo(() => {
+    const c = scene.clone(true);
+    c.traverse((m) => {
+      if (!m.isMesh) return;
+      m.castShadow = true; m.receiveShadow = true;
+      if (tint) { m.material = m.material.clone(); m.material.color = new THREE.Color(tint); }
+    });
+    return c;
+  }, [scene, tint]);
+  const scale = size ? [size[0] / Math.max(box.x, 1e-3), size[1] / Math.max(box.y, 1e-3), size[2] / Math.max(box.z, 1e-3)] : fit / Math.max(box.x, box.z, 1e-3);
+  return <primitive object={obj} scale={scale} {...props} />;
 }
 
 // ------------------------------------------------------------------ miniaturas das salas
@@ -67,46 +82,38 @@ function Rocks({ n = 3, seed = 1 }) {
     return <mesh key={i} castShadow position={[Math.cos(a) * r, 0.14, Math.sin(a) * r]} rotation={[a, a * 2, 0]}><dodecahedronGeometry args={[0.16 + (i % 3) * 0.05]} />{M(STONE)}</mesh>;
   });
 }
-function RoomProps({ kind, nodes, crystals, seed }) {
+function RoomProps({ kind, crystals, seed }) {
   switch (kind) {
-    case 'boca': return (
-      <group>
-        <mesh position={[0, 0.02, 0]}><cylinderGeometry args={[0.7, 0.7, 0.06, 24]} />{M('#0a0806')}</mesh>
-        {[[-0.8, -0.8], [0.8, -0.8], [-0.8, 0.8], [0.8, 0.8]].map(([x, z], i) => <mesh key={i} castShadow position={[x * 0.9, 1.1, z * 0.9]} rotation={[z * 0.12, 0, -x * 0.12]}><boxGeometry args={[0.14, 2.2, 0.14]} />{M(WOOD)}</mesh>)}
-        <mesh castShadow position={[0, 2.2, 0]}><boxGeometry args={[1.7, 0.14, 1.7]} />{M(WOOD2)}</mesh>
-        <mesh castShadow position={[0, 2.6, 0]} rotation={[0, 0, Math.PI / 2]}><torusGeometry args={[0.45, 0.07, 8, 24]} />{M('#3a3a3a', { metalness: 0.6 })}</mesh>
-      </group>
-    );
-    case 'barracao': return (
-      <group>
-        <mesh castShadow position={[0, 0.45, 0]}><boxGeometry args={[1.5, 0.9, 1.1]} />{M(WOOD2)}</mesh>
-        <mesh castShadow position={[0, 1.08, 0]} rotation={[0, Math.PI / 4, 0]}><coneGeometry args={[1.15, 0.6, 4]} />{M('#5a3a22')}</mesh>
-        <mesh position={[0.3, 0.35, 0.56]}><boxGeometry args={[0.35, 0.55, 0.04]} />{M('#2a1a10')}</mesh>
-      </group>
-    );
+    case 'boca': return <group><mesh position={[0, 0.02, 0]}><cylinderGeometry args={[0.7, 0.7, 0.06, 24]} />{M('#0a0806')}</mesh><Model id="board_boca_mina" fit={2.7} position={[0, 0, -0.2]} /></group>;
+    case 'barracao': return <Model id="board_barracao" fit={2.5} rotation={[0, Math.PI, 0]} />;
+    case 'mascate': return <Model id="board_mascate" fit={2.4} position={[0, 0, -0.1]} />;
+    case 'respiro': return <group><mesh position={[0, 1.6, 0]}><cylinderGeometry args={[0.45, 0.75, 3.2, 16, 1, true]} /><meshBasicMaterial color="#fff2c0" transparent opacity={0.16} side={THREE.DoubleSide} depthWrite={false} /></mesh><Model id="board_respiro" fit={1.6} /></group>;
+    case 'elevador': return <Model id="board_elevador_gaiola" fit={1.4} />;
+    case 'altar': return <Model id="board_altar" fit={1.5} />;
+    case 'estatuas': return <group><Model id="estatua_garimpeiro" fit={0.9} position={[-0.5, 0, 0]} rotation={[0, 0.5, 0]} /><Model id="estatua_garimpeiro" fit={0.8} position={[0.5, 0, -0.3]} rotation={[0, -0.7, 0]} /></group>;
     case 'geodo': return (
       <group>
-        <mesh castShadow position={[0, 0.3, 0]} scale={[1, 0.55, 1]}><sphereGeometry args={[0.85, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2]} />{M('#4a4440')}</mesh>
-        {Array.from({ length: Math.max(3, crystals * 2 + 2) }).map((_, i) => { const a = i * 1.3 + seed; return <mesh key={i} castShadow position={[Math.cos(a) * 0.4, 0.45, Math.sin(a) * 0.4]} rotation={[Math.cos(a) * 0.4, 0, Math.sin(a) * 0.4]}><coneGeometry args={[0.12, 0.7, 6]} /><meshStandardMaterial color="#7fd6c4" emissive="#2f8c7e" emissiveIntensity={0.6} transparent opacity={0.9} /></mesh>; })}
+        <Model id="board_geodo" fit={1.8} />
+        {Array.from({ length: crystals }).map((_, i) => <Model key={i} id="cristal" fit={0.35} position={[Math.cos(i * 2.4 + seed) * 0.95, 0, Math.sin(i * 2.4 + seed) * 0.95]} />)}
       </group>
     );
     case 'veio': return (
       <group>
         <mesh castShadow position={[0, 0.35, -0.4]} rotation={[0.2, 0, 0]}><boxGeometry args={[1.9, 0.7, 0.4]} />{M('#5a524a')}</mesh>
         <mesh position={[0, 0.42, -0.19]} rotation={[0.2, 0, 0.3]}><boxGeometry args={[1.6, 0.08, 0.05]} /><meshStandardMaterial color={GOLD} metalness={0.8} roughness={0.3} emissive="#6a4a08" /></mesh>
-        <Piece nodes={nodes} name="pepita" position={[0.5, 0.05, 0.5]} scale={0.6} />
-        <Piece nodes={nodes} name="pepita" position={[-0.4, 0.05, 0.6]} scale={0.45} />
+        <Model id="pepita" fit={0.55} position={[0.5, 0, 0.5]} />
+        <Model id="pepita" fit={0.4} position={[-0.4, 0, 0.6]} rotation={[0, 1.2, 0]} />
+      </group>
+    );
+    case 'ninho': return (
+      <group>
+        <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[1.3, 32]} /><meshStandardMaterial color="#5a1a0a" emissive="#d2482b" emissiveIntensity={0.6} /></mesh>
+        <Model id="board_ninho" fit={2.7} />
+        <Model id="chefe_mae_do_ouro" fit={1.9} position={[0, 0.25, 0]} />
       </group>
     );
     case 'eco': return (
       <group>{[0.5, 0.8, 1.1].map((r, i) => <mesh key={i} position={[0, 0.08 + i * 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}><torusGeometry args={[r, 0.03, 6, 32]} /><meshStandardMaterial color="#c9a8e0" transparent opacity={0.7 - i * 0.18} /></mesh>)}<Rocks n={2} seed={seed} /></group>
-    );
-    case 'respiro': return (
-      <group>
-        <mesh position={[0, 1.6, 0]}><cylinderGeometry args={[0.45, 0.75, 3.2, 16, 1, true]} /><meshBasicMaterial color="#fff2c0" transparent opacity={0.18} side={THREE.DoubleSide} depthWrite={false} /></mesh>
-        <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[0.75, 24]} /><meshBasicMaterial color="#fff2c0" transparent opacity={0.35} /></mesh>
-        <Rocks n={2} seed={seed} />
-      </group>
     );
     case 'capela': return (
       <group>
@@ -124,30 +131,6 @@ function RoomProps({ kind, nodes, crystals, seed }) {
         <mesh castShadow position={[0.55, 0.35, 0.45]}><cylinderGeometry args={[0.28, 0.25, 0.7, 14]} />{M('#5a3a22')}</mesh>
       </group>
     );
-    case 'mascate': return (
-      <group>
-        <mesh castShadow position={[0, 0.3, -0.2]}><boxGeometry args={[1.6, 0.6, 0.6]} />{M(WOOD2)}</mesh>
-        {[-0.75, 0.75].map((x) => <mesh key={x} castShadow position={[x, 0.75, -0.45]}><boxGeometry args={[0.08, 1.5, 0.08]} />{M(WOOD)}</mesh>)}
-        <mesh castShadow position={[0, 1.45, -0.15]} rotation={[0.45, 0, 0]}><boxGeometry args={[1.8, 0.05, 0.9]} />{M('#c8553a')}</mesh>
-        <mesh castShadow position={[-0.4, 0.7, -0.2]}><sphereGeometry args={[0.16, 10, 8]} />{M('#b07a3a', { metalness: 0.5 })}</mesh>
-        <mesh castShadow position={[0.35, 0.72, -0.2]}><cylinderGeometry args={[0.12, 0.16, 0.25, 10]} />{M('#3e8c7e')}</mesh>
-      </group>
-    );
-    case 'elevador': return (
-      <group>
-        <mesh castShadow position={[0, 0.7, 0]}><boxGeometry args={[1.1, 1.4, 1.1]} /><meshStandardMaterial color="#6a7a86" wireframe /></mesh>
-        <mesh position={[0, 0.03, 0]}><boxGeometry args={[1.1, 0.06, 1.1]} />{M(WOOD)}</mesh>
-        <mesh position={[0, 1.9, 0]} rotation={[0, 0, Math.PI / 2]}><torusGeometry args={[0.3, 0.05, 8, 20]} />{M('#3a3a3a', { metalness: 0.6 })}</mesh>
-      </group>
-    );
-    case 'altar': return <Piece nodes={nodes} name="board_altar" position={[0, 0, 0]} scale={0.55} />;
-    case 'ninho': return (
-      <group>
-        <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[1.25, 32]} /><meshStandardMaterial color="#5a1a0a" emissive="#d2482b" emissiveIntensity={0.7} /></mesh>
-        {[0, 1, 2].map((i) => <mesh key={i} castShadow position={[0, 0.18 + i * 0.22, 0]} rotation={[-Math.PI / 2, 0, i]}><torusGeometry args={[0.85 - i * 0.22, 0.13, 10, 28]} /><meshStandardMaterial color={GOLD} metalness={0.7} roughness={0.35} emissive="#7a2a08" emissiveIntensity={0.4} /></mesh>)}
-        <mesh castShadow position={[0.25, 0.95, 0.1]}><coneGeometry args={[0.16, 0.4, 8]} /><meshStandardMaterial color={GOLD} metalness={0.7} roughness={0.35} /></mesh>
-      </group>
-    );
     case 'covil': return (
       <group>
         <mesh castShadow position={[0, 0.8, -0.5]}><boxGeometry args={[1.8, 1.6, 0.2]} />{M('#8a6a2a', { metalness: 0.6, roughness: 0.4 })}</mesh>
@@ -160,9 +143,6 @@ function RoomProps({ kind, nodes, crystals, seed }) {
         {[-0.55, 0.55].map((x) => <mesh key={x} castShadow position={[x, 0.12, 0]}><sphereGeometry args={[0.13, 8, 6]} />{M('#efe4cc')}</mesh>)}
         <Rocks n={2} seed={seed} />
       </group>
-    );
-    case 'estatuas': return (
-      <group>{[[-0.45, 0], [0.45, -0.3]].map(([x, z], i) => <group key={i} position={[x, 0, z]}><mesh castShadow position={[0, 0.5, 0]}><cylinderGeometry args={[0.18, 0.24, 1, 10]} />{M('#8c8577')}</mesh><mesh castShadow position={[0, 1.15, 0]}><sphereGeometry args={[0.18, 10, 8]} />{M('#8c8577')}</mesh></group>)}</group>
     );
     case 'espelhos': return (
       <group>{[-0.4, 0.4].map((x, i) => <mesh key={x} castShadow position={[x, 0.6, -0.4]} rotation={[0, (i ? -1 : 1) * 0.4, 0]}><boxGeometry args={[0.7, 1.1, 0.05]} /><meshStandardMaterial color="#c8a860" metalness={1} roughness={0.08} /></mesh>)}</group>
@@ -197,11 +177,11 @@ function Room({ s, n, nodes, pos, clickable, picking, here, onClick, hover, setH
       <RoomProps kind={kind} nodes={nodes} crystals={s.crystals[n] || 0} seed={seed} />
       {relic && (
         <group position={[0, kind === 'altar' ? 1.25 : 0.4, 0]}>
-          <mesh castShadow><octahedronGeometry args={[0.38]} /><meshStandardMaterial color="#f0c040" metalness={0.8} roughness={0.25} emissive="#7a5208" emissiveIntensity={0.6} /></mesh>
+          {hasModel(RELICS[relic].model) ? <Model id={RELICS[relic].model} fit={0.85} position={[0, -0.3, 0]} /> : <mesh castShadow><octahedronGeometry args={[0.38]} /><meshStandardMaterial color="#f0c040" metalness={0.8} roughness={0.25} emissive="#7a5208" emissiveIntensity={0.6} /></mesh>}
           <Label text={`✦${RELICS[relic].pts}`} position={[0, 0.7, 0]} width={1.2} color="#ffd970" />
         </group>
       )}
-      {s.grisu.includes(n) && <mesh position={[0, 1.1, 0]}><sphereGeometry args={[0.95, 16, 12]} /><meshStandardMaterial color="#c8d65a" transparent opacity={0.32} depthWrite={false} /></mesh>}
+      {s.grisu.includes(n) && <Model id="grisu" fit={1.5} position={[0.6, 0.2, 0.5]} />}
       {(clickable || picking) && <Glow color={picking ? '#c8d65a' : '#e8b53a'} />}
       {here && <mesh position={[0, 0.1, 0]} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[1.5, 1.62, 40]} /><meshBasicMaterial color="#ffffff" /></mesh>}
       <Label text={roomLabel(kind)} position={[0, 0.16, 1.75]} width={2.6} />
@@ -210,7 +190,7 @@ function Room({ s, n, nodes, pos, clickable, picking, here, onClick, hover, setH
 }
 
 const TUN_COLOR = { dark: '#16110d', rail: '#5a4a3a', ramp: '#8a6a3a', t: '#7a5232' };
-function Tunnel({ a, b, e, nodes, blocked }) {
+function Tunnel({ a, b, e, blocked }) {
   const mid = [(a[0] + b[0]) / 2, TOP + 0.02, (a[2] + b[2]) / 2];
   const len = Math.hypot(a[0] - b[0], a[2] - b[2]);
   const ang = Math.atan2(b[0] - a[0], b[2] - a[2]);
@@ -219,10 +199,10 @@ function Tunnel({ a, b, e, nodes, blocked }) {
     <group position={mid} rotation={[0, ang, 0]}>
       <mesh receiveShadow><boxGeometry args={[w, 0.06, len]} /><meshStandardMaterial color={TUN_COLOR[e.type] || TUN_COLOR.t} roughness={0.9} /></mesh>
       {e.type !== 'dark' && e.type !== 'rail' && [-1, 1].map((sd) => <mesh key={sd} position={[sd * (w / 2 + 0.06), 0.08, 0]} castShadow><boxGeometry args={[0.1, 0.16, len]} />{M(WOOD)}</mesh>)}
-      {e.type === 'rail' && <Piece nodes={nodes} name="board_trilho" position={[0, 0.02, 0]} rotation={[0, Math.PI / 2, 0]} scale={[len / 9, 1, 0.38]} />}
+      {e.type === 'rail' && <Model id="board_trilho" size={[len, 0.18, 0.8]} position={[0, 0.02, 0]} rotation={[0, Math.PI / 2, 0]} />}
       {e.type === 'ramp' && <mesh position={[0, 0.12, len * 0.15]} rotation={[Math.PI / 2, 0, 0]}><coneGeometry args={[0.28, 0.5, 3]} />{M('#e0b070')}</mesh>}
       {e.den && [-0.25, 0.25].map((z) => <mesh key={z} position={[z * 0.6, 0.06, z]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[0.12, 10]} /><meshBasicMaterial color="#c8553a" /></mesh>)}
-      {blocked && [0, 1, 2, 3].map((i) => <mesh key={i} castShadow position={[(i % 2 - 0.5) * 0.4, 0.22 + Math.floor(i / 2) * 0.25, (i - 1.5) * 0.15]} rotation={[i, i * 2, 0]}><dodecahedronGeometry args={[0.24]} />{M('#6a6460')}</mesh>)}
+      {blocked && <Model id="desabamento" fit={1.3} position={[0, 0.03, 0]} />}
     </group>
   );
 }
@@ -294,34 +274,50 @@ function Mine({ s, nodes, you, myTurn, rideTo, onMove, onExplore, pickNodes, onP
         const [x, , z] = pos(p.node);
         const ang = (k / Math.max(1, here.length)) * Math.PI * 2 + 0.6;
         return (
-          <group key={p.id} position={[x + Math.cos(ang) * 0.95, TOP + 0.12, z + Math.sin(ang) * 0.95]} scale={0.5}>
-            <mesh castShadow position={[0, 1, 0]}><cylinderGeometry args={[0.45, 0.7, 2, 14]} />{M(PLAYER_HEX[p.color])}</mesh>
-            <mesh castShadow position={[0, 2.35, 0]}><sphereGeometry args={[0.55, 14, 12]} />{M(PLAYER_HEX[p.color])}</mesh>
-            <mesh castShadow position={[0, 2.8, 0]}><cylinderGeometry args={[0.62, 0.62, 0.14, 16]} />{M('#d8b040')}</mesh>
-            {p.id === you && <mesh position={[0, 3.6, 0]} rotation={[Math.PI, 0, 0]}><coneGeometry args={[0.3, 0.5, 4]} /><meshBasicMaterial color="#ffffff" /></mesh>}
+          <group key={p.id} position={[x + Math.cos(ang) * 0.95, TOP + 0.1, z + Math.sin(ang) * 0.95]}>
+            <Model id={`peao_garimpeiro_${p.color}`} fit={1.0} rotation={[0, -ang + Math.PI / 2, 0]} />
+            {p.id === you && <mesh position={[0, 2.5, 0]} rotation={[Math.PI, 0, 0]}><coneGeometry args={[0.18, 0.3, 4]} /><meshBasicMaterial color="#ffffff" /></mesh>}
           </group>
         );
       })}
-      {s.cerb && (() => { const [x, , z] = pos(s.cerb.node); return <group position={[x - 1, TOP + 0.1, z - 0.4]} scale={0.55}><mesh castShadow position={[0, 0.7, 0]}><boxGeometry args={[2.4, 1.2, 1.2]} />{M('#7a5a2a')}</mesh>{[0, 1, 2].map((h) => <mesh key={h} castShadow position={[(h - 1) * 0.8, 1.7, 0.5]}><sphereGeometry args={[0.45, 12, 10]} /><meshStandardMaterial color={h < s.cerb.awake ? '#d2482b' : '#7a5a2a'} emissive={h < s.cerb.awake ? '#6a1a08' : '#000000'} /></mesh>)}</group>; })()}
-      {s.medusa && (() => { const [x, , z] = pos(s.medusa.node); return <group position={[x - 1, TOP + 0.1, z - 0.4]} scale={0.6}><mesh castShadow position={[0, 1.1, 0]}><coneGeometry args={[0.7, 2.2, 12]} />{M('#3e8c7e')}</mesh><mesh castShadow position={[0, 2.4, 0]}><sphereGeometry args={[0.45, 12, 10]} />{M('#8fc0a8')}</mesh></group>; })()}
+      {s.cerb && (() => { const [x, , z] = pos(s.cerb.node); return (
+        <group position={[x - 0.9, TOP + 0.1, z - 0.6]}>
+          <Model id="chefe_cerbero" fit={1.9} rotation={[0, 0.6, 0]} />
+          {[0, 1, 2].map((h) => <Model key={h} id="cerbero_cabeca" fit={0.32} position={[(h - 1) * 0.4, 0, 1.05]} tint={h < s.cerb.awake ? '#d2482b' : '#6a5a40'} />)}
+        </group>
+      ); })()}
+      {s.medusa && (() => { const [x, , z] = pos(s.medusa.node); return <Model id="chefe_medusa" fit={1.5} position={[x - 0.9, TOP + 0.1, z - 0.6]} rotation={[0, 0.5, 0]} />; })()}
     </group>
   );
 }
 
-function Bateia({ s, nodes, at }) {
+function Bateia({ s, at }) {
   const cubes = [];
   for (let i = 0; i < Math.min(s.bag.stone, 30); i++) cubes.push({ k: `s${i}`, name: 'cubo_pedra', color: null });
   s.players.forEach((p) => { for (let i = 0; i < Math.min(s.bag.p[p.id], 20); i++) cubes.push({ k: `${p.id}-${i}`, name: 'cubo_jogador', color: PLAYER_HEX[p.color] }); });
-  const R = 3.6;
+  const R = 2.5;
   return (
     <group position={at}>
-      <mesh receiveShadow castShadow position={[0, 0.5, 0]}><cylinderGeometry args={[R + 0.5, R - 0.6, 1, 40, 1, true]} /><meshStandardMaterial color="#6b4a2a" roughness={0.55} side={THREE.DoubleSide} /></mesh>
-      <mesh receiveShadow position={[0, 0.05, 0]}><cylinderGeometry args={[R - 0.6, R - 0.6, 0.1, 40]} />{M('#4a3018')}</mesh>
+      <Model id="bateia" fit={R * 2.2} />
       {cubes.map((c, i) => {
-        const a = i * 2.39996; const r = Math.min(R - 1.1, 0.35 + Math.sqrt(i) * 0.5);
-        return <Piece key={c.k} nodes={nodes} name={c.name} color={c.color} position={[Math.cos(a) * r, 0.12 + Math.floor(i / 40) * 0.4, Math.sin(a) * r]} rotation={[0, a, 0]} scale={0.55} />;
+        const a = i * 2.39996; const r = Math.min(R - 0.6, 0.25 + Math.sqrt(i) * 0.34);
+        return <Model key={c.k} id={c.name} fit={0.3} tint={c.color} position={[Math.cos(a) * r, 0.3 + Math.floor(i / 45) * 0.3, Math.sin(a) * r]} rotation={[0, a, 0]} />;
       })}
-      <Label text={`Bateia · ${s.bag.stone + s.bag.p.reduce((x, y) => x + y, 0)} cubos · Fúria ${s.fury}`} position={[0, 0.02, R + 1]} width={6} color="#f3ebdd" />
+      <Label text={`Bateia · ${s.bag.stone + s.bag.p.reduce((x, y) => x + y, 0)} cubos`} position={[0, 0.02, R + 0.9]} width={3.6} color="#f3ebdd" />
+    </group>
+  );
+}
+
+// Trilha da Fúria na mesa, com o marcador na casa atual
+function FuryTrack({ s, at }) {
+  const L = 6;
+  const steps = 7;
+  const x = -L / 2 + ((s.fury - 0.5) / steps) * L;
+  return (
+    <group position={at}>
+      <Model id="furia_trilha" size={[L, 0.25, 1]} />
+      <Model id="furia_marcador" fit={0.55} position={[x, 0.25, 0]} />
+      <Label text={`Fúria: tira ${s.fury >= 1 ? [2, 2, 3, 3, 4, 4, 5][s.fury - 1] : 2} cubos`} position={[0, 0.02, 1.1]} width={2.8} color="#ffb070" />
     </group>
   );
 }
@@ -342,13 +338,14 @@ function Frame({ bounds, controls }) {
 }
 
 function Scene({ s, onReady, controls, ...rest }) {
-  const { nodes } = useGLTF(MODEL);
+  useGLTF(V3('peao_garimpeiro_urucum')); // a cena espera os modelos carregarem
+  const nodes = null;
   useEffect(() => { const id = requestAnimationFrame(() => onReady()); return () => cancelAnimationFrame(id); }, [onReady]);
   const tiles = Object.keys(s.map.tiles).map((k) => k.split(',').map(Number));
   const xs = tiles.map(([x]) => x); const ys = tiles.map(([, y]) => y);
   const x0 = (Math.min(...xs) * 3 - 0.5) * SUB; const x1 = (Math.max(...xs) * 3 + 2.5) * SUB;
   const z0 = (Math.min(...ys) * 3 - 0.5) * SUB; const z1 = (Math.max(...ys) * 3 + 2.5) * SUB;
-  const bag = [x1 + 6, 0, (z0 + z1) / 2];
+  const bag = [x1 + 4.2, 0, (z0 + z1) / 2 - 1.5];
   return (
     <>
       <color attach="background" args={['#14110e']} />
@@ -359,7 +356,10 @@ function Scene({ s, onReady, controls, ...rest }) {
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[(x0 + x1) / 2 + 6, -0.01, (z0 + z1) / 2]}><planeGeometry args={[260, 200]} /><meshStandardMaterial color="#5e3c22" roughness={0.88} /></mesh>
       <Mine s={s} nodes={nodes} {...rest} />
       <Bateia s={s} nodes={nodes} at={bag} />
-      <Frame bounds={[x0, z0, bag[0] + 4, z1]} controls={controls} />
+      <FuryTrack s={s} at={[bag[0], 0, bag[2] + 4.6]} />
+      <Model id="lampiao_mesa" fit={1.5} position={[bag[0] + 2.6, 0, bag[2] - 3.4]} />
+      <pointLight position={[bag[0] + 2.6, 2.2, bag[2] - 3.4]} intensity={25} color="#ffb85a" distance={22} />
+      <Frame bounds={[x0, z0, bag[0] + 3.5, Math.max(z1, bag[2] + 6)]} controls={controls} />
     </>
   );
 }
@@ -380,4 +380,4 @@ export default function Table3D({ s, ...rest }) {
   );
 }
 
-useGLTF.preload(MODEL);
+for (const id of V3_IDS) useGLTF.preload(V3(id));
