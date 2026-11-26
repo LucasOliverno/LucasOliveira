@@ -3,7 +3,9 @@
 Módulos opcionais que entram por cima do jogo base. Podem ser usados juntos.
 No código: `newGame({ players, dlc: ['cerbero', 'medusa'] })`.
 
-**Na v0.2 (mapa explorado), cada DLC traz peças de Sala que são embaralhadas nos montes no começo:**
+**Na v0.4, cada DLC traz peças de mina (com várias salas) que entram no monte do Fundo:** a peça do chefe entra entre a 3ª e a 9ª peça do Fundo, e as peças temáticas são embaralhadas no meio das outras. O chefe só entra em jogo quando a sala dele é revelada. Sem níveis, a **Medusa** anda até 2 salas por Fúria na direção do garimpeiro mais perto e olha até 3 salas pelos túneis (túnel apertado e desabamento bloqueiam a visão).
+
+**Como era na v0.2:**
 
 | DLC | Sala do chefe (sempre entra) | Salas temáticas (podem ou não aparecer) |
 |---|---|---|

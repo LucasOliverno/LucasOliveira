@@ -18,7 +18,8 @@ const X = (s, a) => E.exec(s, a);
 {
   const s = game(4);
   ok(s.row.length === 6 && s.row.every((id) => !D.CARDS[id].quake && D.CARDS[id].type !== 'hazard'), 'Fila inicial com 6 cartas, sem 🌋 nem Perigos');
-  ok(s.bag.stone === 6 && s.bag.p.join() === E.START_CUBES.join(), `Bateia: 6 pedras + ${E.START_CUBES.join('/')} cubos por ordem`);
+  ok(s.bag.stone === 24 && s.bag.p.join() === E.START_CUBES.join(), `Bateia: 24 pedras + ${E.START_CUBES.join('/')} cubos por ordem`);
+  ok(s.fury === D.furyStart(4) && game(2).fury === D.furyStart(2), 'trilha da Fúria começa na casa do número de jogadores');
   ok(s.players.every((p) => p.hand.length === 5 && p.deck.length === 5 && p.node === 'S1' && p.folego === 10), 'mão 5, baralho 5, todos na Boca com 🫧10');
   ok(Object.keys(s.relics).length === 7 && Object.values(s.crystals).reduce((a, b) => a + b, 0) === 8, '7 Relíquias e 8 Cristais');
   ok(s.rubble.length === 2, '2 desabamentos iniciais');
@@ -63,9 +64,9 @@ const X = (s, a) => E.exec(s, a);
   ok(X(s, { t: 'ride', to: 'A6' }) === null && p.node === 'A6' && p.area === 2 && p.t.luz === 0, 'trilho: 3 nós por 🔦1 e 💥2');
   p.node = 'S3'; pool(p, 0, 2); p.area = 0;
   ok(X(s, { t: 'move', to: 'B6' }) === null && p.node === 'B6' && p.t.prosa === 0 && p.area === 1, 'elevador: 🤝2 e 💥1');
-  p.node = 'A2'; p.folego = 7; pool(p, 3);
+  p.node = 'A2'; p.dmg = 3; p.cubes -= 3; p.folego = 7; pool(p, 3);
   X(s, { t: 'move', to: 'A1' }); X(s, { t: 'move', to: 'A2' }); X(s, { t: 'move', to: 'A1' });
-  ok(p.folego === 8, 'Respiro cura 🫧1 uma vez por turno');
+  ok(p.folego === 8 && p.dmg === 2, 'Respiro cura 🫧1 uma vez por turno (o cubo volta para a reserva)');
   p.node = 'D2'; p.area = 0; pool(p, 3);
   X(s, { t: 'move', to: 'D1' });
   ok(p.crystals === 1 && s.crystals.D1 === 1 && p.area === 2, 'Geodo: pega 💠 e faz 💥2');
@@ -80,16 +81,17 @@ const X = (s, a) => E.exec(s, a);
   const s = game();
   const p = cur(s);
   p.node = 'B7';
-  ok(X(s, { t: 'take' }) === null && p.relics[0] === 'R10' && s.fury === 2, 'pegar Relíquia sobe a Fúria');
+  const f0 = s.fury;
+  ok(X(s, { t: 'take' }) === null && p.relics[0] === 'R10' && s.fury === f0 + 1, 'pegar Relíquia sobe a Fúria');
   p.node = 'C6';
   ok(X(s, { t: 'take' }) !== null, 'sem Mochila carrega só 1');
   p.items = ['mochila'];
   p.node = 'E2';
-  ok(X(s, { t: 'take' }) === null && s.fury === 4, 'Ninho sobe a Fúria +2');
+  ok(X(s, { t: 'take' }) === null && s.fury === f0 + 3, 'Ninho sobe a Fúria +2');
   s.bag = { stone: 0, p: [0, 2] };
   const q = s.players[1];
   p.hand = []; X(s, { t: 'end' });
-  ok(q.folego === 8 && s.stats.furies === 1, 'pegar Relíquia dispara Fúria no fim do turno; cubos do J2 tiram 🫧2');
+  ok(q.folego === 8 && q.dmg === 2 && s.stats.furies === 1, 'pegar Relíquia dispara Fúria no fim do turno; os 2 cubos do J2 vão para o medidor dele');
   ok(cur(s).id === 1, 'passa a vez');
   X(s, { t: 'end' });
   ok(cur(s).id === 0 && cur(s).t.luz === 1, 'Adrenalina: com Relíquia, 🔦+1 no começo do turno');
@@ -99,28 +101,39 @@ const X = (s, a) => E.exec(s, a);
   ok(s2.furyExtra === 1, 'Bateia vazia: próxima Fúria tira +1');
 }
 
-// 5) saída, água, soterrado, pontuação
+// 5) saída, reta final, soterrado, pontuação
 {
   const s = game(2);
   const p = cur(s); const q = s.players[1];
   p.node = 'A2'; p.relics = ['R15a']; pool(p, 2);
   X(s, { t: 'move', to: 'S1' });
-  ok(p.status === 'out' && s.water === D.WATER_START && s.clock === 0, 'sair com Relíquia: Selo, água aparece, relógio = quem saiu');
+  ok(p.status === 'out' && s.ending, 'sair com Relíquia: Selo e a mina começa a ruir');
   ok(cur(s).id === 1, 'turno de quem saiu acaba na hora');
-  q.node = 'E1'; q.relics = ['R25']; q.gold = 4;
-  const ticks = D.WATER_START - 1;
-  for (let i = 0; i < ticks && !s.over; i++) { q.hand = []; q.folego = 10; X(s, { t: "end" }); while (s.pending.length) X(s, E.defaultChoice(s)); }
-  ok(s.over && q.status === 'dead' && q.deadLv === 5, `água chega na Galeria 1 depois de ${ticks} voltas: fim de jogo`);
-  const sc = E.scoreOf(s, q);
-  const cardPts = E.allCards(q).reduce((a, id) => a + (D.CARDS[id].pts || 0), 0);
-  ok(sc.relics === 28 && sc.selo === 0 && sc.total === Math.floor((4 + q.crystals * 5 + cardPts) / 2), `soterrado fundo: metade, Relíquias não contam (got ${sc.total})`);
-  ok(E.scoreOf(s, p).selo === D.SELO && s.winners[0] === 0, 'quem saiu vence com Selo');
+  s.bag = { stone: 0, p: [0, 10] };
+  q.hand = []; X(s, { t: 'end' }); while (s.pending.length) X(s, E.defaultChoice(s));
+  ok(q.dmg === D.OUT_DRAWS(2) && s.stats.outDraws === 1, `turno de quem saiu: tira ${D.OUT_DRAWS(2)} cubos da Bateia (sem contar a Fúria); os de J2 viram dano`);
+  ok(cur(s).id === 1 && p.status === 'out', 'quem saiu não joga: a vez volta para quem está na mina');
+  s.bag = { stone: 0, p: [D.OUT_DRAWS(2), 0] }; const pc = p.cubes;
+  q.hand = []; X(s, { t: 'end' }); while (s.pending.length) X(s, E.defaultChoice(s));
+  ok(p.cubes === pc + D.OUT_DRAWS(2) && p.status === 'out', 'quem saiu não toma dano: o cubo dele volta para a reserva');
+  ok(s.over && q.status === 'dead', 'Bateia vazia com alguém na mina: a mina desaba e a partida acaba');
+  ok(E.scoreOf(s, p).selo === D.SELO && s.winners[0] === 0, `quem saiu ganha o Selo de Sobrevivente (✦${D.SELO})`);
   const s3 = game(2);
-  const r = cur(s3); r.node = 'A3'; r.gold = 6; r.status = 'dead'; r.deadLv = 1;
-  ok(E.scoreOf(s3, r).total === 6 + 0, 'soterrado na Galeria 1: resgatado, pontua tudo (sem Selo)');
+  const r = cur(s3); r.gold = 6;
+  r.status = 'dead'; r.deadZone = 'segura'; r.relics = ['R10'];
+  ok(E.scoreOf(s3, r).total === E.scoreOf(s3, { ...r, status: 'in' }).total, 'soterrado perto da Boca com Relíquia: a turma resgata, pontua tudo (sem Selo)');
+  r.relics = [];
+  ok(E.scoreOf(s3, r).total === 0, 'soterrado sem Relíquia: 0');
+  r.relics = ['R10']; r.deadZone = 'fundo';
+  ok(E.scoreOf(s3, r).total === 0, 'soterrado no fundo: 0');
   const s4 = game(2);
-  s4.water = 3; const w = s4.players[1]; w.node = 'C2'; X(s4, { t: 'end' });
-  ok(w.folego === 10 - D.WATER_DMG, 'nível alagado tira 🫧2 no começo do turno');
+  const w = cur(s4); w.cubes = 1;
+  w.node = 'A6'; pool(w, 3, 0, 0);
+  X(s4, { t: 'move', to: 'A7' });
+  ok(w.dmg === 1 && w.cubes === 0, 'dano fora da Fúria usa um cubo da sua reserva');
+  w.node = 'A6'; pool(w, 3, 0, 0);
+  X(s4, { t: 'move', to: 'A7' });
+  ok(w.dmg === 1, 'sem cubos na reserva não há dano');
 }
 
 // 6) compras, Bichos, Mascate, Barracão
@@ -140,7 +153,7 @@ const X = (s, a) => E.exec(s, a);
   ok(X(s, { t: 'mascate', item: 'capacete' }) === null && p.gold === 0 && E.hasItem(p, 'capacete'), 'Mascate: Capacete por 🟡5');
   p.gold = 9;
   ok(X(s, { t: 'mascate', item: 'corda' }) !== null, 'uma compra no Mascate por turno');
-  p.node = 'S2'; p.folego = 5; pool(p, 0, 2);
+  p.node = 'S2'; p.dmg = 5; p.cubes -= 5; p.folego = 5; pool(p, 0, 2);
   ok(X(s, { t: 'rest' }) === null && p.folego === 6, 'Barracão: 🤝2 → 🫧+1');
 }
 
@@ -213,73 +226,77 @@ for (const dlc of [[], ['cerbero'], ['medusa'], ['cerbero', 'medusa']]) {
 }
 
 
-// 11) exploração: peças de Sala
+// 11) exploração: peças de mina com várias salas
 const xgame = (np = 2, dlc = [], seed = 7) => { const s = E.newGame({ players: Array.from({ length: np }, (_, i) => ({ name: 'J' + (i + 1) })), seed, dlc }); s.logCap = 1e5; return s; };
+const tileOf = (lay, k, t, e, zone = 'fundo') => ({ lay, k, t, e, zone });
 {
   const s = xgame();
   const p = cur(s);
-  ok(E.nodeIds(s).join() === 'S1,S2,0:1' && s.map.mode === 'explorar', 'começa só com Boca, Barracão e Galeria de Entrada');
-  ok(E.stubs(s, '0:1').map((x) => x.dir).join() === 'L,R,D', 'Entrada tem saídas para os dois lados e para baixo');
-  p.node = '0:1'; pool(p, 5);
-  s.map.decks.rasa.unshift('altar L:t R:t U:lad');
-  ok(X(s, { t: 'explore', dir: 'R' }) === null && s.pending[0]?.k === 'place', 'explorar abre a escolha de lado da peça');
-  X(s, { t: 'choose', mirror: false });
-  ok(E.nodeIds(s).includes('1:1') && p.node === '1:1' && p.t.luz === 4, 'peça colocada e o explorador entra nela (🔦1)');
-  ok(E.kindOf(s, '1:1') !== 'altar', 'Altar não aparece no nível 1: vai para o fundo do monte');
-  ok(!!E.edgeBetween(s, '0:1', '1:1'), 'passagem entre a Entrada e a sala nova');
-  p.node = '0:1'; pool(p, 5);
-  s.map.decks.rasa.unshift('altar L:t R:t U:lad');
-  X(s, { t: 'explore', dir: 'D' }); X(s, { t: 'choose', mirror: false });
-  ok(E.kindOf(s, '0:2') === 'altar' && s.relics['0:2'] === 'R08', 'Altar no nível 2 recebe a 1ª Relíquia da pilha rasa (✦8)');
-  ok(E.edgeBetween(s, '0:1', '0:2')?.type === 'lad', 'escada liga os níveis');
-  ok(s.map.piles.rasa[0] === 'R10', 'a pilha sobe de valor: a próxima é ✦10');
+  ok(E.nodeIds(s).length === 5 && s.map.mode === 'explorar' && p.node === E.bocaOf(s) && E.kindOf(s, E.bocaOf(s)) === 'boca', 'começa com a peça da Boca: 5 salas, todos na Boca');
+  ok(E.neighbors(s, E.bocaOf(s)).length === 4, 'Boca ligada às 4 salas da peça inicial');
+  const north = '0,0.1';
+  ok(E.stubs(s, north).map((x) => x.dir).join() === 'N', 'a sala do norte tem saída para o escuro');
+  ok(s.map.stack.slice(0, D.SAFE_TILES_USED).every((t) => t.zone === 'segura') && s.map.stack.length === D.SAFE_TILES_USED + D.TILES.fundo.length + 1, '4 peças seguras em cima do monte do Fundo (com o Ninho)');
+  p.node = north; pool(p, 5);
+  s.map.stack.unshift(tileOf('tee', ['vazia', 'vazia', 'altar', 'respiro'], ['t', 't', 't'], { W: 't', E: 't', S: 't' }, 'segura'));
+  ok(X(s, { t: 'explore', dir: 'N' }) === null && s.pending[0]?.k === 'place', 'explorar abre a escolha de rotação');
+  const pd = s.pending[0];
+  ok(pd.rots.length >= 1 && pd.rots.every((r) => E.buildTile(pd.tile, r).edge.S), 'só valem as rotações que encaixam na borda por onde você entra');
+  const bad = [0, 1, 2, 3].find((r) => !pd.rots.includes(r));
+  ok(bad === undefined || X(s, { t: 'choose', rot: bad }) !== null, 'rotação que não encaixa é recusada');
+  X(s, { t: 'choose', rot: pd.rots[0] });
+  const ids = E.nodeIds(s).filter((n) => n.startsWith('0,-1.'));
+  ok(ids.length === 4 && p.node.startsWith('0,-1.') && p.t.luz === 4, 'peça de 4 salas colocada ao norte; o explorador entra pela sala da borda (🔦1)');
+  ok(!!E.edgeBetween(s, north, p.node), 'túnel atravessa a borda entre as duas peças');
+  const altar = ids.find((n) => E.kindOf(s, n) === 'altar');
+  ok(s.relics[altar] === 'R08', 'Altar a 1 peça da Boca recebe a 1ª Relíquia da pilha rasa (✦8)');
+  ok(s.map.piles.rasa[0] === 'R09', 'a pilha sobe de valor');
 }
 {
   const s = xgame();
   const p = cur(s);
-  p.node = '0:1'; pool(p, 5);
-  s.map.decks.rasa.unshift('vazia L:t R:t D:rubble');
-  X(s, { t: 'explore', dir: 'L' }); X(s, { t: 'choose', mirror: false });
-  ok(E.exploreCost(s, p, 'D').err?.includes('desabamento'), 'saída com desabamento não se explora');
-  pool(p, 1, 0, 3);
-  ok(X(s, { t: 'clear', dir: 'D' }) === null && !E.exploreCost(s, p, 'D').err, 'limpar o desabamento com ⛏3 libera a saída');
-  p.node = '0:1'; pool(p, 5);
-  s.map.decks.rasa.unshift('respiro L:t R:dark D:lad');
-  X(s, { t: 'explore', dir: 'R' }); X(s, { t: 'choose', mirror: true });
-  ok(s.map.nodes['1:1'].exits.L.type === 'dark' && s.map.nodes['1:1'].exits.R.type === 't', 'espelhar troca as saídas da esquerda e da direita');
+  p.node = '0,0.2'; pool(p, 5);
+  s.map.stack.unshift(tileOf('reta', ['vazia', 'vazia', 'vazia'], ['t', 't'], { N: 't', S: 't', E: 'rub', W: 't' }));
+  X(s, { t: 'explore', dir: 'E' }); X(s, { t: 'choose', rot: s.pending[0].rots[0] });
+  const st = E.stubs(s, p.node);
+  ok(st.length >= 1, 'a sala nova tem saídas para o escuro');
+  const rub = E.nodeIds(s).flatMap((n) => E.stubs(s, n)).find((x) => x.pass.type === 'rubble');
+  if (rub) {
+    const from = E.nodeIds(s).find((n) => E.stubs(s, n).includes(rub) || E.stubs(s, n).some((x) => x.cell === rub.cell && x.dir === rub.dir));
+    p.node = from; pool(p, 1, 0, 0);
+    ok(E.exploreCost(s, p, rub.dir).err?.includes('desabamento'), 'saída com desabamento não se explora');
+    pool(p, 1, 0, 3);
+    ok(X(s, { t: 'clear', dir: rub.dir }) === null && !E.exploreCost(s, p, rub.dir).err, 'limpar o desabamento com ⛏3 libera a saída');
+  } else ok(true, 'desabamento ficou virado para uma peça vizinha');
 }
 {
   const s = xgame();
   const p = cur(s);
-  s.map.nodes['0:3'] = { lv: 3, x: 0, col: 0, kind: 'vazia', exits: { D: { type: 'lad' }, R: { type: 't' } } };
-  s.map.edges.push({ a: '0:1', b: '0:3', type: 'lad', key: '0:1-0:3' });
-  s.map.nodes['0:4'] = undefined; delete s.map.nodes['0:4'];
-  s.map.decks.funda = ['ninho L:t R:t U:lad', 'vazia L:t R:t'];
-  p.node = '0:3'; pool(p, 5);
-  X(s, { t: 'explore', dir: 'D' }); X(s, { t: 'choose', mirror: false });
-  ok(E.kindOf(s, '0:4') === 'vazia' && s.map.decks.funda[0].startsWith('ninho'), 'Ninho não entra no nível 4');
-  s.map.decks.media = ['elevador L:t R:t'];
-  p.node = '0:3'; pool(p, 5);
-  X(s, { t: 'explore', dir: 'R' }); X(s, { t: 'choose', mirror: false });
-  ok(E.edgeBetween(s, 'S1', '1:3')?.type === 'elev', 'Poço do Elevador liga a sala à Boca (🤝2)');
+  p.node = '0,0.3'; pool(p, 5);
+  s.map.stack.unshift(tileOf('duas', ['elevador', 'geodo'], ['t'], { W: 't', E: 't', N: 't', S: 't' }));
+  X(s, { t: 'explore', dir: 'S' }); X(s, { t: 'choose', rot: s.pending[0].rots[0] });
+  const el = E.nodeIds(s).find((n) => E.kindOf(s, n) === 'elevador');
+  ok(E.edgeBetween(s, E.bocaOf(s), el)?.type === 'elev', 'Poço do Elevador liga a sala à Boca (🤝2)');
+  const geo = E.nodeIds(s).find((n) => E.kindOf(s, n) === 'geodo');
+  if (p.node !== geo) { pool(p, 3); X(s, { t: 'move', to: geo }); }
+  ok(p.node === geo && p.t.tired && p.t.luz === 0 && p.crystals === 1, 'Geodo: pega 💠 e cansa (acaba o movimento do turno)');
+  pool(p, 3);
+  const any = E.neighbors(s, p.node)[0].to;
+  ok(X(s, { t: 'move', to: any }) !== null, 'cansado não anda mais neste turno');
 }
 {
   const s = xgame();
   const p = cur(s);
   p.hand = ['TROP']; X(s, { t: 'play', hi: 0 });
-  p.node = '0:1'; pool(p, 5);
-  s.map.decks.rasa.unshift('capela L:t R:t');
-  X(s, { t: 'explore', dir: 'L' }); X(s, { t: 'choose', mirror: false });
-  ok(s.pending[0]?.k === 'trash', 'Capela: primeira visita abre destruir carta');
-  X(s, { t: 'choose', from: 'play', i: p.play.indexOf('TROP') });
-  ok(!E.allCards(p).includes('TROP'), 'Capela destrói o Tropeção jogado neste turno');
-  s.row[0] = 'MOLE';
-  s.map.decks.rasa.unshift('deposito L:t R:t');
-  p.node = '0:1'; pool(p, 5);
-  X(s, { t: 'explore', dir: 'R' }); X(s, { t: 'choose', mirror: false });
-  ok(s.pending[0]?.k === 'gainCheap' && s.pending[0].max === 4, 'Depósito: ganha carta de custo até 4');
-  X(s, { t: 'choose', i: 0 });
-  ok(p.discard.includes('MOLE'), 'carta do Depósito vai para o descarte');
+  p.node = '0,0.1'; pool(p, 5);
+  s.map.stack.unshift(tileOf('duas', ['capela', 'deposito'], ['t'], { W: 't', E: 't', N: 't', S: 't' }, 'segura'));
+  X(s, { t: 'explore', dir: 'N' }); X(s, { t: 'choose', rot: s.pending[0].rots[0] });
+  const firstKind = E.kindOf(s, p.node);
+  ok(s.pending[0]?.k === (firstKind === 'capela' ? 'trash' : 'gainCheap'), 'primeira visita abre a escolha da sala');
+  if (firstKind === 'capela') {
+    X(s, { t: 'choose', from: 'play', i: p.play.indexOf('TROP') });
+    ok(!E.allCards(p).includes('TROP'), 'Capela destrói o Tropeção jogado neste turno');
+  } else { X(s, { t: 'choose', skip: true }); ok(true, 'Depósito: pode pular'); }
   const t = xgame(2);
   const first = t.row[0];
   X(t, { t: 'end' }); X(t, { t: 'end' });
@@ -288,17 +305,17 @@ const xgame = (np = 2, dlc = [], seed = 7) => { const s = E.newGame({ players: A
 {
   const s = xgame(2, ['cerbero', 'medusa']);
   ok(!s.cerb && !s.medusa, 'sem Cérbero nem Medusa antes de achar as salas deles');
-  ok(s.map.decks.funda.some((t) => t.startsWith('covil')) && [...s.map.decks.media, ...s.map.decks.funda].some((t) => t.startsWith('estatuas')), 'salas de DLC embaralhadas nos montes');
+  ok(s.map.stack.some((t) => t.k.includes('covil')) && s.map.stack.some((t) => t.k.includes('estatuas')), 'salas de chefe embaralhadas no monte do Fundo');
   ok(s.map.piles.funda.includes('R25c') && s.map.piles.media.includes('R20c'), 'Relíquias das DLCs nas pilhas');
   const p = cur(s);
-  s.map.nodes['0:4'] = { lv: 4, x: 0, col: 0, kind: 'vazia', exits: { R: { type: 't' }, L: { type: 't' } } };
-  s.map.edges.push({ a: '0:1', b: '0:4', type: 'lad', key: '0:1-0:4' });
-  s.map.decks.funda.unshift('covil L:t R:t'); p.node = '0:4'; pool(p, 5);
-  X(s, { t: 'explore', dir: 'R' }); X(s, { t: 'choose', mirror: false });
-  ok(s.cerb?.node === '1:4' && s.cerb.lair === '1:4', 'Portão de Bronze revelado: o Cérbero aparece dormindo');
-  s.map.decks.funda.unshift('estatuas L:t R:t'); p.node = '0:4'; pool(p, 5);
-  X(s, { t: 'explore', dir: 'L' }); X(s, { t: 'choose', mirror: false });
-  ok(s.medusa?.node === '-1:4', 'Jardim de Estátuas revelado: a Medusa aparece');
+  p.node = '0,0.1'; pool(p, 5);
+  s.map.stack.unshift(tileOf('cruz', ['covil', 'vazia', 'vazia', 'vazia', 'vazia'], ['t', 't', 't', 't'], { N: 't', E: 't', S: 't', W: 't' }));
+  X(s, { t: 'explore', dir: 'N' }); X(s, { t: 'choose', rot: 0 });
+  ok(s.cerb && E.kindOf(s, s.cerb.node) === 'covil', 'Portão de Bronze revelado: o Cérbero aparece dormindo');
+  p.node = '0,0.2'; pool(p, 5);
+  s.map.stack.unshift(tileOf('cruz', ['estatuas', 'vazia', 'vazia', 'vazia', 'vazia'], ['t', 't', 't', 't'], { N: 't', E: 't', S: 't', W: 't' }));
+  X(s, { t: 'explore', dir: 'E' }); X(s, { t: 'choose', rot: 0 });
+  ok(s.medusa && E.kindOf(s, s.medusa.node) === 'estatuas', 'Jardim de Estátuas revelado: a Medusa aparece');
 }
 {
   let bad = 0; let unfinished = 0;

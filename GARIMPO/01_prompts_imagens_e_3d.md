@@ -410,6 +410,58 @@ As **saídas** (túnel, túnel escuro, trilho, Toca, escada, poço, desabamento)
 ## 5.10 Onde a arte entra no jogo
 A tela do GARIMPO usa recortes WebP gerados das folhas de `imagens/`: `frontend/public/garimpo/cards/<ID>.webp` (ID da carta, como `LAMP`, `CARB`, `R30`), `icons/`, `verso.webp`, `capa.webp` e `tabuleiro.webp`. Os modelos ficam em `frontend/public/garimpo/models/garimpo.glb`. Quando uma folha for refeita, basta recortar de novo com a mesma ordem de células deste guia. Quando chegarem modelos novos no GLB, a mesa 3D (`src/garimpo/ui/Table3D.jsx`) os usa pelo nome do objeto, e o que ainda não foi modelado aparece com geometria simples no mesmo lugar.
 
+## 5.11 v0.4: peças de mina com várias salas, tabuleiro do jogador e trilhas
+
+> **Mudou de novo:** as peças agora são **quadrados 3×3 com 2 a 5 salas** ligadas por túneis, com saídas no meio das bordas. Elas substituem a folha 4×4 de "uma sala por peça" da seção 5.8. As ilustrações das **salas** dessa folha continuam úteis como arte de cada sala (círculos ou medalhões dentro da peça).
+
+### Peça de mina (textura de fundo, 1:1, vista de cima)
+```
+[STYLE BIBLE] Top-down square game tile of an underground mine section, seen straight from above:
+dark carved rock with timber-lined tunnels. Leave EMPTY round clearings (for rooms) at these 3×3 grid
+spots: {LISTA DE POSIÇÕES}, connected by tunnels; tunnels reach the middle of these edges: {BORDAS}.
+Tunnel styles: normal = timber-framed; tight = narrow dark crack; rail = with mine rails; den = small claw
+marks. No text, no icons, no rooms painted (rooms are added by the game).
+```
+Gere 1 textura por formato e use rotações: `cruz` (centro + 4 bordas), `anel` (4 bordas ligadas em anel), `tee`, `canto`, `reta` e `dupla` (ver `TILE_LAYOUTS` em `data.js`). Faça uma versão **Segura** (rocha mais clara, terra) e uma do **Fundo** (rocha escura, veios de brasa) de cada uma.
+
+### Peça da Boca (1:1)
+```
+[STYLE BIBLE] Top-down square tile: the mine entrance seen from above, a wooden headframe and daylight
+falling into a central round shaft, a small miners' shed on the west side, three timber tunnels leaving
+to the north, east and south edges. No text.
+```
+
+### Tabuleiro do jogador (3:1)
+```
+[STYLE BIBLE] Player board seen from above: a wooden plank with a row of 10 square slots carved as a
+"breath meter" (the last slot outlined in ember red), a small canvas pouch area for the cube reserve,
+and a tray for the relic carried. No text, no numbers.
+```
+
+### Trilha da Fúria e Bateia (16:5)
+```
+[STYLE BIBLE] A long carved stone strip with 7 round sockets getting hotter from left to right (cool grey
+to glowing ember), a coiled gold-and-fire serpent along the top edge, and on the right a big wooden gold
+pan (bateia) seen from above, empty. No text, no numbers.
+```
+
+### Relíquias novas (mesmo estilo da 2.6)
+```
+1. Colar de Contas de Ouro: a necklace of small hammered gold beads on a leather cord.
+2. Candelabro de Prata: a three-armed silver candlestick, tarnished, with stubs of candle.
+3. Cálice de Esmeralda: a gold chalice set with rough green emeralds.
+4. Máscara de Ouro: a stylized gold mask with hollow eyes and engraved sun rays (fictional, no real culture).
+```
+
+### Modelos 3D v0.4 (mesmo TECH SPEC)
+| ID | Tamanho | Tris | Prompt 3D |
+|---|---|---|---|
+| `peca_mina_{cruz,anel,tee,canto,reta,dupla}` | 9,6 × 9,6 × 0,6 | 600 cada | Thick square mine tile seen from above, carved rock surface with sunken timber-lined tunnels following the layout, round shallow clearings where rooms sit (rooms are separate pieces). Two textures: safe (lighter) and deep (darker). |
+| `peca_boca` | 9,6 × 9,6 × 2 | 1,5k | Start tile with a small wooden headframe over a central round shaft, shed on the west side. |
+| `sala_disco` | 2,6 × 2,6 × 0,35 | 120 | Round room token that sits in a clearing; top face gets the room art. |
+| `medidor_folego` | 22 × 3 × 0,5 | 300 | Wooden strip with 10 square sockets for damage cubes. |
+| `trilha_furia` | 18 × 3 × 0,5 | 300 | Replaces `furia_trilha`: 7 sockets instead of 6. |
+
 ## 6. Checklist de entrega (o que pedir de volta ao outro chat)
 
 - [ ] 6 folhas de arte de carta aprovadas (2.1 a 2.6) + folha das DLCs (5.7) e o Petrificado, em PNG grande

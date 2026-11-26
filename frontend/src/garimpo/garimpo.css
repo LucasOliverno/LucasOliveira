@@ -30,7 +30,7 @@ input, select { font: inherit; background: #1f1a16; color: var(--lona); border: 
 .gm-recent button { margin-left: 6px; }
 
 /* partida */
-.gm-game { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; }
+.gm-game { display: grid; grid-template-rows: auto minmax(380px, 1fr) auto; height: 100vh; }
 .gm-top { display: flex; gap: 16px; align-items: center; padding: 8px 14px; background: var(--painel); border-bottom: 1px solid var(--linha); flex-wrap: wrap; }
 .gm-brand { font-weight: 800; letter-spacing: 0.1em; color: var(--ouro); }
 .gm-brand small { color: var(--ocre); font-weight: 500; letter-spacing: 0; margin-left: 6px; }
@@ -83,7 +83,7 @@ input, select { font: inherit; background: #1f1a16; color: var(--lona); border: 
 .gm-log .k-tile { color: #9fd0c4; }
 .gm-log .k-water { color: #8fc0e0; }
 .gm-log .k-dead, .gm-log .k-dmg { color: #ff9a7a; }
-.gm-bottom { background: var(--painel); border-top: 1px solid var(--linha); padding: 8px 12px; display: grid; gap: 8px; max-height: 46vh; overflow: auto; }
+.gm-bottom { background: var(--painel); border-top: 1px solid var(--linha); padding: 8px 12px; display: grid; gap: 8px; max-height: 40vh; overflow: auto; }
 .gm-turnbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .gm-res { background: #1f1a16; border: 1px solid var(--linha); border-radius: 6px; padding: 3px 8px; font-weight: 700; }
 .gm-yourturn { color: var(--breu); background: var(--ouro); padding: 3px 10px; border-radius: 6px; font-weight: 800; }
@@ -137,3 +137,33 @@ input, select { font: inherit; background: #1f1a16; color: var(--lona); border: 
   .gm-hands { grid-template-columns: 1fr; }
   .gm-modal.side { right: 12px; }
 }
+
+/* v0.4: tabuleiro em peças, tabuleiro do jogador, Bateia */
+.gm-board { display: grid; place-items: center; }
+.gm-mine.tiles { width: 100%; height: 100%; min-width: 0; max-height: 100%; padding: 10px; }
+.gm-tile { fill: #3a2e24; stroke: #6b5440; stroke-width: 3; }
+.gm-tile.fundo { fill: #2a2119; stroke: #4a3a2c; }
+.gm-tile.segura { fill: #4a3c2c; stroke: #a8875a; }
+.gm-tile.start { fill: #55442f; stroke: var(--ouro); stroke-width: 4; }
+.gm-tiletag { fill: var(--ouro); font-size: 10px; font-weight: 800; letter-spacing: 0.12em; }
+.gm-room circle { stroke: #1a1714; stroke-width: 2.5; transition: stroke 0.15s; }
+.gm-room.boca > circle:first-of-type { stroke: var(--ouro); stroke-width: 4; }
+.gm-room.here > circle:first-of-type { stroke: #fff; stroke-width: 3.5; }
+.gm-room.can { cursor: pointer; }
+.gm-room.can > circle:first-of-type { stroke: var(--ouro); stroke-width: 4; filter: drop-shadow(0 0 6px rgba(232, 181, 58, 0.7)); }
+.gm-room.pick > circle:first-of-type { stroke: #c8d65a; stroke-width: 4; }
+.gm-fury .step.past { background: #6a3422; }
+.gm-end .ruindo { color: #ff9a7a; font-weight: 800; }
+.gm-res.warn { border-color: #ff9a7a; color: #ff9a7a; }
+.gm-player .pts { float: right; color: var(--ouro); }
+.gm-health { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin: 5px 0 4px; }
+.gm-health .slot { height: 12px; border-radius: 3px; background: #2a231d; border: 1px solid #4a3c2f; }
+.gm-health .slot.last { border-color: #a03a22; }
+.gm-health .slot.hit { border-color: #1a1714; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.3); }
+.gm-bateia { border: 1px solid var(--linha); border-radius: 8px; padding: 6px 8px; background: #1f1a16; }
+.gm-bateia-title { font-weight: 700; color: var(--ocre); }
+.gm-bateia-bowl { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 4px; padding: 6px; border-radius: 40% 40% 50% 50% / 20% 20% 70% 70%; background: radial-gradient(ellipse at 50% 30%, #6b4a2a, #3a2716); min-height: 46px; }
+.gm-bateia .cube { width: 9px; height: 9px; border-radius: 2px; display: inline-block; border: 1px solid rgba(0, 0, 0, 0.5); }
+.gm-bateia .cube.stone { background: #111; border-radius: 40%; }
+.gm-rot { display: grid; place-items: center; gap: 4px; padding: 8px !important; }
+.gm-tileprev { width: 120px; height: 120px; }

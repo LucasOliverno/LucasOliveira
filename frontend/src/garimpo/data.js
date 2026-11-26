@@ -3,11 +3,13 @@
 
 export const HAND = 5;
 export const ROW_SIZE = 6;
-export const MAX_FOLEGO = 10;
+export const MAX_FOLEGO = 10; // casas do medidor de Fôlego (cubos de dano)
 export const CUBES_PER_PLAYER = 30;
-export const START_STONES = 6;
-export const FURY_DRAWS = [2, 3, 3, 4, 4, 5]; // (PT) casas 1..6 da trilha
-export const SELO = 15;
+export const START_STONES = 24; // pedras pretas na Bateia no começo
+export const FURY_DRAWS = [2, 2, 3, 3, 4, 4, 5]; // (PT) cubos tirados em cada casa da trilha da Fúria
+export const furyStart = (np) => Math.min(np, 4); // começa na casa do número de jogadores
+export const OUT_DRAWS = (np) => +(globalThis.process?.env?.OUT_DRAWS ?? 0) || (np <= 2 ? 5 : 3); // turno de quem já saiu: tira esse tanto, sem contar a Fúria
+export const SELO = 20;
 export const WATER_START = +(globalThis.process?.env?.WATER_START ?? 9); // (PT) cada tique do relógio sobe 1 nível; 8, 7 e 6 são voltas de folga antes de alagar a Câmara (5)
 export const WATER_DMG = 2;
 export const PLAYER_COLORS = ['urucum', 'anil', 'mata', 'ipe'];
@@ -69,7 +71,7 @@ export const RELICS = {
   R20a: { name: 'Coroa de Quartzo-Rosa', pts: 20, model: 'reliquia_coroa' },
   R20b: { name: 'Ferradura de Ouro', pts: 20, model: 'reliquia_ferradura' },
   R25: { name: 'Olho de Topázio', pts: 28, model: 'reliquia_topazio' },
-  R30: { name: 'Escama da Mãe-do-Ouro', pts: 30, model: 'reliquia_escama', fury: 2 },
+  R30: { name: 'Escama da Mãe-do-Ouro', pts: 25, model: 'reliquia_escama', fury: 2 },
 };
 
 export const MASCATE = {
@@ -132,7 +134,7 @@ export const CARDS = {
   TROF: { name: 'Troféu do Lobisomem', type: 'trophy', pts: 3 },
   // perigos
   GRIS: { name: 'Grisu', type: 'hazard', qty: 2, onEnter: 'grisu' },
-  INFI: { name: 'Infiltração', type: 'hazard', qty: 1, onEnter: 'infiltra' },
+  INFI: { name: 'Infiltração', type: 'hazard', qty: 1, onEnter: 'infiltra' }, // todos fazem 💥1
   RACH: { name: 'Rachadura', type: 'hazard', qty: 2, quake: true },
 
   // ---------------- DLC 1: Cérbero, o Cão do Portão (dlc: 'cerbero')
@@ -208,51 +210,73 @@ export const ROOMS = {
   espelhos: { name: 'Salão dos Espelhos', dlc: 'medusa', enter: 'mirror', desc: 'ao entrar, ganhe um espelho' },
   pedreira: { name: 'Pedreira de Pedra-Sabão', dlc: 'medusa', enter: 'unstone', desc: 'ao entrar, destrua 1 Petrificado' },
 };
-// ------------------------------------------------------------------ Peças de Sala (exploração)
-// A mina é uma grade em corte: colunas -4..4, níveis 1..5. Você descobre salas colocando peças.
-// Saídas: L/R (horizontal): t | dark | rail | rubble, com '+den' para Toca de Bicho
-//         U/D (vertical):   lad | shaft (só desce) | rubble (escada bloqueada)
-// Formato compacto: 'sala L:t R:dark+den D:lad'
-export const GRID = { minCol: -4, maxCol: 4, levels: 5 };
-export const TILE_DECKS = {
-  rasa: [ // níveis 1–2 (4 de 14 descem)
-    'vazia L:t R:t D:lad', 'vazia L:rail R:rail', 'vazia L:t R:dark', 'vazia L:t R:rail U:lad',
-    'respiro L:t R:t', 'veio L:t R:rail', 'eco L:rail R:t D:lad', 'capela L:t R:t+den',
-    'deposito L:dark R:t', 'mascate L:t R:t', 'altar L:t R:t+den', 'altar L:rail R:t U:lad',
-    'altar L:t R:dark D:shaft', 'eco L:t R:t D:rubble',
+// ------------------------------------------------------------------ Peças de mina (exploração)
+// A mina se espalha a partir da Boca, sem níveis. Cada peça é um quadrado 3×3 com 2 a 5 salas ligadas por túneis.
+// As saídas ficam no meio de cada borda (N, L, S, O) e continuam na peça vizinha. Ao colocar uma peça você escolhe
+// a rotação, e ela precisa ter saída na borda por onde você entrou.
+// Túneis: t (🔦1) · dark = apertado (🔦2, ou 🔦1 depois de carta com 🔦2+) · rail = trilho · den = Toca de Bicho
+//         dden = apertado com Toca · ramp = rampa de mão única (da 1ª para a 2ª sala) · rub = desabamento (⛏3 abre)
+export const TILE_LAYOUTS = {
+  // salas: [cx, cy] na grade 3×3 da peça · túneis internos: [i, j] · bordas: qual sala encosta em cada borda
+  cruz: { rooms: [[1, 1], [1, 0], [2, 1], [1, 2], [0, 1]], tun: [[0, 1], [0, 2], [0, 3], [0, 4]], edge: { N: 1, E: 2, S: 3, W: 4 } },
+  anel: { rooms: [[1, 0], [2, 1], [1, 2], [0, 1]], tun: [[0, 1], [1, 2], [2, 3], [3, 0]], edge: { N: 0, E: 1, S: 2, W: 3 } },
+  tee: { rooms: [[0, 1], [1, 1], [2, 1], [1, 2]], tun: [[0, 1], [1, 2], [1, 3]], edge: { W: 0, E: 2, S: 3, N: 1 } },
+  canto: { rooms: [[1, 0], [1, 1], [0, 1], [2, 2]], tun: [[0, 1], [1, 2], [1, 3]], edge: { N: 0, W: 2, E: 3, S: 3 } },
+  reta: { rooms: [[1, 0], [1, 1], [1, 2]], tun: [[0, 1], [1, 2]], edge: { N: 0, S: 2, E: 1, W: 1 } },
+  duas: { rooms: [[0, 1], [2, 1]], tun: [[0, 1]], edge: { W: 0, E: 1, N: 0, S: 1 } },
+};
+const T = (lay, k, t, e) => ({ lay, k, t, e });
+export const START_TILE = T('cruz', ['boca', 'vazia', 'vazia', 'vazia', 'barracao'], ['t', 't', 't', 't'], { N: 't', E: 't', S: 't' });
+export const TILES = {
+  segura: [ // perto da Boca: quem fica soterrado aqui é resgatado. 5 peças, 4 entram
+    T('tee', ['vazia', 'mascate', 'vazia', 'veio'], ['t', 't', 't'], { N: 't', E: 't', S: 't', W: 't' }),
+    T('anel', ['deposito', 'vazia', 'capela', 'respiro'], ['t', 'dark', 't', 't'], { N: 't', E: 't', S: 'dark', W: 't' }),
+    T('cruz', ['respiro', 'vazia', 'veio', 'vazia', 'eco'], ['t', 't', 'den', 't'], { N: 't', E: 't', S: 't', W: 'rail' }),
+    T('reta', ['respiro', 'deposito', 'vazia'], ['t', 't'], { N: 't', S: 't', E: 't', W: 'dark' }),
+    T('canto', ['capela', 'deposito', 'vazia', 'altar'], ['t', 'rail', 't'], { N: 't', W: 't', E: 't', S: 't' }),
   ],
-  media: [ // nível 3 (4 de 13 descem)
-    'vazia L:t R:dark D:lad', 'vazia L:dark R:t+den', 'geodo L:t R:t', 'geodo L:dark R:t U:lad',
-    'veio L:t R:t+den D:shaft', 'eco L:t R:dark D:lad', 'respiro L:t R:t', 'capela L:dark R:t',
-    'deposito L:t R:t U:lad', 'elevador L:t R:t', 'altar L:t R:dark', 'altar L:t+den R:t D:lad', 'altar L:dark R:t D:rubble',
-  ],
-  funda: [ // níveis 4–5 (3 de 12 descem)
-    'vazia L:dark R:dark D:lad', 'geodo L:t R:dark', 'geodo L:dark R:t+den', 'geodo L:t R:t U:lad',
-    'veio L:dark R:t', 'eco L:t R:t', 'respiro L:dark R:t U:lad', 'deposito L:t+den R:dark',
-    'altar L:t R:t+den D:lad', 'altar L:dark R:t', 'altar L:t R:dark U:lad', 'altar L:dark+den R:dark D:lad',
+  fundo: [ // 22 peças
+    T('cruz', ['altar', 'geodo', 'vazia', 'eco', 'veio'], ['t', 'dark', 't', 'den'], { N: 't', E: 'dark', S: 't', W: 't' }),
+    T('anel', ['geodo', 'altar', 'respiro', 'vazia'], ['dark', 't', 'den', 't'], { N: 't', E: 't', S: 't', W: 'dark' }),
+    T('tee', ['vazia', 'altar', 'geodo', 'eco'], ['t', 'dark', 't'], { W: 't', E: 't', S: 'rub', N: 't' }),
+    T('canto', ['veio', 'vazia', 'altar', 'geodo'], ['t', 'dden', 't'], { N: 't', W: 'dark', E: 't', S: 't' }),
+    T('reta', ['eco', 'altar', 'deposito'], ['dark', 't'], { N: 't', S: 't', E: 't', W: 't' }),
+    T('duas', ['geodo', 'altar'], ['den'], { W: 't', E: 't', N: 'dark', S: 't' }),
+    T('cruz', ['mascate', 'vazia', 'altar', 'vazia', 'respiro'], ['t', 't', 't', 'dark'], { N: 't', E: 't', S: 't', W: 't' }),
+    T('anel', ['altar', 'eco', 'geodo', 'capela'], ['t', 'ramp', 't', 'dark'], { N: 't', E: 't', S: 't', W: 't' }),
+    T('tee', ['veio', 'eco', 'vazia', 'altar'], ['rail', 'rail', 't'], { W: 'rail', E: 'rail', S: 't', N: 't' }),
+    T('canto', ['geodo', 'vazia', 'altar', 'respiro'], ['dark', 't', 'den'], { N: 't', W: 't', E: 'dark', S: 't' }),
+    T('reta', ['vazia', 'geodo', 'altar'], ['t', 'dden'], { N: 't', S: 'dark', E: 't', W: 't' }),
+    T('cruz', ['elevador', 'vazia', 'geodo', 'vazia', 'altar'], ['t', 't', 'dark', 't'], { N: 't', E: 't', S: 't', W: 't' }),
+    T('anel', ['respiro', 'altar', 'vazia', 'geodo'], ['t', 't', 'dark', 'den'], { N: 'dark', E: 't', S: 't', W: 't' }),
+    T('tee', ['eco', 'altar', 'veio', 'geodo'], ['t', 't', 'dark'], { W: 't', E: 't', S: 't', N: 'rub' }),
+    T('duas', ['deposito', 'altar'], ['dark'], { W: 't', E: 't', N: 't', S: 't' }),
+    T('canto', ['altar', 'geodo', 'veio', 'vazia'], ['ramp', 't', 't'], { N: 't', W: 't', E: 't', S: 'dark' }),
+    T('reta', ['altar', 'eco', 'respiro'], ['den', 't'], { N: 't', S: 't', E: 'dark', W: 't' }),
+    T('cruz', ['geodo', 'altar', 'eco', 'veio', 'vazia'], ['dark', 't', 't', 'den'], { N: 't', E: 't', S: 't', W: 'dark' }),
+    T('anel', ['capela', 'geodo', 'altar', 'eco'], ['t', 'dark', 't', 't'], { N: 't', E: 't', S: 't', W: 't' }),
+    T('tee', ['geodo', 'respiro', 'altar', 'vazia'], ['t', 'dden', 't'], { W: 'dark', E: 't', S: 't', N: 't' }),
+    T('canto', ['vazia', 'eco', 'altar', 'geodo'], ['t', 't', 'dark'], { N: 't', W: 't', E: 't', S: 't' }),
+    T('reta', ['veio', 'deposito', 'altar'], ['t', 't'], { N: 't', S: 't', E: 't', W: 'rub' }),
   ],
 };
-// nível mínimo de algumas peças (se sair mais raso, vai para o fundo do monte e compra a próxima)
-export const TILE_MIN_LEVEL = { ninho: 5, covil: 4, estatuas: 3, altar: 2 };
-export const DECK_OF_LEVEL = { 1: 'rasa', 2: 'rasa', 3: 'media', 4: 'funda', 5: 'funda' };
-export const NINHO_TILE = 'ninho L:t R:t U:lad';
-export const NINHO_WITHIN = 4; // o Ninho é embaralhado entre as 6 primeiras peças do monte fundo
-export const ENTRY_TILE = 'entrada L:t R:t D:lad';
-// salas de DLC embaralhadas nos montes
+export const NINHO_TILE = T('cruz', ['ninho', 'geodo', 'vazia', 'altar', 'eco'], ['dark', 't', 't', 'dden'], { N: 't', E: 't', S: 't', W: 't' });
+export const SAFE_TILES_USED = 4;
+export const DEEP_FROM = 2; // Ninho e salas de chefe das DLCs entram entre a 3ª e a 9ª peça do Fundo
+export const DEEP_TO = 8;
 export const DLC_TILES = {
-  cerbero: { funda: ['covil L:t R:dark+den U:lad'], rasa: ['canil L:t R:t D:lad'], media: ['canil L:dark R:t'] },
-  medusa: { media: ['estatuas L:t R:t D:lad', 'espelhos L:t R:dark'], funda: ['estatuas L:t R:t U:lad'], rasa: ['pedreira L:t R:t D:lad'] },
+  cerbero: {
+    lair: [T('cruz', ['covil', 'eco', 'vazia', 'geodo', 'vazia'], ['t', 'dark', 't', 't'], { N: 't', E: 't', S: 't', W: 't' })],
+    extra: [T('tee', ['canil', 'vazia', 'altar', 'vazia'], ['t', 't', 'den'], { W: 't', E: 't', S: 't', N: 't' })],
+  },
+  medusa: {
+    lair: [T('cruz', ['estatuas', 'eco', 'vazia', 'altar', 'vazia'], ['t', 't', 'dark', 't'], { N: 't', E: 't', S: 't', W: 't' })],
+    extra: [T('anel', ['espelhos', 'vazia', 'geodo', 'vazia'], ['t', 'dark', 't', 't'], { N: 't', E: 't', S: 't', W: 't' }), T('reta', ['pedreira', 'vazia', 'altar'], ['t', 't'], { N: 't', S: 't', E: 't', W: 't' })],
+  },
 };
-export function parseTile(str) {
-  const [kind, ...parts] = str.split(' ');
-  const exits = {};
-  for (const p of parts) {
-    const [side, v] = p.split(':');
-    const [type, den] = v.split('+');
-    exits[side] = { type, ...(den ? { den: true } : {}) };
-  }
-  return { kind, exits };
-}
+export const MAX_TILE_DIST = 5; // a mina cabe numa grade de 11×11 peças em volta da Boca
+// Água no mapa explorado: alaga a partir das peças mais distantes da Boca (distância em peças)
+export const WATER_GRACE = 2;
 
 // ------------------------------------------------------------------ Relíquias que aparecem (mapa aleatório)
 Object.assign(RELICS, {
@@ -260,13 +284,18 @@ Object.assign(RELICS, {
   R12: { name: 'Pente de Tartaruga e Ouro', pts: 12, model: 'reliquia_pente' },
   R18: { name: 'Bússola de Ouro', pts: 18, model: 'reliquia_bussola' },
   R30b: { name: 'Ídolo da Serra', pts: 30, model: 'reliquia_idolo' },
+  R09: { name: 'Colar de Contas de Ouro', pts: 9, model: 'reliquia_colar' },
+  R16: { name: 'Candelabro de Prata', pts: 16, model: 'reliquia_candelabro' },
+  R22: { name: 'Cálice de Esmeralda', pts: 22, model: 'reliquia_calice' },
+  R27: { name: 'Máscara de Ouro', pts: 27, model: 'reliquia_mascara' },
 });
-// Pilhas de Relíquia por profundidade, do menor para o maior valor: cada Altar revelado pega a próxima.
-// Pilha vazia: usa a do tier de cima.
+// Pilhas de Relíquia pela distância da peça até a Boca (em peças), do menor para o maior valor.
+// Cada Altar revelado pega a próxima da sua pilha; pilha vazia usa a de cima.
 export const RELIC_TIERS = {
-  rasa: ['R08', 'R10', 'R12'],
-  media: ['R15a', 'R15b', 'R18'],
-  funda: ['R20a', 'R20b', 'R25', 'R30b'],
+  rasa: ['R08', 'R09', 'R10', 'R12'],
+  media: ['R15a', 'R15b', 'R16', 'R18'],
+  funda: ['R20a', 'R20b', 'R22', 'R25', 'R27', 'R30b'],
 };
+export const tierOfDist = (d) => (d <= 1 ? 'rasa' : d <= 2 ? 'media' : 'funda');
 export const DLC_RELIC_TIER = { R25c: 'funda', R20c: 'media' };
 export const NINHO_RELIC = 'R30';

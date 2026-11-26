@@ -1,127 +1,151 @@
-// Mina em corte (SVG): salas, passagens, saídas para o escuro, garimpeiros, relíquias, chefes e água.
+// Tabuleiro da mina (SVG). No mapa explorado: peças quadradas com várias salas, túneis por dentro e
+// saídas no meio das bordas, que continuam na peça vizinha. No mapa clássico: o corte em níveis.
 import * as E from '../engine.js';
 import { RELICS, LEVELS } from '../data.js';
 import { ROOM_COLOR, ROOM_GLYPH, PLAYER_HEX, roomLabel, roomDesc, relicName } from './text.js';
 
-const CW = 104; const CH = 84; const RW = 86; const RH = 60;
-const STUB = { L: [-1, 0], R: [1, 0], U: [0, -1], D: [0, 1] };
-
-function layout(s) {
-  const ids = E.nodeIds(s);
-  const xs = ids.map((n) => s.map.nodes[n].x);
-  const minX = s.map.mode === 'explorar' ? -4 : Math.min(...xs);
-  const maxX = s.map.mode === 'explorar' ? 4 : Math.max(...xs);
-  const scale = s.map.mode === 'explorar' ? 1 : 8 / Math.max(1, maxX - minX);
-  const pos = (n) => {
-    const nd = s.map.nodes[n];
-    return { x: 40 + ((nd.x - minX) * scale) * CW + CW / 2, y: 30 + nd.lv * CH + CH / 2 };
-  };
-  const width = 80 + (s.map.mode === 'explorar' ? 9 : 9) * CW;
-  return { pos, width, height: 60 + 6 * CH };
-}
+const U = 46; // tamanho de uma "subcasa" (a peça tem 3×3)
+const TILE = U * 3;
+const RR = 17; // raio da sala
 
 function edgeStyle(e) {
   switch (e.type) {
-    case 'dark': return { stroke: '#1a1714', dash: '6 4', w: 7 };
-    case 'rail': return { stroke: '#8a8a8a', dash: '', w: 5, rail: true };
-    case 'lad': return { stroke: '#a0703a', dash: '3 3', w: 6 };
-    case 'shaft': return { stroke: '#2f5d7c', dash: '2 5', w: 5 };
-    case 'elev': return { stroke: '#4f7fa0', dash: '10 4', w: 3 };
-    default: return { stroke: '#7a4a2b', dash: '', w: 7 };
+    case 'dark': return { stroke: '#120f0c', w: 9, dash: '' };
+    case 'rail': return { stroke: '#9a9a9a', w: 6, dash: '', rail: true };
+    case 'ramp': return { stroke: '#8a6a3a', w: 7, dash: '', arrow: true };
+    case 'lad': return { stroke: '#a0703a', w: 6, dash: '3 3' };
+    case 'shaft': return { stroke: '#2f5d7c', w: 5, dash: '2 5' };
+    case 'elev': return { stroke: '#4f7fa0', w: 3, dash: '10 6' };
+    default: return { stroke: '#8a5a32', w: 8, dash: '' };
   }
 }
 
-export default function Mine({ s, you, myTurn, onMove, onExplore, onPickNode, pickNodes, rideTo }) {
-  const { pos, width, height } = layout(s);
+function useCosts(s, you, myTurn) {
   const me = s.players[you];
-  const reach = new Set();
-  const costs = {};
-  if (myTurn && me && E.inMine(me) && me.t) {
+  const reach = new Set(); const costs = {};
+  if (myTurn && me && E.inMine(me) && me.t && !me.t.tired) {
     for (const { to } of E.neighbors(s, me.node)) {
       const c = E.moveCost(s, me, me.node, to);
       if (!c.err) { costs[to] = c; if (c.luz <= me.t.luz && c.prosa <= me.t.prosa) reach.add(to); }
     }
   }
-  const rides = rideTo || {};
-  const water = s.water;
-  const stubsOf = (n) => (s.map.mode === 'explorar' ? E.stubs(s, n) : []);
+  return { me, reach, costs };
+}
+
+function Room({ s, n, p, you, me, reach, costs, rides, picking, onMove, onPickNode, r = RR }) {
+  const kind = s.map.nodes[n].kind || 'vazia';
+  const canMove = reach.has(n) || rides[n];
+  const cls = `gm-room${canMove ? ' can' : ''}${picking ? ' pick' : ''}${me?.node === n ? ' here' : ''}${kind === 'boca' ? ' boca' : ''}`;
+  const onClick = picking ? () => onPickNode(n) : rides[n] && !reach.has(n) ? () => onMove(n, true) : canMove ? () => onMove(n) : undefined;
+  const relic = s.relics[n];
+  const pl = s.players.filter((q) => q.node === n && E.inMine(q));
+  const tip = `${roomLabel(kind)}${roomDesc(kind) ? ` — ${roomDesc(kind)}` : ''}${relic ? `\nRelíquia: ${relicName(relic)}` : ''}${costs[n] ? `\nIr: 🔦${costs[n].luz}${costs[n].prosa ? ` 🤝${costs[n].prosa}` : ''}${costs[n].den ? ' + Toca (⛏1 ou 🫧1)' : ''}` : ''}`;
   return (
-    <svg className="gm-mine" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Mina em corte">
+    <g className={cls} onClick={onClick}>
+      <title>{tip}</title>
+      <circle cx={p.x} cy={p.y} r={r} fill={ROOM_COLOR[kind] || '#5b4a3a'} />
+      <text x={p.x} y={p.y + 5} textAnchor="middle" className="gm-glyph">{ROOM_GLYPH[kind] || ''}</text>
+      {relic && <g><circle cx={p.x + r * 0.8} cy={p.y - r * 0.75} r="9" fill="#e8b53a" stroke="#1a1714" /><text x={p.x + r * 0.8} y={p.y - r * 0.75 + 3.5} textAnchor="middle" className="gm-relic">{RELICS[relic].pts}</text></g>}
+      {s.crystals[n] > 0 && <text x={p.x - r} y={p.y + r + 2} className="gm-small">💠{s.crystals[n]}</text>}
+      {s.grisu.includes(n) && <text x={p.x + r * 0.4} y={p.y + r + 4} className="gm-small">☁️</text>}
+      {s.cerb?.node === n && <text x={p.x - r - 6} y={p.y - r + 2} className="gm-boss">🐕{'·'.repeat(s.cerb.awake)}</text>}
+      {s.medusa?.node === n && <text x={p.x - r - 6} y={p.y - r + 2} className="gm-boss">🐍</text>}
+      {pl.map((q, k) => <circle key={q.id} cx={p.x - 10 + k * 7} cy={p.y + 9} r="6" fill={PLAYER_HEX[q.color]} stroke={q.id === you ? '#fff' : '#1a1714'} strokeWidth="2" />)}
+    </g>
+  );
+}
+
+function TileMine({ s, you, myTurn, onMove, onExplore, onPickNode, pickNodes, rideTo }) {
+  const { me, reach, costs } = useCosts(s, you, myTurn);
+  const rides = rideTo || {};
+  const tiles = Object.entries(s.map.tiles).map(([k, t]) => ({ k, t, tx: Number(k.split(',')[0]), ty: Number(k.split(',')[1]) }));
+  // área: peças existentes + uma casa de folga em volta (onde as próximas podem entrar)
+  const xs = tiles.map((t) => t.tx); const ys = tiles.map((t) => t.ty);
+  const minX = Math.min(...xs) - 1; const maxX = Math.max(...xs) + 1; const minY = Math.min(...ys) - 1; const maxY = Math.max(...ys) + 1;
+  const W = (maxX - minX + 1) * TILE; const H = (maxY - minY + 1) * TILE;
+  const ox = (tx) => (tx - minX) * TILE; const oy = (ty) => (ty - minY) * TILE;
+  const pos = (n) => { const nd = s.map.nodes[n]; return { x: (nd.x - minX * 3) * U + U / 2, y: (nd.y - minY * 3) * U + U / 2 }; };
+  const MID = { N: [TILE / 2, 0], S: [TILE / 2, TILE], E: [TILE, TILE / 2], W: [0, TILE / 2] };
+  return (
+    <svg className="gm-mine tiles" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Mina explorada">
       <defs>
-        <pattern id="gm-rock" width="24" height="24" patternUnits="userSpaceOnUse">
-          <rect width="24" height="24" fill="#2a221c" />
-          <circle cx="6" cy="8" r="2" fill="#332a22" /><circle cx="18" cy="17" r="3" fill="#30271f" />
+        <pattern id="gm-rock2" width="28" height="28" patternUnits="userSpaceOnUse">
+          <rect width="28" height="28" fill="#1d1813" /><circle cx="7" cy="9" r="2.4" fill="#262019" /><circle cx="21" cy="20" r="3" fill="#231d17" />
         </pattern>
-        <linearGradient id="gm-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#89b4c9" /><stop offset="1" stopColor="#c9d8b0" /></linearGradient>
+        <marker id="gm-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e0b070" /></marker>
       </defs>
-      <rect x="0" y="0" width={width} height={height} fill="url(#gm-rock)" />
-      <rect x="0" y="0" width={width} height={30 + CH * 0.62} fill="url(#gm-sky)" />
-      {LEVELS.map((name, lv) => (
-        <g key={lv}>
-          {lv > 0 && <line x1="0" x2={width} y1={30 + lv * CH} y2={30 + lv * CH} stroke="#3a3028" strokeWidth="1" />}
-          <text x="8" y={30 + lv * CH + 14} className="gm-lvl">{name}</text>
-          {water !== null && lv >= water && <rect x="0" y={30 + lv * CH} width={width} height={CH} fill="#2f5d7c" opacity="0.38" />}
+      <rect width={W} height={H} fill="url(#gm-rock2)" />
+      {tiles.map(({ k, t, tx, ty }) => (
+        <g key={k}>
+          <rect x={ox(tx) + 3} y={oy(ty) + 3} width={TILE - 6} height={TILE - 6} rx="14" className={`gm-tile ${t.zone}${tx === 0 && ty === 0 ? ' start' : ''}`} />
+          {tx === 0 && ty === 0 && <text x={ox(tx) + TILE / 2} y={oy(ty) + 16} textAnchor="middle" className="gm-tiletag">BOCA DA MINA</text>}
         </g>
       ))}
-      {/* passagens */}
       {s.map.edges.map((e) => {
+        if (e.type === 'elev') return null;
         const a = pos(e.a); const b = pos(e.b); const st = edgeStyle(e);
         const blocked = s.rubble.includes(e.key);
         const mx = (a.x + b.x) / 2; const my = (a.y + b.y) / 2;
         return (
           <g key={e.key}>
-            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={st.stroke} strokeWidth={st.w} strokeDasharray={st.dash} strokeLinecap="round" opacity="0.95" />
+            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={st.stroke} strokeWidth={st.w} strokeLinecap="round" markerEnd={st.arrow ? 'url(#gm-arrow)' : undefined} />
+            {e.type === 'dark' && <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#3a2f26" strokeWidth="2" strokeDasharray="4 5" />}
             {st.rail && <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#4a3a2a" strokeWidth="2" strokeDasharray="2 6" />}
             {e.den && <text x={mx} y={my + 5} textAnchor="middle" className="gm-edgeicon">🐾</text>}
-            {e.type === 'shaft' && <text x={mx + 8} y={my} className="gm-edgeicon">⇣</text>}
-            {e.type === 'elev' && <text x={mx + 6} y={my} className="gm-edgeicon">🛗</text>}
             {blocked && <text x={mx} y={my + 6} textAnchor="middle" className="gm-rubble">🪨</text>}
           </g>
         );
       })}
-      {/* salas */}
-      {E.nodeIds(s).map((n) => {
-        const nd = s.map.nodes[n]; const p = pos(n); const kind = nd.kind || 'vazia';
-        const canMove = reach.has(n) || rides[n];
-        const picking = pickNodes?.includes(n);
-        const cls = `gm-room${canMove ? ' can' : ''}${picking ? ' pick' : ''}${me?.node === n ? ' here' : ''}`;
-        const onClick = picking ? () => onPickNode(n) : rides[n] && !reach.has(n) ? () => onMove(n, true) : canMove ? () => onMove(n) : undefined;
-        const relic = s.relics[n];
-        const pl = s.players.filter((q) => q.node === n && E.inMine(q));
-        const tip = `${roomLabel(kind)}${roomDesc(kind) ? ` — ${roomDesc(kind)}` : ''}${relic ? `\nRelíquia: ${relicName(relic)}` : ''}${costs[n] ? `\nIr: 🔦${costs[n].luz}${costs[n].prosa ? ` 🤝${costs[n].prosa}` : ''}${costs[n].den ? ' + Toca' : ''}` : ''}`;
-        return (
-          <g key={n} className={cls} onClick={onClick}>
-            <title>{tip}</title>
-            <rect x={p.x - RW / 2} y={p.y - RH / 2} width={RW} height={RH} rx="9" fill={ROOM_COLOR[kind] || '#5b4a3a'} />
-            <text x={p.x - RW / 2 + 6} y={p.y - RH / 2 + 14} className="gm-roomname">{roomLabel(kind)}</text>
-            <text x={p.x + RW / 2 - 6} y={p.y - RH / 2 + 15} textAnchor="end" className="gm-glyph">{ROOM_GLYPH[kind] || ''}</text>
-            {relic && <g><circle cx={p.x - 24} cy={p.y + 12} r="11" fill="#e8b53a" stroke="#1a1714" /><text x={p.x - 24} y={p.y + 16} textAnchor="middle" className="gm-relic">{RELICS[relic].pts}</text></g>}
-            {s.crystals[n] > 0 && <text x={p.x + 18} y={p.y + 18} className="gm-small">💠{s.crystals[n]}</text>}
-            {s.grisu.includes(n) && <text x={p.x + 24} y={p.y - 2} className="gm-small">☁️</text>}
-            {s.cerb?.node === n && <text x={p.x} y={p.y + 8} textAnchor="middle" className="gm-boss">🐕{'·'.repeat(s.cerb.awake)}</text>}
-            {s.medusa?.node === n && <text x={p.x} y={p.y + 8} textAnchor="middle" className="gm-boss">🐍</text>}
-            {pl.map((q, k) => (
-              <g key={q.id}><circle cx={p.x - 26 + k * 17} cy={p.y - 6} r="8" fill={PLAYER_HEX[q.color]} stroke={q.id === you ? '#fff' : '#1a1714'} strokeWidth="2" /></g>
-            ))}
-          </g>
-        );
+      {s.map.edges.filter((e) => e.type === 'elev').map((e) => {
+        const b = pos(e.b);
+        return <text key={e.key} x={b.x + RR} y={b.y - RR} className="gm-edgeicon" ><title>Elevador até a Boca (🤝2)</title>🛗</text>;
       })}
-      {/* saídas para o escuro */}
-      {E.nodeIds(s).flatMap((n) => stubsOf(n).map((st) => {
-        const p = pos(n); const [dx, dy] = STUB[st.dir];
-        const x = p.x + dx * (RW / 2 + 9); const y = p.y + dy * (RH / 2 + 9);
-        const mine = myTurn && me?.node === n && E.inMine(me);
-        const c = mine ? E.exploreCost(s, me, st.dir) : null;
+      {/* saídas para o escuro: túnel que vai da sala até o meio da borda */}
+      {tiles.flatMap(({ k, t, tx, ty }) => Object.entries(t.edges).map(([side, ex]) => {
+        const [mx, my] = MID[side];
+        const x2 = ox(tx) + mx; const y2 = oy(ty) + my;
+        const a = pos(ex.node);
+        const st = E.stubs(s, ex.node).find((q) => q.dir === side);
+        const blockedSide = !st && !s.map.edges.some((e) => (e.a === ex.node || e.b === ex.node) && s.map.nodes[e.a === ex.node ? e.b : e.a]?.tile !== k && e.type !== 'elev');
+        const mine = st && myTurn && me?.node === ex.node && E.inMine(me);
+        const c = mine ? E.exploreCost(s, me, side) : null;
         const ok = mine && !c.err && c.luz <= me.t.luz;
-        const rubble = st.pass.type === 'rubble';
+        const rubble = st?.pass.type === 'rubble';
         return (
-          <g key={`${n}-${st.dir}`} className={`gm-stub${ok ? ' can' : ''}${rubble ? ' rubble' : ''}`} onClick={ok ? () => onExplore(st.dir) : undefined}>
-            <title>{rubble ? 'Desabamento: limpe com ⛏3 ou Dinamite' : `Explorar ${({ L: 'à esquerda', R: 'à direita', U: 'para cima', D: 'para baixo' })[st.dir]}${c && !c.err ? ` (🔦${c.luz})` : ''}`}</title>
-            <circle cx={x} cy={y} r="9" />
-            <text x={x} y={y + 4} textAnchor="middle">{rubble ? '🪨' : '?'}</text>
+          <g key={`${k}${side}`}>
+            {(st || blockedSide) && <line x1={a.x} y1={a.y} x2={x2} y2={y2} stroke={edgeStyle({ type: ex.type }).stroke} strokeWidth={edgeStyle({ type: ex.type }).w - 1} strokeLinecap="round" opacity={blockedSide ? 0.4 : 0.9} />}
+            {st && (
+              <g className={`gm-stub${ok ? ' can' : ''}${rubble ? ' rubble' : ''}`} onClick={ok ? () => onExplore(side) : undefined}>
+                <title>{rubble ? 'Desabamento: limpe com ⛏3 ou Dinamite' : `Explorar ${({ N: 'ao norte', S: 'ao sul', E: 'a leste', W: 'a oeste' })[side]}${c && !c.err ? ` (🔦${c.luz})` : ''}${st.pass.den ? ' · Toca de Bicho' : ''}`}</title>
+                <circle cx={x2} cy={y2} r="11" />
+                <text x={x2} y={y2 + 4} textAnchor="middle">{rubble ? '🪨' : '?'}</text>
+              </g>
+            )}
           </g>
         );
       }))}
+      {E.nodeIds(s).map((n) => <Room key={n} s={s} n={n} p={pos(n)} you={you} me={me} reach={reach} costs={costs} rides={rides} picking={pickNodes?.includes(n)} onMove={onMove} onPickNode={onPickNode} r={s.map.nodes[n].kind === 'boca' ? RR + 5 : RR} />)}
     </svg>
   );
+}
+
+// Mapa clássico (tutorial): corte lateral em níveis
+const CW = 104; const CH = 84;
+function ClassicMine({ s, you, myTurn, onMove, onPickNode, pickNodes, rideTo }) {
+  const { me, reach, costs } = useCosts(s, you, myTurn);
+  const rides = rideTo || {};
+  const pos = (n) => { const nd = s.map.nodes[n]; return { x: 40 + nd.x * 0.8 * CW + CW / 2, y: 30 + nd.lv * CH + CH / 2 }; };
+  const width = 80 + 9 * CW; const height = 60 + 6 * CH;
+  return (
+    <svg className="gm-mine" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Mina em corte">
+      <rect width={width} height={height} fill="#1d1813" />
+      {LEVELS.map((name, lv) => <text key={lv} x="8" y={30 + lv * CH + 14} className="gm-lvl">{name}</text>)}
+      {s.map.edges.map((e) => { const a = pos(e.a); const b = pos(e.b); const st = edgeStyle(e); return <line key={e.key} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={s.rubble.includes(e.key) ? '#5a5550' : st.stroke} strokeWidth={st.w} strokeDasharray={st.dash} />; })}
+      {E.nodeIds(s).map((n) => <Room key={n} s={s} n={n} p={pos(n)} you={you} me={me} reach={reach} costs={costs} rides={rides} picking={pickNodes?.includes(n)} onMove={onMove} onPickNode={onPickNode} r={22} />)}
+    </svg>
+  );
+}
+
+export default function Mine(props) {
+  return props.s.map.tiles ? <TileMine {...props} /> : <ClassicMine {...props} />;
 }

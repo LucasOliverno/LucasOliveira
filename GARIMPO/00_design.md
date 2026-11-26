@@ -1,11 +1,68 @@
 # GARIMPO — A Cova da Mãe-do-Ouro
-### Documento de Design — versão 0.3 (título provisório)
+### Documento de Design — versão 0.4 (título provisório)
 
 Deck builder de **corrida e fuga** para 1 a 4 jogadores (ideal 3–4, com bots no digital). Cada pessoa é um garimpeiro que desce numa mina abandonada da Serra do Ouro, monta um baralho melhor durante a descida, pega **Relíquias** lá no fundo e tenta **sair vivo** antes que o barulho acorde a **Mãe-do-Ouro**, a serpente de fogo da lenda que guarda o veio.
 
 > Gênero: deck building com tabuleiro de exploração e mecânica de barulho e risco, a mesma família de Clank!, Ascension e Dominion. **Não é uma cópia de nenhum deles:** nome, tema, mapa, cartas, chefe e regras de fim de jogo são nossos.
 > Números entre parênteses ou marcados com *(PT)* são valores iniciais e precisam de playtest/simulação, igual ao `08` do MANDATO.
 
+
+---
+
+## 00. v0.4 — a mina em peças, vida e fim de jogo como no Clank
+
+> Esta seção vale acima de todas as outras. A v0.4 refez o mapa e o fim de jogo seguindo a estrutura do Clank! Catacombs: peças quadradas com várias salas, sem níveis, medidor de vida com cubos e reta final pelo turno de quem já saiu. O conteúdo continua nosso.
+
+### 00.1 Peças de mina
+- **Formato:** cada peça é um quadrado 3×3 com **2 a 5 salas** ligadas por túneis. Há seis formatos: cruz, anel, T, canto, reta e dupla.
+- **Saídas:** ficam no **meio de cada borda** (norte, leste, sul, oeste) e continuam na peça vizinha.
+- **Sem níveis:** a mina se espalha em todas as direções a partir da **peça da Boca**, que tem 5 salas (Boca no centro, Barracão e três galerias).
+- **Explorar:** se uma sala tem saída para uma casa vazia, você paga a passagem (🔦), compra a peça do topo do monte e **escolhe a rotação**. Valem só as rotações em que a peça tem saída na borda por onde você entra. Depois você entra na sala daquela borda.
+- **Encaixe:** a peça nova se liga a todas as vizinhas onde **as duas** têm saída na borda em comum. Saída virada para uma peça sem saída é parede.
+- **Monte:** 4 peças **Seguras** (de 5, sorteadas) em cima, depois as 22 do **Fundo**. O **Ninho** e as salas de chefe das DLCs entram entre a 3ª e a 9ª peça do Fundo. Sem peças no monte, ninguém explora mais.
+- **Túneis:** comum (🔦1), apertado (🔦2, ou 🔦1 depois de carta com 🔦2+; Relíquia pesada +1), trilho (o carrinho anda até 3 salas), Toca de Bicho (⛏1 ou 🫧1), rampa de mão única e desabamento (⛏3 ou Dinamite abre de vez).
+- **Geodo cansa:** ao entrar, você pega o Cristal e seu movimento acaba neste turno.
+- **Relíquias:** cada Altar revelado pega a próxima Relíquia da pilha da **distância até a Boca**: 1 peça dá a pilha rasa (✦8–12), 2 peças a média (✦15–18), 3 ou mais a funda (✦20–30). As pilhas vão do menor valor para o maior. São 14 Relíquias, mais a Escama do Ninho (✦25).
+
+### 00.2 Medidor de Fôlego (vida)
+- Cada jogador tem um medidor de **10 casas**. Cada dano é **um cubo seu** no medidor.
+- **Fúria:** o cubo seu que sai da Bateia vai direto para o seu medidor.
+- **Outros danos** (Toca de Bicho, Grisu, Corpo-Seco, mordida, olhar) usam um cubo da **sua reserva**. Sem cubos na reserva, não há dano.
+- **Curar** (Respiro, Barracão, Dona Zefa, Cantil) devolve o cubo do medidor para a reserva, e ele pode virar barulho de novo.
+- **Medidor cheio = soterrado.**
+
+### 00.3 Bateia e trilha da Fúria
+- A Bateia começa com **24 pedras pretas**. O seu barulho (💥) do turno vai para a Bateia no fim do turno.
+- A trilha tem as casas 2·2·3·3·4·4·5. Ela **começa na casa do número de jogadores** e sobe 1 a cada Relíquia pega (o Ninho sobe 2).
+- **Fúria** acontece no fim do turno se entrou carta com 🌋 na Fila (menos a da rotação) ou se você pegou Relíquia. Saem tantos cubos quanto a casa da trilha: pedra preta sai do jogo, cubo de jogador vira dano.
+
+### 00.4 Fim de jogo (como no Clank)
+- Para **sair**, volte à Boca com uma Relíquia. Você ganha o **Selo de Sobrevivente (✦20)** e não joga mais.
+- Quando o primeiro sai ou fica soterrado, a mina **começa a ruir**. Daí em diante, **no turno de cada jogador que já saiu ou ficou soterrado**, em vez de jogar, ele tira cubos da Bateia: **3 com 3 ou 4 jogadores, 5 com 2**, sem contar a trilha. Os cubos tirados machucam quem ainda está na mina. **Quem já saiu não toma dano.**
+- A partida acaba quando todos saíram ou ficaram soterrados. Ela também acaba se a Bateia esvaziar ou se a Fila não puder mais ser reposta: quem ainda estiver dentro fica soterrado. Há uma trava de segurança na rodada 18.
+- **Pontuação:** ganha quem tiver mais pontos. Contam Pepitas, Cristais (5), Relíquias, pontos das cartas, itens e o Selo. **Soterrado:** se foi numa peça Segura e você tem Relíquia, a turma te resgata e você pontua tudo, menos o Selo. Se foi no Fundo, ou sem Relíquia, **0 pontos**. O desempate é pela Relíquia mais valiosa.
+
+### 00.5 Combate e movimento
+- **Bichos** da Fila são derrotados com ⛏ e dão recompensa. O **Rato-de-Mina** fica sempre na loja base e pode ser derrotado várias vezes.
+- **Toca de Bicho no túnel:** pague ⛏1 ou perca 🫧1.
+- **Chefes das DLCs:** o Cérbero (⛏7) e a Medusa (⛏6) estão no `02_dlcs.md`.
+
+### 00.6 Simulação (bots, 4 jogadores, 400–600 partidas)
+| Métrica | Base | + Cérbero | + Medusa | + as duas |
+|---|---|---|---|---|
+| Rodadas | 12,7 | 13,0 | 12,6 | 13,2 |
+| Primeira saída (rodada) | 8,2 | 8,3 | 8,2 | 8,3 |
+| Peças descobertas | 9,0 | 9,3 | 9,1 | 9,4 |
+| Compras por jogador | 8,3 | 8,1 | 8,3 | 8,2 |
+| Turnos com compra | 76% | 74% | 77% | 74% |
+| Saem vivos | 76% | 75% | 76% | 75% |
+| Soterrados com 0 | 22% | 23% | 21% | 23% |
+
+Vitórias por posição entre 23% e 28%. O Ninho aparece e é pego em ~23% das partidas, e quem pega vence ~51% (com a Escama a ✦25). Com 2 e 3 jogadores, saem vivos 86–88%.
+
+**Pendências:** o Lampião a Querosene ainda está em ~98% dos baralhos vencedores. Também falta testar com pessoas o valor da Escama e os 3 cubos por turno de quem já saiu.
+
+> As seções 0 a 10 abaixo são das versões anteriores. Onde elas falam de níveis, água, Galerias ou peças de uma sala, vale esta seção 00.
 
 ---
 

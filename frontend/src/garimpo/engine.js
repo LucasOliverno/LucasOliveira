@@ -2,14 +2,15 @@
 // Fonte das regras: GARIMPO/00_design.md (base) e 02_dlcs.md (Cérbero, Medusa).
 // exec(s, ação) devolve null quando deu certo ou uma string com o erro. Sorteios usam PRNG com semente no estado.
 import {
-  HAND, ROW_SIZE, MAX_FOLEGO, CUBES_PER_PLAYER, START_STONES, FURY_DRAWS, SELO, WATER_START, WATER_DMG,
-  PLAYER_COLORS, BOCA, BARRACAO_NODE, CRYSTALS_PER_GEODE, RELICS, MASCATE, CARDS, STARTER, FIXED, FIXED_BEAST,
-  tunnelFor, DLCS, LEVELS, ROOMS, NINHO_RELIC, DECK_OF_LEVEL, TILE_MIN_LEVEL,
+  HAND, ROW_SIZE, MAX_FOLEGO, CUBES_PER_PLAYER, START_STONES, FURY_DRAWS, SELO, furyStart, OUT_DRAWS,
+  PLAYER_COLORS, CRYSTALS_PER_GEODE, RELICS, MASCATE, CARDS, STARTER, FIXED, FIXED_BEAST,
+  tunnelFor, DLCS, LEVELS, ROOMS, NINHO_RELIC, tierOfDist,
 } from './data.js';
 import * as M from './map.js';
 
 export { CARDS, RELICS, MASCATE, DLCS, LEVELS, ROOMS };
-export const { lvOf, kindOf, neighbors, edgeBetween, nodeIds, stubs, roomName } = M;
+export const { lvOf, kindOf, neighbors, edgeBetween, nodeIds, stubs, roomName, zoneOf, rotationsFor, buildTile } = M;
+export const bocaOf = (s) => s.map.boca || 'S1';
 
 // ------------------------------------------------------------------ RNG, log, utilidades
 export function rnd(s) {
@@ -31,7 +32,7 @@ function log(s, msg, kind = '', pid = null) {
   s.log.push({ n: s.turnNo, msg, kind, pid });
   if (s.log.length > (s.logCap || 300)) s.log.splice(0, s.log.length - (s.logCap || 300));
 }
-export const ROUND_LIMIT = +(globalThis.process?.env?.ROUND_LIMIT ?? 15); // (PT) da rodada 16 em diante a água começa de qualquer jeito
+export const ROUND_LIMIT = +(globalThis.process?.env?.ROUND_LIMIT ?? 17); // (PT) da rodada 16 em diante a água começa de qualquer jeito
 export const START_CUBES = (globalThis.process?.env?.START_CUBES || '1,0,0,0').split(',').map(Number);
 export const SEAT_BONUS = (globalThis.process?.env?.SEAT_BONUS || '0,0,0,0').split(',').map(Number);
 export const card = (id) => CARDS[id];
@@ -41,13 +42,13 @@ export const hasItem = (p, k) => p.items.includes(k);
 export const relicCap = (p) => (hasItem(p, 'mochila') ? 2 : 1);
 export const inMine = (p) => p.status === 'in';
 export const allCards = (p) => [...p.deck, ...p.hand, ...p.discard, ...p.play];
-// Relíquias de ✦20 ou mais são pesadas: +1 🔦 em cada escada subindo
+// Relíquias de ✦20 ou mais são pesadas: +1 🔦 em escada subindo e em túnel apertado
 export const heavyCount = (p) => p.relics.filter((r) => RELICS[r].pts >= 20).length;
 
 // ------------------------------------------------------------------ grafo
 // vizinhos para monstros (sobem poços, ignoram o elevador, respeitam desabamentos)
 function monsterAdj(s, node) {
-  const up = s.map.edges.filter((e) => e.type === 'shaft' && e.b === node).map((e) => ({ e, to: e.a }));
+  const up = s.map.edges.filter((e) => (e.type === 'shaft' || e.type === 'ramp') && e.b === node).map((e) => ({ e, to: e.a }));
   return M.neighbors(s, node).concat(up).filter(({ e }) => e.type !== 'elev' && !s.rubble.includes(e.key)).map(({ to }) => to);
 }
 export function bfsDist(s, from, adjFn = (n) => monsterAdj(s, n)) {
@@ -68,9 +69,9 @@ export function newGame({ players, seed = Date.now() % 1e9, dlc = [], map = 'exp
     pending: [], endStage: null,
     players: [], order: players.map((_, i) => i), turn: 0,
     tunnel: [], tunnelOut: [], row: [], fixedQty: Object.fromEntries(FIXED.map((id) => [id, CARDS[id].qty])),
-    bag: { stone: START_STONES, p: players.map(() => 0) }, fury: 1, furyExtra: 0,
+    bag: { stone: START_STONES, p: players.map(() => 0) }, fury: furyStart(players.length), furyExtra: 0, ending: false,
     grisu: [], crystals: {}, relics: {}, mascate: Object.fromEntries(Object.entries(MASCATE).map(([k, m]) => [k, m.qty])),
-    water: null, clock: null, cerb: null, medusa: null, stats: { furies: 0, cubesHit: 0, bites: 0, gazes: 0, tiles: 0 },
+    cerb: null, medusa: null, stats: { furies: 0, cubesHit: 0, bites: 0, gazes: 0, tiles: 0, outDraws: 0 },
   };
   s.map = map === 'classico' ? M.classicMap() : M.exploreMap(() => rnd(s), s.dlc);
   s.rubble = s.map.rubble;
@@ -82,11 +83,11 @@ export function newGame({ players, seed = Date.now() % 1e9, dlc = [], map = 'exp
   }
   s.players = players.map((pl, i) => ({
     id: i, name: pl.name || `Garimpeiro ${i + 1}`, bot: !!pl.bot, level: pl.level || 'normal', greed: pl.greed, color: PLAYER_COLORS[i],
-    node: BOCA, folego: MAX_FOLEGO, cubes: CUBES_PER_PLAYER, gold: 0, crystals: 0, relics: [], items: [],
-    deck: shuffle(s, STARTER), hand: [], discard: [], play: [], status: 'in', deadLv: null, geodes: [], visited: [],
+    node: s.map.boca || 'S1', folego: MAX_FOLEGO, dmg: 0, cubes: CUBES_PER_PLAYER, gold: 0, crystals: 0, relics: [], items: [],
+    deck: shuffle(s, STARTER), hand: [], discard: [], play: [], status: 'in', deadLv: null, deadZone: null, geodes: [], visited: [],
     mirror: false, area: 0, t: null,
   }));
-  // compensação de ordem: quem joga antes começa com mais cubos na Bateia (1º: 3, 2º: 2, 3º: 1, 4º: 0)
+  // compensação de ordem: quem joga antes começa com mais cubos de barulho na Bateia
   s.players.forEach((p, i) => { const k = START_CUBES[i] || 0; p.cubes -= k; s.bag.p[i] += k; });
   s.tunnel = shuffle(s, tunnelFor(s.dlc));
   // setup: cartas com 🌋 ou Perigos que saírem na Fila inicial voltam para o baralho
@@ -111,7 +112,7 @@ function onReveal(s, id, setup = false) {
   if (n.relic) s.relics[id] = n.relic;
   if (s.map.mode !== 'explorar') return;
   if (kind === 'altar') {
-    const order = { rasa: ['rasa', 'media', 'funda'], media: ['media', 'funda'], funda: ['funda'] }[DECK_OF_LEVEL[n.lv]];
+    const order = { rasa: ['rasa', 'media', 'funda'], media: ['media', 'funda'], funda: ['funda'] }[tierOfDist(n.lv)];
     const tier = order.find((k) => s.map.piles[k].length);
     if (tier) {
       const r = s.map.piles[tier].shift();
@@ -119,7 +120,7 @@ function onReveal(s, id, setup = false) {
       if (!setup) log(s, `Uma Relíquia aparece no Altar: ${RELICS[r].name} (✦${RELICS[r].pts})`, 'relic');
     }
   }
-  if (kind === 'ninho') { s.relics[id] = NINHO_RELIC; log(s, 'O Ninho da Mãe-do-Ouro foi encontrado! A Escama (✦35) está lá', 'relic'); }
+  if (kind === 'ninho') { s.relics[id] = NINHO_RELIC; log(s, `O Ninho da Mãe-do-Ouro foi encontrado! A Escama (✦${RELICS[NINHO_RELIC].pts}) está lá`, 'relic'); }
   if (kind === 'covil' && hasDlc(s, 'cerbero') && !s.cerb) { s.cerb = { node: id, lair: id, awake: 0 }; log(s, 'O Portão de Bronze se abre: o Cérbero dorme lá dentro', 'boss'); }
   if (kind === 'estatuas' && hasDlc(s, 'medusa') && !s.medusa) { s.medusa = { node: id, lair: id }; log(s, 'Jardim de Estátuas: a Medusa desperta', 'boss'); }
 }
@@ -141,32 +142,42 @@ function gain(s, p, id) {
   if (a?.gold) p.gold += a.gold;
   if (a?.est) p.area += a.est;
 }
-function hurt(s, p, n, why) {
+// Medidor de Fôlego: cada dano é um cubo seu no medidor. O cubo que sai da Bateia na Fúria vai direto para o
+// medidor (fromBag); os outros danos usam cubos da sua reserva (sem reserva, não há dano). Curar devolve o cubo
+// para a reserva. Medidor cheio = soterrado.
+function hurt(s, p, n, why, fromBag = false) {
   if (!inMine(p) || n <= 0) return;
-  p.folego = Math.max(0, p.folego - n);
+  if (!fromBag) { n = Math.min(n, p.cubes); p.cubes -= n; }
+  if (n <= 0) return;
+  p.dmg += n;
+  p.folego = Math.max(0, MAX_FOLEGO - p.dmg);
   log(s, `${p.name} perde 🫧${n} (${why})`, 'dmg', p.id);
   if (p.folego === 0) bury(s, p);
 }
-function heal(p, n) { p.folego = Math.min(MAX_FOLEGO, p.folego + n); }
+function heal(p, n) {
+  const k = Math.min(n, p.dmg);
+  p.dmg -= k; p.cubes += k;
+  p.folego = MAX_FOLEGO - p.dmg;
+}
 function bury(s, p) {
   p.status = 'dead';
   p.deadLv = lvOf(s, p.node);
-  log(s, `${p.name} ficou soterrado em ${LEVELS[p.deadLv]}`, 'dead', p.id);
-  startWater(s, p.id);
+  p.deadZone = M.zoneOf(s, p.node);
+  log(s, `${p.name} ficou soterrado (${p.deadZone === 'segura' ? 'perto da Boca: a turma resgata' : 'no fundo: ninguém alcança'})`, 'dead', p.id);
+  startEnd(s, p);
 }
-function startWater(s, pid, why = '') {
-  if (s.water !== null) return;
-  s.water = WATER_START;
-  s.clock = pid;
-  log(s, `A mina começa a alagar${why ? ` (${why})` : ''}: a água sobe um nível a cada rodada`, 'water');
+// A partida entra na reta final quando o primeiro sai ou fica soterrado
+function startEnd(s, p) {
+  if (s.ending) return;
+  s.ending = true;
+  log(s, `A mina começa a ruir! A cada turno de ${p.name} (e de quem mais sair) saem ${OUT_DRAWS(s.players.length)} cubos da Bateia`, 'fury');
 }
 
 // ------------------------------------------------------------------ turno
 function startTurn(s) {
   const p = currentPlayer(s);
-  p.t = { luz: 0, prosa: 0, pic: 0, bright: false, ropeUp: false, dyn: 0, freeRide: 0, darkCheap: false, calm: 0, lure: 0, mascate: false, rest: false };
+  p.t = { luz: 0, prosa: 0, pic: 0, tired: false, bright: false, ropeUp: false, dyn: 0, freeRide: 0, darkCheap: false, calm: 0, lure: 0, mascate: false, rest: false };
   p.area = 0;
-  if (s.water !== null && lvOf(s, p.node) >= s.water) hurt(s, p, WATER_DMG, 'água');
   if (!inMine(p)) return nextTurn(s);
   if (hasItem(p, 'capacete')) p.t.luz += 1;
   if (p.relics.length) p.t.luz += 1; // Adrenalina: com Relíquia na mão você corre
@@ -180,23 +191,28 @@ function nextTurn(s) {
     s.turn = (s.turn + 1) % s.order.length;
     if (s.turn === 0) {
       s.turnNo++;
-      // relógio da água: sobe uma vez por rodada depois que começou
-      if (s.water !== null) {
-        s.water -= 1;
-        if (s.water <= 5) log(s, `A água sobe: ${LEVELS[s.water]} alagada`, 'water');
-        else log(s, `A água sobe (faltam ${s.water - 5} rodada(s) para alagar a Câmara)`, 'water');
-        if (s.water <= 1) return flood(s);
-      }
-      if (s.water === null && s.turnNo > ROUND_LIMIT) startWater(s, null, `rodada ${ROUND_LIMIT + 1}: a mina não aguenta mais`);
+      if (s.turnNo > ROUND_LIMIT) return collapse(s, `rodada ${ROUND_LIMIT + 1}`);
     }
     const p = currentPlayer(s);
     if (inMine(p)) return startTurn(s);
+    // quem já saiu ou ficou soterrado: o turno dele vira tirar cubos da Bateia (sem contar a Fúria)
+    outDraw(s, p);
+    if (s.over) return;
   }
   gameOver(s);
 }
-
-function flood(s) {
-  for (const p of s.players) if (inMine(p)) { p.status = 'dead'; p.deadLv = lvOf(s, p.node); log(s, `${p.name} ficou preso pela água em ${LEVELS[p.deadLv]}`, 'dead', p.id); }
+function outDraw(s, p) {
+  s.stats.outDraws++;
+  const n = OUT_DRAWS(s.players.length);
+  const hits = drawCubes(s, n);
+  log(s, `Turno de ${p.name} (${p.status === 'out' ? 'fora da mina' : 'soterrado'}): saem ${n} cubos — ${Object.entries(hits).map(([pid, k]) => `${s.players[pid].name}×${k}`).join(', ') || 'só pedras'}`, 'fury');
+  applyHits(s, hits);
+  if (s.bag.stone + s.bag.p.reduce((a, b) => a + b, 0) === 0 && s.players.some(inMine)) collapse(s, 'a Bateia esvaziou');
+}
+// A mina desaba: quem ainda está dentro fica soterrado
+function collapse(s, why) {
+  log(s, `A mina desaba (${why})!`, 'dead');
+  for (const p of s.players) if (inMine(p)) { p.status = 'dead'; p.deadLv = lvOf(s, p.node); p.deadZone = M.zoneOf(s, p.node); }
   gameOver(s);
 }
 
@@ -209,8 +225,9 @@ export function scoreOf(s, p) {
   const base = { gold: p.gold, crystals: p.crystals * 5, relics, cards, items, selo };
   let total = Object.values(base).reduce((a, b) => a + b, 0);
   let note = '';
-  if (p.status === 'dead' && p.deadLv >= 2) { total = Math.floor((total - relics) / 2); note = 'soterrado fundo: metade, Relíquias valem 0'; }
-  else if (p.status === 'dead') note = 'resgatado pela turma';
+  // soterrado: só pontua quem caiu perto da Boca e tem Relíquia (a turma resgata); no fundo ou sem Relíquia, 0
+  if (p.status === 'dead' && (p.deadZone === 'fundo' || !p.relics.length)) { total = 0; note = p.deadZone === 'fundo' ? 'soterrado no fundo: 0' : 'soterrado sem Relíquia: 0'; }
+  else if (p.status === 'dead') note = 'resgatado pela turma (sem Selo)';
   return { ...base, total, note };
 }
 function gameOver(s) {
@@ -219,7 +236,9 @@ function gameOver(s) {
   const sc = s.players.map((p) => scoreOf(s, p).total);
   const best = Math.max(...sc);
   let w = s.players.filter((p, i) => sc[i] === best);
-  if (w.length > 1) { const f = Math.max(...w.map((p) => p.folego)); w = w.filter((p) => p.folego === f); }
+  // desempate: a Relíquia mais valiosa
+  const top = (p) => Math.max(0, ...p.relics.map((r) => RELICS[r].pts));
+  if (w.length > 1) { const f = Math.max(...w.map(top)); w = w.filter((p) => top(p) === f); }
   s.winners = w.map((p) => p.id);
   log(s, `Fim de jogo. Vencedor: ${w.map((p) => p.name).join(' e ')} (✦${best})`, 'over');
 }
@@ -232,7 +251,8 @@ export function moveCost(s, p, from, to) {
   if (s.rubble.includes(e.key)) return { err: 'desabamento bloqueia a passagem' };
   const c = { luz: 0, prosa: 0, est: 0, den: !!e.den, e };
   if (e.type === 't' || e.type === 'rail') c.luz = 1;
-  else if (e.type === 'dark') c.luz = p.t.bright || p.t.darkCheap ? 1 : 2;
+  else if (e.type === 'dark') c.luz = (p.t.bright || p.t.darkCheap ? 1 : 2) + (p.t.ropeUp || hasItem(p, 'corda') ? 0 : heavyCount(p));
+  else if (e.type === 'ramp') c.luz = 1;
   else if (e.type === 'shaft') { c.luz = 1; c.est = 2; }
   else if (e.type === 'elev') { c.prosa = 2; c.est = 1; }
   else if (e.type === 'lad') {
@@ -254,10 +274,12 @@ function arrive(s, p, node) {
     s.crystals[node]--; p.crystals++; p.geodes.push(node); p.area += 2;
     log(s, `${p.name} tira um 💠 Cristal do Geodo (💥2)`, 'gain', p.id);
   }
-  if (node === BOCA && p.relics.length > 0) {
+  // Geodo cansa: o brilho dos cristais prende o olhar e acaba o movimento do turno
+  if (s.map.mode === 'explorar' && M.kindOf(s, node) === 'geodo') { p.t.tired = true; p.t.luz = 0; log(s, `${p.name} se perde olhando os cristais: acabou o movimento do turno`, '', p.id); }
+  if (node === bocaOf(s) && p.relics.length > 0) {
     p.status = 'out';
-    log(s, `${p.name} saiu da mina com ${p.relics.map((r) => RELICS[r].name).join(' e ')}! Selo de Sobrevivente`, 'exit', p.id);
-    startWater(s, p.id);
+    log(s, `${p.name} saiu da mina com ${p.relics.map((r) => RELICS[r].name).join(' e ')}! Selo de Sobrevivente (✦${SELO})`, 'exit', p.id);
+    startEnd(s, p);
   }
 }
 
@@ -288,13 +310,13 @@ function roomEffects(s, p, node) {
   }
 }
 export const grisuChoices = (s) => grisuOptions(s);
-export const parseTileExits = (str, mirror) => M.parseTileFor(str, mirror).exits;
 function grisuOptions(s) {
-  const ids = M.nodeIds(s).filter((n) => lvOf(s, n) >= 1 && !s.grisu.includes(n));
-  const deep = ids.filter((n) => lvOf(s, n) >= 3);
+  const ids = M.nodeIds(s).filter((n) => lvOf(s, n) >= 1 && !s.grisu.includes(n) && n !== bocaOf(s));
+  const deep = ids.filter((n) => lvOf(s, n) >= (s.map.mode === 'explorar' ? 2 : 3));
   if (deep.length) return deep;
+  if (!ids.length) return [];
   const max = Math.max(...ids.map((n) => lvOf(s, n)));
-  return ids.filter((n) => lvOf(s, n) === max && n !== '0:1');
+  return ids.filter((n) => lvOf(s, n) === max);
 }
 
 // ------------------------------------------------------------------ explorar
@@ -304,14 +326,12 @@ export function exploreCost(s, p, dir) {
   const st = M.stubs(s, p.node).find((x) => x.dir === dir);
   if (!st) return { err: 'não há saída inexplorada desse lado' };
   if (st.pass.type === 'rubble') return { err: 'desabamento: limpe antes (⛏3 ou Dinamite)', st };
+  if (p.t?.tired) return { err: 'cansado: o Geodo acabou seu movimento neste turno', st };
   const e = M.stubEdge(p.node, st);
   const c = { luz: 0, prosa: 0, est: 0, den: !!e.den, st, e };
-  if (e.type === 't' || e.type === 'rail') c.luz = 1;
-  else if (e.type === 'dark') c.luz = p.t.bright || p.t.darkCheap ? 1 : 2;
-  else if (e.type === 'shaft') { c.luz = 1; c.est = 2; }
-  else if (e.type === 'lad') c.luz = dir === 'D' ? 1 : (p.t.ropeUp ? 1 : 2 + (hasItem(p, 'corda') ? 0 : heavyCount(p)));
-  c.deck = M.deckFor(s, st.lv);
-  if (!c.deck) return { err: 'não há mais peças de sala' };
+  if (e.type === 'dark') c.luz = (p.t.bright || p.t.darkCheap ? 1 : 2) + (p.t.ropeUp || hasItem(p, 'corda') ? 0 : heavyCount(p));
+  else c.luz = 1;
+  if (!s.map.stack.length) return { err: 'não há mais peças de mina' };
   return c;
 }
 
@@ -350,7 +370,7 @@ function playCard(s, p, hi) {
     case 'dyn': p.t.dyn++; break;
     case 'freeRide': p.t.freeRide++; break;
     case 'darkCheap': p.t.darkCheap = true; break;
-    case 'detector': if (lvOf(s, p.node) === 4) { p.crystals++; log(s, `${p.name} acha um 💠 com o Detector`, 'gain', p.id); } break;
+    case 'detector': if (M.zoneOf(s, p.node) === 'fundo' && lvOf(s, p.node) >= 2) { p.crystals++; log(s, `${p.name} acha um 💠 com o Detector`, 'gain', p.id); } break;
     case 'gainCheap': if (s.row.some((x) => isBuyable(x) && CARDS[x].cost <= 3)) s.pending.push({ k: 'gainCheap', pid: p.id }); break;
     case 'trash': s.pending.push({ k: 'trash', pid: p.id }); break;
     case 'discard1': if (p.hand.length) s.pending.push({ k: 'discard1', pid: p.id }); break;
@@ -394,7 +414,6 @@ function endTurn(s) {
     else if (c.onEnter) onEnter(s, c.onEnter);
     if (c.type === 'hazard') s.tunnelOut.push(id); else s.row.push(id);
   }
-  if (!s.tunnel.length && s.water === null) startWater(s, p.id, 'o Túnel acabou');
   s.endStage = { pid: p.id, quake: quake || !!p.t.tookRelic };
   for (let i = 0; i < grisu; i++) s.pending.push({ k: 'grisu', pid: p.id });
   if (!s.pending.length) finishEnd(s);
@@ -403,8 +422,8 @@ function endTurn(s) {
 function onEnter(s, k) {
   if (k === 'allLose1') for (const q of s.players) hurt(s, q, 1, 'Corpo-Seco');
   else if (k === 'infiltra') {
-    if (s.water !== null) { s.water = Math.max(1, s.water - 1); log(s, `Infiltração! A água sobe para ${LEVELS[s.water]}`, 'water'); if (s.water <= 1) flood(s); }
-    else for (const q of s.players) if (inMine(q) && q.cubes) { q.cubes--; s.bag.p[q.id]++; }
+    log(s, 'Infiltração: a água ecoa na mina, todos fazem 💥1', 'row');
+    for (const q of s.players) if (inMine(q) && q.cubes) { q.cubes--; s.bag.p[q.id]++; }
   } else if (k === 'wakeHead' && s.cerb) { s.cerb.awake = Math.min(DLCS.cerbero.heads, s.cerb.awake + 1); log(s, `Uivo Triplo: o Cérbero tem ${s.cerb.awake} cabeça(s) acordada(s)`, 'boss'); }
   else if (k === 'gaze' && s.medusa) gaze(s);
 }
@@ -414,6 +433,8 @@ function finishEnd(s) {
   s.endStage = null;
   if (s.over) return;
   if (st.quake) fury(s);
+  if (s.over) return;
+  if (!s.row.length && !s.tunnel.length) return collapse(s, 'o Túnel acabou');
   const p = s.players[st.pid];
   p.discard.push(...p.play, ...p.hand);
   p.play = []; p.hand = [];
@@ -427,20 +448,31 @@ export function fury(s) {
   s.stats.furies++;
   const n = furyDraws(s);
   s.furyExtra = 0;
+  if (!s.bag.stone && !s.bag.p.some((x) => x > 0)) { s.furyExtra = 1; log(s, 'Fúria da Mãe-do-Ouro! A Bateia está vazia: a próxima tira +1', 'fury'); }
+  const hits = drawCubes(s, n);
+  log(s, `Fúria da Mãe-do-Ouro! Tira ${n}: ${Object.entries(hits).map(([pid, k]) => `${s.players[pid].name}×${k}`).join(', ') || 'só pedras'}`, 'fury');
+  applyHits(s, hits);
+  if (s.cerb) cerbFury(s);
+  if (s.medusa) medusaFury(s);
+}
+// Tira n cubos da Bateia. Pedras pretas saem do jogo; cubos de jogador viram dano (no medidor de quem está na mina)
+function drawCubes(s, n) {
   const pool = [];
   for (let i = 0; i < s.bag.stone; i++) pool.push(-1);
   s.bag.p.forEach((c, pid) => { for (let i = 0; i < c; i++) pool.push(pid); });
-  if (!pool.length) { s.furyExtra = 1; log(s, 'Fúria da Mãe-do-Ouro! A Bateia está vazia: a próxima tira +1', 'fury'); }
   const hits = {};
   for (let i = 0; i < n && pool.length; i++) {
     const j = Math.floor(rnd(s) * pool.length);
     const pid = pool.splice(j, 1)[0];
     if (pid === -1) s.bag.stone--; else { s.bag.p[pid]--; hits[pid] = (hits[pid] || 0) + 1; }
   }
-  log(s, `Fúria da Mãe-do-Ouro! Tira ${n}: ${Object.entries(hits).map(([pid, k]) => `${s.players[pid].name}×${k}`).join(', ') || 'só pedras'}`, 'fury');
-  for (const [pid, k] of Object.entries(hits)) { s.stats.cubesHit += k; hurt(s, s.players[pid], k, 'Fúria'); }
-  if (s.cerb) cerbFury(s);
-  if (s.medusa) medusaFury(s);
+  return hits;
+}
+function applyHits(s, hits) {
+  for (const [pid, k] of Object.entries(hits)) {
+    const q = s.players[pid];
+    if (inMine(q)) { s.stats.cubesHit += k; hurt(s, q, k, 'Fúria', true); } else q.cubes += k; // quem saiu não toma dano
+  }
 }
 
 // ------------------------------------------------------------------ DLC Cérbero
@@ -470,32 +502,30 @@ function cerbFury(s) {
 const nearCerb = (s, p) => s.cerb && (p.node === s.cerb.node || monsterAdj(s, p.node).includes(s.cerb.node));
 
 // ------------------------------------------------------------------ DLC Medusa
-// Ela anda pelas fendas: sobe ou desce UM nível por Fúria, na direção do nível com mais garimpeiros
-// (empate: o mais fundo), parando no nó desse nível mais perto de onde estava. Depois, olha.
+// A cada Fúria ela anda até 2 salas na direção do garimpeiro mais perto e depois olha.
 function medusaFury(s) {
-  const cnt = {};
-  for (const q of s.players) if (inMine(q) && lvOf(s, q.node) >= 1) cnt[lvOf(s, q.node)] = (cnt[lvOf(s, q.node)] || 0) + 1;
-  const lvls = Object.keys(cnt).map(Number).sort((a, b) => cnt[b] - cnt[a] || b - a);
-  const cur = lvOf(s, s.medusa.node);
-  if (lvls.length && lvls[0] !== cur) {
-    const lv = cur + Math.sign(lvls[0] - cur);
-    const x = M.nodeOf(s, s.medusa.node).x;
-    const opts = M.nodeIds(s).filter((n) => lvOf(s, n) === lv).sort((a, b) => Math.abs(M.nodeOf(s, a).x - x) - Math.abs(M.nodeOf(s, b).x - x) || (a < b ? -1 : 1));
-    if (opts.length) s.medusa.node = opts[0];
+  const d = bfsDist(s, s.medusa.node);
+  const target = s.players.filter((q) => inMine(q) && d[q.node] !== undefined).sort((a, b) => d[a.node] - d[b.node] || a.id - b.id)[0];
+  if (target) {
+    for (let i = 0; i < 2 && s.medusa.node !== target.node; i++) {
+      const dt = bfsDist(s, target.node);
+      const opts = monsterAdj(s, s.medusa.node).filter((m) => dt[m] !== undefined).sort((a, b) => dt[a] - dt[b] || (a < b ? -1 : 1));
+      if (opts.length && dt[opts[0]] < (dt[s.medusa.node] ?? Infinity)) s.medusa.node = opts[0]; else break;
+    }
   }
   gaze(s);
 }
 export const MEDUSA_RANGE = 3;
-// Linha de visão: até 3 nós pelos túneis do mesmo nível, sem atravessar desabamento nem túnel escuro.
+// Linha de visão: até 3 salas pelos túneis, sem atravessar desabamento nem túnel apertado (escuro).
 export function medusaSees(s) {
-  const lv = lvOf(s, s.medusa.node);
   const seen = new Map([[s.medusa.node, 0]]);
   const q = [s.medusa.node];
   while (q.length) {
     const n = q.shift();
     if (seen.get(n) >= MEDUSA_RANGE) continue;
     for (const { e, to } of M.neighbors(s, n)) {
-      if (lvOf(s, to) !== lv || seen.has(to) || e.type === 'dark' || s.rubble.includes(e.key)) continue;
+      if (seen.has(to) || e.type === 'dark' || e.type === 'elev' || s.rubble.includes(e.key)) continue;
+      if (s.map.mode === 'classico' && lvOf(s, to) !== lvOf(s, s.medusa.node)) continue;
       seen.set(to, seen.get(n) + 1); q.push(to);
     }
   }
@@ -504,7 +534,7 @@ export function medusaSees(s) {
 function gaze(s) {
   s.stats.gazes++;
   const vis = medusaSees(s);
-  log(s, `A Medusa olha a ${LEVELS[lvOf(s, s.medusa.node)]} a partir de ${s.medusa.node}`, 'boss');
+  log(s, `A Medusa olha a partir de ${M.roomName(s, s.medusa.node)}`, 'boss');
   for (const q of s.players) {
     if (!inMine(q) || !vis.has(q.node)) continue;
     if (q.mirror) { q.mirror = false; log(s, `${q.name} reflete o olhar com o espelho`, '', q.id); continue; }
@@ -515,42 +545,33 @@ function gaze(s) {
 }
 const nearMedusa = (s, p) => s.medusa && (p.node === s.medusa.node || monsterAdj(s, p.node).includes(s.medusa.node));
 
-// Compra a peça do monte; peças com nível mínimo maior voltam para o fundo
-function drawTile(s, deck, lv) {
-  const d = s.map.decks[deck];
-  for (let i = 0; i < d.length; i++) {
-    const t = d.shift();
-    const min = TILE_MIN_LEVEL[t.split(' ')[0]] || 0;
-    if (lv >= min) return t;
-    d.push(t);
-  }
-  return d.shift();
-}
 // ------------------------------------------------------------------ colocar a peça descoberta
-function placeExplored(s, p, pd, mirror) {
-  const node = M.placeTile(s, pd.cell, pd.tile, mirror, pd.enterSide, pd.pass);
+function placeExplored(s, p, pd, rot) {
+  const ids = M.addTile(s.map, pd.tx, pd.ty, pd.tile, rot, pd.enterSide, pd.pass);
+  s.rubble = s.map.rubble;
   s.stats.tiles++;
-  log(s, `${p.name} descobre ${ROOMS[node.kind]?.name || node.kind} (${pd.cell})`, 'tile', p.id);
-  onReveal(s, pd.cell);
+  const kinds = ids.map((id) => ROOMS[M.kindOf(s, id)]?.name || M.kindOf(s, id));
+  log(s, `${p.name} descobre uma peça ${pd.tile.zone === 'segura' ? 'segura' : 'do fundo'}: ${kinds.join(', ')}`, 'tile', p.id);
+  for (const id of ids) onReveal(s, id);
+  const entry = s.map.tiles[M.tileKey(pd.tx, pd.ty)].edges[pd.enterSide].node;
   if (pd.den) { if (p.t.pic >= 1) p.t.pic -= 1; else hurt(s, p, 1, 'Toca de Bicho'); }
-  if (inMine(p)) arrive(s, p, pd.cell);
+  if (inMine(p)) arrive(s, p, entry);
 }
-// Escolha padrão de lado: o que abre mais saídas para células vazias, preferindo descer
-function bestMirror(s, pd) {
-  const score = (mirror) => {
-    let t = M.parseTileFor(pd.tile, mirror);
-    const [col, lv] = pd.cell.split(':').map(Number);
+// Rotação padrão: a que abre mais saídas para casas vazias e encaixa com mais vizinhas
+export function bestRotation(s, pd) {
+  const score = (rot) => {
+    const b = M.buildTile(pd.tile, rot);
     let v = 0;
-    for (const [side, ex] of Object.entries(t.exits)) {
-      const [dc, dl] = { L: [-1, 0], R: [1, 0], U: [0, -1], D: [0, 1] }[side];
-      if (s.map.nodes[`${col + dc}:${lv + dl}`]) continue;
-      v += side === 'D' ? 2 : 1;
-      if (ex.type === 'rubble') v -= 1;
-      if (Math.abs(col + dc) < Math.abs(col)) v += 0.5;
+    for (const side of Object.keys(b.edge)) {
+      const [dx, dy] = { N: [0, -1], S: [0, 1], E: [1, 0], W: [-1, 0] }[side];
+      const nb = s.map.tiles[M.tileKey(pd.tx + dx, pd.ty + dy)];
+      if (nb) v += nb.edges[M.OPP[side]] ? 1.5 : 0;
+      else v += 1 + (M.tileDist(pd.tx + dx, pd.ty + dy) > M.tileDist(pd.tx, pd.ty) ? 0.5 : 0);
+      if (b.edge[side].type === 'rub') v -= 1;
     }
     return v;
   };
-  return score(true) > score(false);
+  return [...pd.rots].sort((a, b) => score(b) - score(a) || a - b)[0];
 }
 
 // ------------------------------------------------------------------ escolhas pendentes
@@ -558,8 +579,10 @@ function resolvePending(s, a) {
   const pd = s.pending[0];
   const p = s.players[pd.pid];
   if (pd.k === 'place') {
+    const rot = Number(a.rot ?? pd.rots[0]);
+    if (!pd.rots.includes(rot)) return 'nessa rotação a peça não encaixa na borda por onde você entrou';
     s.pending.shift();
-    placeExplored(s, p, pd, !!a.mirror);
+    placeExplored(s, p, pd, rot);
     return null;
   }
   if (pd.k === 'gainCheap') {
@@ -589,7 +612,7 @@ function resolvePending(s, a) {
 export function defaultChoice(s, pd = s.pending[0]) {
   const p = s.players[pd.pid];
   const val = (id) => (CARDS[id].cost || 0) + (CARDS[id].pts || 0);
-  if (pd.k === 'place') return { t: 'choose', mirror: bestMirror(s, pd) };
+  if (pd.k === 'place') return { t: 'choose', rot: bestRotation(s, pd) };
   if (pd.k === 'gainCheap') {
     const i = s.row.map((id, k) => [id, k]).filter(([id]) => isBuyable(id) && CARDS[id].cost <= (pd.max || 3)).sort((a, b) => val(b[0]) - val(a[0]))[0];
     return i ? { t: 'choose', i: i[1] } : { t: 'choose', skip: true };
@@ -654,6 +677,7 @@ function act(s, p, a) {
     case 'move': {
       const c = moveCost(s, p, p.node, a.to);
       if (c.err) return c.err;
+      if (t.tired && c.luz) return 'cansado: o Geodo acabou seu movimento neste turno';
       if (t.luz < c.luz) return `precisa de 🔦${c.luz}`;
       if (t.prosa < c.prosa) return `precisa de 🤝${c.prosa}`;
       t.luz -= c.luz; t.prosa -= c.prosa; p.area += c.est;
@@ -667,14 +691,16 @@ function act(s, p, a) {
       if (c.err) return c.err;
       if (t.luz < c.luz) return `precisa de 🔦${c.luz}`;
       t.luz -= c.luz; p.area += c.est;
-      const tile = drawTile(s, c.deck, c.st.lv);
+      const tile = s.map.stack.shift();
+      const enterSide = M.OPP[a.dir];
       const pass = { type: c.e.type, ...(c.den ? { den: true } : {}) };
-      s.pending.push({ k: 'place', pid: p.id, cell: c.st.cell, tile, enterSide: M.OPP[a.dir], pass, den: c.den });
+      s.pending.push({ k: 'place', pid: p.id, tx: c.st.tx, ty: c.st.ty, tile, enterSide, pass, den: c.den, rots: M.rotationsFor(tile, enterSide) });
       return null;
     }
     case 'ride': {
       const tg = rideTargets(s, p.node);
       if (!tg[a.to]) return 'fora do alcance do trilho';
+      if (t.tired) return 'cansado: o Geodo acabou seu movimento neste turno';
       if (t.freeRide > 0) t.freeRide--;
       else { if (t.luz < 1) return 'precisa de 🔦1'; t.luz -= 1; p.area += 2; }
       arrive(s, p, a.to);
@@ -714,7 +740,8 @@ function act(s, p, a) {
         const st = M.stubs(s, p.node).find((x) => x.dir === a.dir);
         if (!st || st.pass.type !== 'rubble') return 'não há desabamento desse lado';
         if (t.dyn > 0) t.dyn--; else if (t.pic >= 3) t.pic -= 3; else return 'precisa de ⛏3 ou Dinamite';
-        s.map.nodes[p.node].exits[a.dir] = { type: ['U', 'D'].includes(a.dir) ? 'lad' : 't' };
+        const te = s.map.tiles[s.map.nodes[p.node].tile].edges[a.dir];
+        te.rubble = false; if (te.type === 'rub') te.type = 't';
         log(s, `${p.name} limpa o desabamento`, '', p.id);
         return null;
       }
@@ -756,7 +783,7 @@ function act(s, p, a) {
       return null;
     }
     case 'rest': {
-      if (p.node !== BARRACAO_NODE) return 'o Barracão fica na Superfície';
+      if (M.kindOf(s, p.node) !== 'barracao') return 'você precisa estar no Barracão';
       if (t.rest) return 'uma vez por turno';
       if (t.prosa < 2) return 'precisa de 🤝2';
       t.prosa -= 2; t.rest = true; heal(p, 1);

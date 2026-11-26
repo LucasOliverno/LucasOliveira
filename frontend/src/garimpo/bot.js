@@ -1,8 +1,8 @@
 // GARIMPO — bot heurístico. Joga um turno inteiro pelo jogador da vez usando só exec() (não trapaceia).
 // Mapa de exploração: o bot só conhece as salas já descobertas e as saídas que dão para o escuro.
 import * as E from './engine.js';
-import { CARDS, RELICS, MASCATE, DLCS } from './data.js';
-import { BOCA, BARRACAO_NODE, FIXED } from './data.js';
+import { CARDS, RELICS, MASCATE, DLCS, furyStart } from './data.js';
+import { FIXED } from './data.js';
 
 export const BOT_OPTS = { greed: 1, risk: 1 };
 const BUY_MIN = +(globalThis.process?.env?.BUY_MIN ?? 1.5);
@@ -32,20 +32,32 @@ function arcs(s, p, extraRelic = 0) {
   }
   return out;
 }
-// distância de cada nó até o alvo
+// distância de cada nó até o alvo (Dijkstra no grafo invertido). Os arcos e as distâncias ficam em cache
+// enquanto o estado não muda (mesmo log, mesma sala, mesmos recursos).
+let CACHE = { sig: null, arcs: {}, dist: {} };
+function sigOf(s, p) { return `${s.log.length}|${s.map.edges.length}|${p.id}|${p.node}|${p.t?.luz}|${p.t?.prosa}|${p.relics.length}|${s.rubble.length}|${s.grisu.length}|${s.cerb?.node}|${s.cerb?.awake}`; }
 function distTo(s, p, target, extraRelic = 0) {
+  const sig = sigOf(s, p);
+  if (CACHE.sig !== sig) CACHE = { sig, arcs: {}, dist: {} };
+  const dk = `${target}|${extraRelic}`;
+  if (CACHE.dist[dk]) return CACHE.dist[dk];
+  let rev = CACHE.arcs[extraRelic];
+  if (!rev) {
+    rev = {};
+    for (const a of arcs(s, p, extraRelic)) (rev[a.v] ||= []).push(a);
+    CACHE.arcs[extraRelic] = rev;
+  }
   const ids = E.nodeIds(s);
-  const A = arcs(s, p, extraRelic);
   const d = Object.fromEntries(ids.map((n) => [n, Infinity]));
   d[target] = 0;
-  const done = new Set();
-  for (;;) {
+  const open = new Set([target]);
+  while (open.size) {
     let n = null;
-    for (const k of ids) if (!done.has(k) && d[k] < Infinity && (n === null || d[k] < d[n])) n = k;
-    if (n === null) break;
-    done.add(n);
-    for (const a of A) if (a.v === n && d[n] + a.w < d[a.u]) d[a.u] = d[n] + a.w;
+    for (const k of open) if (n === null || d[k] < d[n]) n = k;
+    open.delete(n);
+    for (const a of rev[n] || []) if (d[n] + a.w < d[a.u]) { d[a.u] = d[n] + a.w; open.add(a.u); }
   }
+  CACHE.dist[dk] = d;
   return d;
 }
 const lv = (s, n) => E.lvOf(s, n);
@@ -56,9 +68,9 @@ export const LEAVE = { round: +(globalThis.process?.env?.LEAVE_ROUND ?? 12), fur
 function shouldLeave(s, p, backTurns) {
   if (!p.relics.length) return false;
   if (p.relics.length >= E.relicCap(p) && E.relicCap(p) === 1 && RELICS[p.relics[0]].pts >= LEAVE.goodRelic) return true;
-  if (s.water !== null) return true;
+  if (s.ending) return true;
   if (p.folego <= LEAVE.folego) return true;
-  if (s.fury >= LEAVE.fury) return true;
+  if (s.fury >= Math.min(7, furyStart(s.players.length) + 3)) return true;
   if (s.turnNo + backTurns >= LEAVE.round) return true;
   return false;
 }
@@ -68,14 +80,14 @@ function chooseTarget(s, p) {
   const luzPerTurn = 3;
   const greed = p.greed ?? BOT_OPTS.greed;
   const danger = (l) => l * (0.4 + s.fury * 0.2) * BOT_OPTS.risk;
-  const backFrom = distTo(s, p, BOCA, carrying + 1);
-  const backTurns = (distTo(s, p, BOCA, carrying)[p.node] || 0) / luzPerTurn;
-  if (shouldLeave(s, p, backTurns)) return { node: BOCA };
+  const backFrom = distTo(s, p, E.bocaOf(s), carrying + 1);
+  const backTurns = (distTo(s, p, E.bocaOf(s), carrying)[p.node] || 0) / luzPerTurn;
+  if (shouldLeave(s, p, backTurns)) return { node: E.bocaOf(s) };
   const fromMe = distTo(s, p, p.node); // simétrico o bastante para estimar a ida
   const canTrip = (there, back) => {
     const turns = (there + back) / luzPerTurn;
     if (p.folego - turns * (0.3 + s.fury * 0.1) < 2) return false;
-    if (s.water !== null && turns > s.water - 1.5) return false;
+    if (s.ending && turns > 2.5) return false; // a mina está ruindo: nada de viagem longa
     return true;
   };
   let best = null; let bestV = -Infinity;
@@ -87,7 +99,7 @@ function chooseTarget(s, p) {
       let v = pts * greed - (there + backFrom[n]) * 1.0 - danger(lv(s, n));
       if (carrying) v -= 8;
       // no começo, tesouro barato prende a mão (só se carrega 1): melhor esperar algo melhor
-      if (!carrying && s.water === null && s.turnNo < LEAVE.earlyRound && pts < LEAVE.cheapEarly) v -= 14;
+      if (!carrying && !s.ending && s.turnNo < LEAVE.earlyRound && pts < LEAVE.cheapEarly) v -= 14;
       if (v > bestV) { bestV = v; best = { node: n }; }
     }
   }
@@ -120,7 +132,7 @@ function chooseTarget(s, p) {
     if (v > bestV) { bestV = v; best = { node: n }; }
   }
   if (best) return best;
-  return { node: BOCA };
+  return { node: E.bocaOf(s) };
 }
 
 const ex = (s, a) => E.exec(s, a);
@@ -139,7 +151,7 @@ function onNode(s, p, target) {
     else want.push('corda', 'capacete');
     for (const k of want) if (p.gold >= MASCATE[k].gold && s.mascate[k] > 0 && !E.hasItem(p, k)) { if (!ex(s, { t: 'mascate', item: k })) break; }
   }
-  if (p.node === BARRACAO_NODE && p.folego < 10 && t.prosa >= 2) ex(s, { t: 'rest' });
+  if (E.kindOf(s, p.node) === 'barracao' && p.folego < 10 && t.prosa >= 2) ex(s, { t: 'rest' });
 }
 
 function moveLoop(s, p) {
@@ -191,7 +203,7 @@ function moveLoop(s, p) {
 // valor de compra de uma carta para este jogador agora
 function cardValue(s, p, id) {
   const c = CARDS[id];
-  const late = p.relics.length > 0 || s.water !== null;
+  const late = p.relics.length > 0 || s.ending;
   let v = 0;
   v += (c.luz || 0) * 2.2 + (c.pic || 0) * 1.3 + (c.prosa || 0) * (late ? 0.6 : 1.5) + (c.draw || 0) * 1.8;
   v += (c.gold || 0) * 1 + (c.folego || 0) * 0.8 + (c.pts || 0) * (late ? 1.2 : 0.6);
@@ -210,7 +222,7 @@ function spend(s, p) {
   const t = p.t;
   // Cérbero: acalmar ou enfrentar
   if (s.cerb && s.cerb.awake > 0) {
-    while (t.calm > 0 && s.cerb.awake > 0) ex(s, { t: 'calm' });
+    while (t.calm > 0 && s.cerb.awake > 0) if (ex(s, { t: 'calm' })) break;
     if (t.pic >= DLCS.cerbero.fightCost && !ex(s, { t: 'fightCerb' })) { /* ok */ }
   }
   if (s.medusa && t.pic >= DLCS.medusa.fightCost) ex(s, { t: 'fightMedusa' });
