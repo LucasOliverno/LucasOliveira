@@ -6,25 +6,57 @@ import { DLCS } from './data.js';
 import { actor as actorOf } from './online/view.js';
 import { useOnline, loadName, recentRooms } from './online/useOnline.js';
 import Game from './ui/Game.jsx';
-import { asset } from './ui/text.js';
+import { art, asset } from './ui/text.js';
 
 const BOT_DELAY = 700;
+
+const DLC_ART = { cerbero: 'boss_cerbero', medusa: 'boss_medusa' };
+const DLC_TXT = {
+  cerbero: 'Um cão de três cabeças guarda um portão no fundo e persegue quem carrega Relíquia.',
+  medusa: 'A górgona anda pelos túneis; quem ela olha vai virando pedra no baralho.',
+};
 
 function Options({ dlc, setDlc, map, setMap }) {
   return (
     <div className="gm-opts">
-      <div>
+      <div className="gm-optblock">
         <h4>Expansões</h4>
-        {Object.entries(DLCS).map(([k, d]) => (
-          <label key={k}><input type="checkbox" checked={dlc.includes(k)} onChange={(e) => setDlc(e.target.checked ? [...dlc, k] : dlc.filter((x) => x !== k))} /> {d.name}</label>
-        ))}
+        <div className="gm-dlcs">
+          {Object.entries(DLCS).map(([k, d]) => {
+            const on = dlc.includes(k);
+            return (
+              <button key={k} type="button" className={`gm-dlc${on ? ' on' : ''}`} aria-pressed={on} onClick={() => setDlc(on ? dlc.filter((x) => x !== k) : [...dlc, k])}>
+                <span className="art" style={{ backgroundImage: `url(${art(DLC_ART[k])})` }} />
+                <span className="txt"><b>{d.name}</b><small>{DLC_TXT[k]}</small></span>
+                <span className="chk">{on ? '✓' : '+'}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-      <div>
+      <div className="gm-optblock">
         <h4>Mapa</h4>
-        <label><input type="radio" checked={map === 'explorar'} onChange={() => setMap('explorar')} /> Explorar (salas descobertas durante o jogo)</label>
-        <label><input type="radio" checked={map === 'classico'} onChange={() => setMap('classico')} /> Clássico (mapa fixo, bom para aprender)</label>
+        <div className="gm-seg">
+          <button type="button" className={map === 'explorar' ? 'on' : ''} onClick={() => setMap('explorar')}>Explorar<small>a mina aparece peça por peça</small></button>
+          <button type="button" className={map === 'classico' ? 'on' : ''} onClick={() => setMap('classico')}>Clássico<small>mapa fixo, bom para aprender</small></button>
+        </div>
       </div>
     </div>
+  );
+}
+
+function HowTo() {
+  return (
+    <details className="gm-howto">
+      <summary>Como jogar em 1 minuto</summary>
+      <ol>
+        <li><b>Monte o baralho:</b> jogue as 5 cartas da mão. 🤝 compra cartas na loja base ou na Fila, 🔦 anda, ⛏ derrota Bichos.</li>
+        <li><b>Explore:</b> numa saída <b>?</b> da sua sala, pague a passagem, compre uma peça da mina e escolha como girar.</li>
+        <li><b>Barulho:</b> 💥 põe seus cubos na Bateia. Quando sai 🌋 na Fila ou alguém pega Relíquia, a Mãe-do-Ouro acorda e seus cubos sorteados viram dano no seu Fôlego.</li>
+        <li><b>Saia vivo:</b> pegue uma Relíquia nos Altares e volte à Boca (Selo ✦20). Depois disso, no seu turno saem cubos da Bateia contra quem ficou.</li>
+        <li><b>Ganha quem tiver mais pontos.</b> Soterrado no fundo ou sem Relíquia faz 0.</li>
+      </ol>
+    </details>
   );
 }
 
@@ -34,18 +66,31 @@ function Start({ onLocal, onOnline }) {
   const [dlc, setDlc] = useState([]);
   const [map, setMap] = useState('explorar');
   return (
-    <div className="gm-start" style={{ backgroundImage: `url(${asset('capa.webp')})` }}>
+    <div className="gm-start" style={{ backgroundImage: `linear-gradient(90deg, rgba(20,16,12,.94) 0%, rgba(20,16,12,.82) 42%, rgba(20,16,12,.25) 100%), url(${asset('capa.webp')})` }}>
       <div className="gm-startbox">
-        <h1>GARIMPO</h1>
-        <p className="sub">A Cova da Mãe-do-Ouro</p>
-        <p>Monte o seu baralho, desça na mina descobrindo salas, pegue uma Relíquia e saia antes que o barulho acorde a Mãe-do-Ouro ou a água suba.</p>
-        <label className="gm-field">Seu nome <input value={name} maxLength={20} onChange={(e) => setName(e.target.value)} /></label>
-        <Options dlc={dlc} setDlc={setDlc} map={map} setMap={setMap} />
-        <div className="gm-startrow">
-          <label className="gm-field">Bots <select value={bots} onChange={(e) => setBots(Number(e.target.value))}>{[0, 1, 2, 3].map((n) => <option key={n} value={n}>{n}</option>)}</select></label>
-          <button type="button" className="hot" onClick={() => onLocal({ name, bots, dlc, map })}>Jogar aqui</button>
-          <button type="button" onClick={() => onOnline(name)}>Jogar online</button>
+        <div className="gm-logo">
+          <h1>GARIMPO</h1>
+          <p className="sub">A Cova da Mãe-do-Ouro</p>
+          <p className="pitch">Monte o seu baralho, desça na mina descobrindo peça por peça, pegue uma Relíquia e saia antes que o barulho acorde a Mãe-do-Ouro.</p>
         </div>
+        <label className="gm-field">Seu nome <input value={name} maxLength={20} onChange={(e) => setName(e.target.value)} /></label>
+        <div className="gm-modes">
+          <div className="gm-mode">
+            <h3>🤖 Contra bots</h3>
+            <p>Joga aqui mesmo, no navegador.</p>
+            <div className="gm-seg small" role="group" aria-label="Quantos bots">
+              {[0, 1, 2, 3].map((n) => <button key={n} type="button" className={bots === n ? 'on' : ''} onClick={() => setBots(n)}>{n === 0 ? 'Solo' : `${n} bot${n > 1 ? 's' : ''}`}</button>)}
+            </div>
+            <button type="button" className="hot big" onClick={() => onLocal({ name, bots, dlc, map })}>Jogar agora</button>
+          </div>
+          <div className="gm-mode">
+            <h3>🌐 Online</h3>
+            <p>Crie uma sala e mande o código para até 3 amigos. Vagas livres viram bots.</p>
+            <button type="button" className="big" onClick={() => onOnline(name)}>Criar ou entrar numa sala</button>
+          </div>
+        </div>
+        <Options dlc={dlc} setDlc={setDlc} map={map} setMap={setMap} />
+        <HowTo />
       </div>
     </div>
   );
@@ -123,11 +168,11 @@ function Online({ name, onExit }) {
       </>
     );
     const note = [on.error?.msg, on.botNote ? `${st.view.players[on.botNote.who]?.name}: ${on.botNote.lines.join(' · ')}` : null, on.conn !== 'open' ? 'Reconectando…' : null].filter(Boolean).join(' — ') || null;
-    return <Game s={st.view} you={st.you} actor={st.actor} send={on.send} top={top} note={note} />;
+    return <Game s={st.view} you={st.you} actor={st.actor} send={on.send} top={top} note={note} chat={on.chat} onChat={on.sendChat} />;
   }
   return (
-    <div className="gm-start" style={{ backgroundImage: `url(${asset('capa.webp')})` }}>
-      <div className="gm-startbox">
+    <div className="gm-start" style={{ backgroundImage: `linear-gradient(90deg, rgba(20,16,12,.94) 0%, rgba(20,16,12,.82) 42%, rgba(20,16,12,.25) 100%), url(${asset('capa.webp')})` }}>
+      <div className="gm-startbox online">
         <h1>GARIMPO online</h1>
         <p className="sub">{on.conn === 'open' ? 'Conectado' : 'Conectando ao servidor…'}</p>
         {on.gone && <p className="gm-err">{on.gone}</p>}
