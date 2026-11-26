@@ -13,7 +13,7 @@ const HAS_ART = new Set([
 export const hasArt = (id) => HAS_ART.has(id);
 
 const FX = {
-  ropeUp: 'neste turno, subir escada custa 🔦1',
+  ropeUp: 'neste turno, a Relíquia não pesa e túnel apertado custa 🔦1',
   dyn: 'pode remover um Desabamento',
   detector: 'no Veio Profundo, +💠1',
   freeRide: 'ande até 3 nós de trilho de graça',

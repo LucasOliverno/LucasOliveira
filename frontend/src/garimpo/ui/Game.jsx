@@ -2,9 +2,9 @@
 // recebe o estado (ou a visão do servidor), quem sou eu, de quem é a vez e uma função send(cmd).
 import { lazy, Suspense, useMemo, useState } from 'react';
 import * as E from '../engine.js';
-import { CARDS, RELICS, MASCATE, DLCS, FURY_DRAWS, LEVELS } from '../data.js';
+import { CARDS, MASCATE, DLCS, FURY_DRAWS, MAX_FOLEGO, OUT_DRAWS } from '../data.js';
 import Mine from './Mine.jsx';
-import { art, hasArt, cardLines, cardType, relicName, PLAYER_HEX, roomLabel, asset } from './text.js';
+import { art, hasArt, cardLines, cardType, relicName, PLAYER_HEX, roomLabel, asset, ROOM_COLOR, ROOM_GLYPH } from './text.js';
 
 const Table3D = lazy(() => import('./Table3D.jsx'));
 
@@ -27,24 +27,51 @@ export function Card({ id, onClick, disabled, footer, small, hidden }) {
 }
 
 function Track({ s }) {
-  const bag = s.bag.p.reduce((a, b) => a + b, 0) + s.bag.stone;
   return (
     <div className="gm-track">
-      <div className="gm-fury" title="Trilha da Fúria: quantos cubos saem da Bateia a cada Fúria">
+      <div className="gm-fury" title="Trilha da Fúria: quantos cubos saem da Bateia a cada Fúria. Sobe a cada Relíquia (Ninho: +2)">
         <span className="lbl">Fúria</span>
-        {FURY_DRAWS.map((d, i) => <span key={i} className={`step${s.fury === i + 1 ? ' on' : ''}`}>{d}</span>)}
+        {FURY_DRAWS.map((d, i) => <span key={i} className={`step${s.fury === i + 1 ? ' on' : ''}${s.fury > i + 1 ? ' past' : ''}`}>{d}</span>)}
         {s.furyExtra ? <span className="extra">+{s.furyExtra}</span> : null}
       </div>
-      <div className="gm-bag" title="Bateia: cubos que podem sair na próxima Fúria">
-        <span className="lbl">Bateia</span>
-        <span className="stone">⬛{s.bag.stone}</span>
-        {s.players.map((p) => <span key={p.id} className="cube" style={{ background: PLAYER_HEX[p.color] }}>{s.bag.p[p.id]}</span>)}
-        <span className="tot">({bag})</span>
+      <div className="gm-end" title="Quando o primeiro sai ou fica soterrado, a mina começa a ruir: no turno de quem já saiu, saem cubos da Bateia">
+        {s.ending ? <span className="ruindo">⚠ A mina está ruindo: {OUT_DRAWS(s.players.length)} cubos por turno de quem saiu</span> : <span>Rodada {s.turnNo} · peças no monte: {s.map.stack?.length ?? '—'}</span>}
       </div>
-      <div className="gm-water" title="A água começa quando alguém sai ou fica soterrado, quando o Túnel acaba ou na rodada 16">
-        <span className="lbl">Água</span>
-        {s.water === null ? <span>seca · rodada {s.turnNo}</span> : s.water > 5 ? <span>subindo: {s.water - 5} rodada(s) até a Câmara</span> : <span>alagado até {LEVELS[s.water]}</span>}
+    </div>
+  );
+}
+
+// Bateia: pedras pretas e os cubos de barulho de cada um
+function Bateia({ s }) {
+  const total = s.bag.stone + s.bag.p.reduce((a, b) => a + b, 0);
+  return (
+    <div className="gm-bateia" title="Bateia: a cada Fúria saem cubos daqui. Pedra preta não faz nada; cubo de jogador vira dano">
+      <div className="gm-bateia-title">Bateia <small>({total} cubos)</small></div>
+      <div className="gm-bateia-bowl">
+        {Array.from({ length: Math.min(s.bag.stone, 30) }).map((_, i) => <i key={`s${i}`} className="cube stone" />)}
+        {s.players.flatMap((p) => Array.from({ length: Math.min(s.bag.p[p.id], 20) }).map((_, i) => <i key={`${p.id}-${i}`} className="cube" style={{ background: PLAYER_HEX[p.color] }} />))}
       </div>
+    </div>
+  );
+}
+
+// Tabuleiro do jogador: medidor de Fôlego (cubos de dano), reserva de cubos e barulho do turno
+function PlayerBoard({ s, p, you, actor }) {
+  const sc = E.scoreOf(s, p);
+  const dmg = p.dmg ?? (MAX_FOLEGO - p.folego);
+  return (
+    <div className={`gm-player${actor === p.id ? ' turn' : ''}${p.id === you ? ' me' : ''}`} style={{ borderColor: PLAYER_HEX[p.color] }}>
+      <div className="nm"><span className="dot" style={{ background: PLAYER_HEX[p.color] }} />{p.name}{p.bot ? ' 🤖' : ''}<span className="pts">✦{sc.total}</span></div>
+      <div className="gm-health" title={`Fôlego: ${p.folego}/${MAX_FOLEGO}. Cada cubo no medidor é um dano; medidor cheio = soterrado`}>
+        {Array.from({ length: MAX_FOLEGO }).map((_, i) => <span key={i} className={`slot${i < dmg ? ' hit' : ''}${i === MAX_FOLEGO - 1 ? ' last' : ''}`} style={i < dmg ? { background: PLAYER_HEX[p.color] } : undefined} />)}
+      </div>
+      <div className="st">
+        {p.status === 'out' ? '🏁 saiu da mina' : p.status === 'dead' ? `🪦 soterrado ${p.deadZone === 'segura' ? '(perto da Boca)' : '(no fundo)'}` : `📍 ${roomLabel(s.map.nodes[p.node]?.kind)}`}
+      </div>
+      <div className="st">🧊 reserva {p.cubes} · 💥 turno {Math.max(0, p.area || 0)} · na Bateia {s.bag.p[p.id]}</div>
+      <div className="st">🟡{p.gold} 💠{p.crystals} · 🃏{E.allCards(p).length}</div>
+      {p.relics.length > 0 && <div className="st relic">🏺 {p.relics.map((r) => relicName(r)).join(', ')}</div>}
+      {p.items.length > 0 && <div className="st">🎒 {p.items.map((k) => MASCATE[k].name).join(', ')}</div>}
     </div>
   );
 }
@@ -52,21 +79,26 @@ function Track({ s }) {
 function Players({ s, you, actor }) {
   return (
     <div className="gm-players">
-      {s.players.map((p) => {
-        const sc = E.scoreOf(s, p);
-        return (
-          <div key={p.id} className={`gm-player${actor === p.id ? ' turn' : ''}${p.id === you ? ' me' : ''}`} style={{ borderColor: PLAYER_HEX[p.color] }}>
-            <div className="nm"><span className="dot" style={{ background: PLAYER_HEX[p.color] }} />{p.name}{p.bot ? ' 🤖' : ''}</div>
-            <div className="st">
-              {p.status === 'out' ? '🏁 saiu' : p.status === 'dead' ? `🪦 soterrado (${LEVELS[p.deadLv]})` : `🫧${p.folego} · ${roomLabel(s.map.nodes[p.node]?.kind)}`}
-            </div>
-            <div className="st">🟡{p.gold} 💠{p.crystals} · 🃏{E.allCards(p).length} · ✦{sc.total}</div>
-            {p.relics.length > 0 && <div className="st relic">🏺 {p.relics.map((r) => relicName(r)).join(', ')}</div>}
-            {p.items.length > 0 && <div className="st">🎒 {p.items.map((k) => MASCATE[k].name).join(', ')}</div>}
-          </div>
-        );
-      })}
+      {s.players.map((p) => <PlayerBoard key={p.id} s={s} p={p} you={you} actor={actor} />)}
+      <Bateia s={s} />
     </div>
+  );
+}
+
+// Prévia de uma peça numa rotação: salas, túneis e saídas
+function TilePreview({ tile, rot, enterSide }) {
+  const b = E.buildTile(tile, rot);
+  const u = 30; const S = u * 3;
+  const pt = (r) => ({ x: r.cx * u + u / 2, y: r.cy * u + u / 2 });
+  const MID = { N: [S / 2, 0], S: [S / 2, S], E: [S, S / 2], W: [0, S / 2] };
+  const col = (c) => ({ dark: '#120f0c', rail: '#9a9a9a', rub: '#5a5550' }[c] || '#8a5a32');
+  return (
+    <svg viewBox={`-6 -6 ${S + 12} ${S + 12}`} className="gm-tileprev">
+      <rect x="0" y="0" width={S} height={S} rx="10" className={`gm-tile ${tile.zone}`} />
+      {b.tun.map(([i, j, c], k) => { const a = pt(b.rooms[i]); const c2 = pt(b.rooms[j]); return <line key={k} x1={a.x} y1={a.y} x2={c2.x} y2={c2.y} stroke={col(c)} strokeWidth="5" strokeLinecap="round" />; })}
+      {Object.entries(b.edge).map(([side, e]) => { const a = pt(b.rooms[e.room]); const [x, y] = MID[side]; return <line key={side} x1={a.x} y1={a.y} x2={x} y2={y} stroke={side === enterSide ? '#e8b53a' : col(e.type)} strokeWidth={side === enterSide ? 6 : 5} strokeLinecap="round" />; })}
+      {b.rooms.map((r, i) => { const a = pt(r); return <g key={i}><circle cx={a.x} cy={a.y} r="10" fill={ROOM_COLOR[r.kind] || '#5b4a3a'} /><text x={a.x} y={a.y + 4} textAnchor="middle" fontSize="10">{ROOM_GLYPH[r.kind] || ''}</text></g>; })}
+    </svg>
   );
 }
 
@@ -75,18 +107,18 @@ function Pending({ s, you, send }) {
   if (!pd || pd.pid !== you) return null;
   const p = s.players[you];
   if (pd.k === 'place') {
-    const opt = (mirror) => {
-      const ex = E.parseTileExits(pd.tile, mirror);
-      return Object.entries(ex).map(([k, v]) => `${({ L: '←', R: '→', U: '↑', D: '↓' })[k]} ${({ t: 'túnel', dark: 'escuro', rail: 'trilho', lad: 'escada', shaft: 'poço', rubble: 'desabamento' })[v.type] || v.type}${v.den ? ' 🐾' : ''}`).join(' · ');
-    };
-    const kind = pd.tile.split(' ')[0];
+    const kinds = [...new Set(pd.tile.k)].map((k) => roomLabel(k)).join(', ');
     return (
       <div className="gm-modal">
-        <h3>Você descobriu: {roomLabel(kind)}</h3>
-        <p>Escolha de que lado a peça fica (o lado por onde você chegou sempre se abre).</p>
+        <h3>Você descobriu uma peça {pd.tile.zone === 'segura' ? 'segura' : 'do fundo'}</h3>
+        <p>Salas: {kinds}. Escolha a rotação. A borda dourada é por onde você entra, e só valem as rotações em que a peça encaixa nela.</p>
         <div className="gm-choices">
-          <button type="button" onClick={() => send({ t: 'choose', mirror: false })}>Assim<br /><small>{opt(false)}</small></button>
-          <button type="button" onClick={() => send({ t: 'choose', mirror: true })}>Espelhada<br /><small>{opt(true)}</small></button>
+          {pd.rots.map((rot) => (
+            <button key={rot} type="button" className="gm-rot" onClick={() => send({ t: 'choose', rot })}>
+              <TilePreview tile={pd.tile} rot={rot} enterSide={pd.enterSide} />
+              <small>{['0°', '90°', '180°', '270°'][rot]}</small>
+            </button>
+          ))}
         </div>
       </div>
     );
@@ -176,7 +208,7 @@ export default function Game({ s, you, actor, send, top = null, note = null }) {
         <div className="gm-brand">GARIMPO <small>A Cova da Mãe-do-Ouro</small></div>
         <Track s={s} />
         <div className="gm-topright">
-          <button type="button" className="gm-toggle" onClick={() => setView3d((v) => !v)}>{view3d ? 'Mina em corte' : 'Mesa 3D'}</button>
+          <button type="button" className="gm-toggle" onClick={() => setView3d((v) => !v)}>{view3d ? 'Tabuleiro' : 'Mesa 3D'}</button>
           {top}
         </div>
       </header>
@@ -212,7 +244,8 @@ export default function Game({ s, you, actor, send, top = null, note = null }) {
                 <span className="gm-res" title="Prosa: compra cartas">🤝 {t.prosa}</span>
                 <span className="gm-res" title="Picareta: derrota Bichos, limpa passagens">⛏ {t.pic}</span>
                 <span className="gm-res" title="Estrondo deste turno: vira cubos na Bateia no fim do turno">💥 {Math.max(0, me.area || 0)}</span>
-                <span className="gm-res" title="Fôlego">🫧 {me.folego}</span>
+                <span className="gm-res" title="Fôlego">🫧 {me.folego}/{MAX_FOLEGO}</span>
+                {t.tired && <span className="gm-res warn" title="Você entrou num Geodo: acabou o movimento deste turno">😵 cansado</span>}
                 <span className="gm-res" title="Pepitas (pontos e moeda do Mascate)">🟡 {me.gold}</span>
                 <span className="gm-res">🃏 baralho {me.deck.length} · descarte {me.discard.length}</span>
                 {myTurn ? <span className="gm-yourturn">Sua vez</span> : <span className="gm-wait">{actor != null ? `Vez de ${s.players[actor].name}` : ''}</span>}
@@ -254,4 +287,3 @@ export default function Game({ s, you, actor, send, top = null, note = null }) {
   );
 }
 
-export { RELICS };

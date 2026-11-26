@@ -14,10 +14,11 @@ const MODEL = `${import.meta.env.BASE_URL}garimpo/models/garimpo.glb?v=1`;
 const TILE = 7; // cm por casa
 const GAP = 0.6;
 
+const SUB = 3.2; // cm entre salas dentro de uma peça (a peça tem 3×3, ~9,6 cm)
 function cell(s, n) {
   const nd = s.map.nodes[n];
-  const x = s.map.mode === 'explorar' ? nd.x : (nd.x - 5) * 0.9;
-  return [x * (TILE + GAP), nd.lv * (TILE + GAP)];
+  if (s.map.tiles) return [nd.x * SUB, nd.y * SUB];
+  return [(nd.x - 5) * 0.9 * (TILE + GAP), nd.lv * (TILE + GAP)];
 }
 
 // Texto desenhado numa textura de canvas (sem fonte externa: a cena não espera rede)
@@ -63,40 +64,51 @@ function Mine({ s, nodes }) {
   const pos = useMemo(() => Object.fromEntries(ids.map((n) => [n, cell(s, n)])), [s, ids]);
   // o tabuleiro fica deitado: x = coluna, z = profundidade (nível)
   const at = (n, y = 0) => [pos[n][0], y, pos[n][1]];
+  const tiles = s.map.tiles ? Object.entries(s.map.tiles) : [];
   return (
-    <group position={[0, 0, -20]}>
+    <group position={[0, 0, -2]}>
+      {tiles.map(([k, t]) => {
+        const [tx, ty] = k.split(',').map(Number);
+        return (
+          <RoundedBox key={k} args={[SUB * 3 - 0.3, 0.6, SUB * 3 - 0.3]} radius={0.35} position={[(tx * 3 + 1) * SUB, 0.3, (ty * 3 + 1) * SUB]} receiveShadow castShadow>
+            <meshStandardMaterial color={tx === 0 && ty === 0 ? '#6a5236' : t.zone === 'segura' ? '#5a4632' : '#3a2e22'} roughness={0.9} />
+          </RoundedBox>
+        );
+      })}
       {ids.map((n) => {
-        const nd = s.map.nodes[n]; const kind = nd.kind || 'vazia';
-        const flooded = s.water !== null && nd.lv >= s.water;
+        const kind = s.map.nodes[n].kind || 'vazia';
         return (
           <group key={n} position={at(n)}>
-            <RoundedBox args={[TILE, 0.8, TILE * 0.82]} radius={0.25} position={[0, 0.4, 0]} castShadow receiveShadow>
-              <meshStandardMaterial color={flooded ? '#2f5d7c' : ROOM_COLOR[kind] || '#5b4a3a'} roughness={0.85} />
-            </RoundedBox>
-            <Text position={[0, 0.82, -TILE * 0.3]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.62} color="#f3ebdd" maxWidth={TILE - 0.6}>{roomLabel(kind)}</Text>
-            {kind === 'altar' && <Piece nodes={nodes} name="board_altar" position={[2, 0.8, 1.2]} scale={0.7} />}
+            <mesh position={[0, 0.75, 0]} castShadow receiveShadow>
+              <cylinderGeometry args={[1.25, 1.35, 0.35, 28]} />
+              <meshStandardMaterial color={ROOM_COLOR[kind] || '#5b4a3a'} roughness={0.8} />
+            </mesh>
+            <Text position={[0, 0.95, 1.6]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.42} color="#f3ebdd" maxWidth={3}>{roomLabel(kind)}</Text>
+            {kind === 'altar' && <Piece nodes={nodes} name="board_altar" position={[0, 0.9, 0]} scale={0.45} />}
             {s.relics[n] && (
-              <group position={[2, kind === 'altar' ? 1.6 : 0.8, 1.2]}>
-                <mesh castShadow><cylinderGeometry args={[0.9, 0.9, 0.5, 20]} /><meshStandardMaterial color="#e8b53a" metalness={0.6} roughness={0.35} /></mesh>
+              <group position={[0, kind === 'altar' ? 1.5 : 1, 0]}>
+                <mesh castShadow><cylinderGeometry args={[0.6, 0.6, 0.4, 20]} /><meshStandardMaterial color="#e8b53a" metalness={0.6} roughness={0.35} /></mesh>
                 <Text position={[0, 0.3, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.7} color="#1a1714">{RELICS[s.relics[n]].pts}</Text>
               </group>
             )}
-            {Array.from({ length: s.crystals[n] || 0 }).map((_, k) => <Piece key={k} nodes={nodes} name="cristal" position={[-2.4 + k * 1.1, 0.8, 1.6]} scale={0.8} />)}
-            {kind === 'veio' && <Piece nodes={nodes} name="pepita" position={[-2.2, 0.8, 1.5]} />}
-            {s.grisu.includes(n) && <mesh position={[0, 2, 0]}><sphereGeometry args={[1.6, 16, 12]} /><meshStandardMaterial color="#c8d65a" transparent opacity={0.35} /></mesh>}
+            {Array.from({ length: s.crystals[n] || 0 }).map((_, k) => <Piece key={k} nodes={nodes} name="cristal" position={[-0.9 + k * 0.9, 0.9, -0.7]} scale={0.5} />)}
+            {kind === 'veio' && <Piece nodes={nodes} name="pepita" position={[0.7, 0.9, -0.6]} scale={0.7} />}
+            {s.grisu.includes(n) && <mesh position={[0, 2, 0]}><sphereGeometry args={[1.1, 16, 12]} /><meshStandardMaterial color="#c8d65a" transparent opacity={0.35} /></mesh>}
           </group>
         );
       })}
       {s.map.edges.map((e) => {
         const a = pos[e.a]; const b = pos[e.b];
         const mid = [(a[0] + b[0]) / 2, 0.9, (a[1] + b[1]) / 2];
-        const vertical = a[0] === b[0];
+        const vertical = Math.abs(a[0] - b[0]) < 0.01;
+        const len = Math.hypot(a[0] - b[0], a[1] - b[1]);
+        if (e.type === 'elev') return null;
         const blocked = s.rubble.includes(e.key);
-        if (e.type === 'lad') return <Piece key={e.key} nodes={nodes} name="board_escada" position={[mid[0], 0.8, mid[2]]} rotation={[-Math.PI / 2, 0, 0]} scale={[0.8, 0.35, 0.8]} />;
-        if (e.type === 'rail') return <Piece key={e.key} nodes={nodes} name="board_trilho" position={[mid[0], 0.8, mid[2]]} scale={[0.22, 1, 0.5]} />;
+        if (e.type === 'lad') return <Piece key={e.key} nodes={nodes} name="board_escada" position={[mid[0], 0.8, mid[2]]} rotation={[-Math.PI / 2, 0, 0]} scale={[0.5, len / 6, 0.5]} />;
+        if (e.type === 'rail') return <Piece key={e.key} nodes={nodes} name="board_trilho" position={[mid[0], 0.65, mid[2]]} rotation={[0, vertical ? Math.PI / 2 : 0, 0]} scale={[len / 10, 1, 0.35]} />;
         return (
-          <mesh key={e.key} position={mid} rotation={[0, vertical ? 0 : Math.PI / 2, 0]}>
-            <boxGeometry args={[0.9, 0.3, GAP + 1.4]} />
+          <mesh key={e.key} position={[mid[0], 0.68, mid[2]]} rotation={[0, vertical ? 0 : Math.PI / 2, 0]}>
+            <boxGeometry args={[e.type === 'dark' ? 0.45 : 0.7, 0.12, len]} />
             <meshStandardMaterial color={blocked ? '#5a5550' : e.type === 'dark' ? '#1a1714' : e.type === 'shaft' ? '#2f5d7c' : '#7a4a2b'} />
           </mesh>
         );
@@ -104,14 +116,14 @@ function Mine({ s, nodes }) {
       {s.players.filter(E.inMine).map((p, k) => {
         const [x, z] = pos[p.node];
         return (
-          <group key={p.id} position={[x - 2 + (k % 2) * 1.5, 0.8, z - 0.6 + Math.floor(k / 2) * 1.4]}>
+          <group key={p.id} position={[x - 0.6 + (k % 2) * 1.2, 0.9, z + 0.3 + Math.floor(k / 2) * 0.9]} scale={0.6}>
             <mesh castShadow position={[0, 1, 0]}><cylinderGeometry args={[0.45, 0.65, 2, 14]} /><meshStandardMaterial color={PLAYER_HEX[p.color]} /></mesh>
             <mesh castShadow position={[0, 2.4, 0]}><sphereGeometry args={[0.55, 14, 12]} /><meshStandardMaterial color={PLAYER_HEX[p.color]} /></mesh>
           </group>
         );
       })}
-      {s.cerb && (() => { const [x, z] = pos[s.cerb.node]; return <group position={[x + 2.2, 0.8, z]}>{[0, 1, 2].map((h) => <mesh key={h} castShadow position={[(h - 1) * 0.8, 1.4, 0]}><sphereGeometry args={[0.5, 12, 10]} /><meshStandardMaterial color={h < s.cerb.awake ? '#d2482b' : '#7a5a2a'} /></mesh>)}<mesh position={[0, 0.6, 0]}><boxGeometry args={[2.6, 1.2, 1.4]} /><meshStandardMaterial color="#7a5a2a" /></mesh></group>; })()}
-      {s.medusa && (() => { const [x, z] = pos[s.medusa.node]; return <mesh castShadow position={[x + 2.2, 2, z]}><coneGeometry args={[0.9, 3, 12]} /><meshStandardMaterial color="#3e8c7e" /></mesh>; })()}
+      {s.cerb && (() => { const [x, z] = pos[s.cerb.node]; return <group position={[x + 1.4, 0.9, z]} scale={0.6}>{[0, 1, 2].map((h) => <mesh key={h} castShadow position={[(h - 1) * 0.8, 1.4, 0]}><sphereGeometry args={[0.5, 12, 10]} /><meshStandardMaterial color={h < s.cerb.awake ? '#d2482b' : '#7a5a2a'} /></mesh>)}<mesh position={[0, 0.6, 0]}><boxGeometry args={[2.6, 1.2, 1.4]} /><meshStandardMaterial color="#7a5a2a" /></mesh></group>; })()}
+      {s.medusa && (() => { const [x, z] = pos[s.medusa.node]; return <mesh castShadow position={[x + 1.4, 1.6, z]} scale={0.6}><coneGeometry args={[0.9, 3, 12]} /><meshStandardMaterial color="#3e8c7e" /></mesh>; })()}
     </group>
   );
 }
@@ -121,7 +133,7 @@ function Bateia({ s, nodes }) {
   for (let i = 0; i < Math.min(s.bag.stone, 24); i++) cubes.push({ k: `s${i}`, name: 'cubo_pedra', color: null });
   s.players.forEach((p) => { for (let i = 0; i < Math.min(s.bag.p[p.id], 20); i++) cubes.push({ k: `${p.id}-${i}`, name: 'cubo_jogador', color: PLAYER_HEX[p.color] }); });
   return (
-    <group position={[44, 0, -4]}>
+    <group position={[26, 0, 6]}>
       <mesh receiveShadow position={[0, 0.6, 0]}><cylinderGeometry args={[6, 5, 1.2, 32]} /><meshStandardMaterial color="#6b4a2a" roughness={0.6} /></mesh>
       {cubes.map((c, i) => {
         const a = i * 2.39996; const r = 0.8 + Math.sqrt(i) * 0.75;
@@ -154,9 +166,9 @@ export default function Table3D({ s }) {
   return (
     <div className="gm-3d">
       {!ready && <div className="gm-3d-wait">Montando a mesa…</div>}
-      <Canvas shadows dpr={[1, 2]} camera={{ fov: 38, position: [6, 40, 22], near: 0.5, far: 600 }}>
+      <Canvas shadows dpr={[1, 2]} camera={{ fov: 38, position: [4, 34, 30], near: 0.5, far: 600 }}>
         <Scene s={s} onReady={() => setReady(true)} />
-        <OrbitControls target={[6, 0, -12]} maxPolarAngle={Math.PI / 2.15} minDistance={25} maxDistance={220} />
+        <OrbitControls target={[4, 0, 2]} maxPolarAngle={Math.PI / 2.15} minDistance={12} maxDistance={220} />
       </Canvas>
     </div>
   );
