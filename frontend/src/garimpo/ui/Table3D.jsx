@@ -371,10 +371,10 @@ export default function Table3D({ s, ...rest }) {
   return (
     <div className="gm-3d">
       {!ready && <div className="gm-3d-wait">Montando a mesa…</div>}
-      <div className="gm-3d-help">Arraste para girar · roda do mouse para aproximar · clique nas salas com anel dourado para andar e nos marcadores dourados para explorar</div>
+      <div className="gm-3d-help">Arraste para girar · botão direito para mover · roda do mouse aproxima onde está o ponteiro · clique nas salas com anel dourado para andar e nos marcadores dourados para explorar</div>
       <Canvas shadows dpr={[1, 2]} camera={{ fov: 40, position: [0, 40, 34], near: 0.5, far: 600 }} onPointerMissed={() => { document.body.style.cursor = ''; }}>
         <Scene s={s} onReady={() => setReady(true)} controls={controls} {...rest} />
-        <OrbitControls ref={controls} makeDefault maxPolarAngle={Math.PI / 2.2} minDistance={8} maxDistance={220} enableDamping />
+        <OrbitControls ref={controls} makeDefault zoomToCursor screenSpacePanning={false} maxPolarAngle={Math.PI / 2.2} minDistance={6} maxDistance={220} enableDamping />
       </Canvas>
     </div>
   );
