@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { CARDS, RELICS } from '../data.js';
+import { hasArt } from '../ui/text.js';
+const dir = fileURLToPath(new URL('../../../public/garimpo/cards/', import.meta.url));
+const missing = [...Object.keys(CARDS), ...Object.keys(RELICS)].filter((id) => !hasArt(id) || !existsSync(`${dir}${id}.webp`));
+assert.deepEqual(missing, [], `Cartas e relíquias sem arte: ${missing.join(', ')}`);
+const table = readFileSync(new URL('../ui/Table3D.jsx', import.meta.url), 'utf8');
+const manifest = table.match(/const V3_IDS = new Set\(\[([^\]]*)\]\)/)?.[1] || '';
+const modelIds = new Set([...manifest.matchAll(/'([^']+)'/g)].map((m) => m[1]));
+const modelDir = fileURLToPath(new URL('../../../public/garimpo/models/v3/', import.meta.url));
+const missingModels = Object.values(RELICS).map((r) => r.model).filter((id) => !modelIds.has(id) || !existsSync(`${modelDir}${id}.glb`));
+assert.deepEqual(missingModels, [], `Relíquias sem modelo: ${missingModels.join(', ')}`);
+console.log(`Artes verificadas: ${Object.keys(CARDS).length} cartas, ${Object.keys(RELICS).length} relíquias e seus modelos.`);

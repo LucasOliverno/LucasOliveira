@@ -8,6 +8,8 @@ export const asset = (name) => `${BASE}garimpo/${name}`;
 const HAS_ART = new Set([
   'LAMP', 'BARG', 'PICG', 'TROP', 'QUER', 'CABO', 'MAPV', 'RATO', 'CARB', 'ACO', 'SISAL', 'CAPA', 'DINA', 'BPRA', 'DETE', 'CARR', 'MAPG',
   'TIAO', 'ZEFA', 'MASC', 'FERR', 'MOLE', 'CANT', 'CAPT', 'BENZ', 'CONT', 'MORC', 'ARAN', 'COBR', 'LOBI', 'BOIT', 'CSEC', 'GRIS', 'INFI', 'RACH',
+  'FIAD', 'LMAO', 'COMP', 'AMOS', 'LUPA', 'TROF', 'VEND', 'TCER', 'TMED',
+  'R08', 'R09', 'R12', 'R16', 'R18', 'R22', 'R27', 'R30b', 'R25c', 'R20c',
   'PEPE', 'FOSS', 'DIAR', 'TOLO', 'BOLO', 'LIRA', 'OSSO', 'UIVO', 'ESPE', 'ESCU', 'OLHA', 'PEDR', 'R10', 'R15a', 'R15b', 'R20a', 'R20b', 'R25', 'R30',
 ]);
 export const hasArt = (id) => HAS_ART.has(id);

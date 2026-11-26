@@ -5,3 +5,5 @@ As imagens foram geradas com a ferramenta de geração de imagens, usando a folh
 A folha complementar cobre Venda nos Olhos, Coleira do Cérbero, Escama da Górgona, Petrificado, Fóssil de Preguiça-Gigante, Moeda do Império, Pente de Tartaruga e Ouro e Bússola de Ouro. O Ídolo da Serra foi gerado separadamente. A ilustração de fóssil da folha de achados original e `petrificado_rascunho.png` são versões anteriores; os arquivos correspondentes em `cartas/` vêm da folha complementar.
 
 Os recortes mantêm os limites das células geradas; suas proporções não são exatamente 4:5 e podem exigir enquadramento na montagem das cartas. Algumas ilustrações são interpretações dos prompts, não conferência histórica ou anatômica. O tabuleiro em corte, os ícones e a capa permanecem conceitos sujeitos a ajustes de layout e detalhes antes da produção, conforme PROGRESSO.md.
+
+As folhas `folha_cartas_digitais.png` e `folha_tesouros_digitais.png` completam as cartas e relíquias adicionais do jogo digital. `capa_v2.png` e `folha_icones_v2.png` são as versões revisadas usadas no frontend. Os recortes são arte para composição digital; não são cartas prontas para impressão.

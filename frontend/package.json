@@ -16,6 +16,7 @@
     "test:online": "node src/mandato/test/online.mjs",
     "audit:mandato": "node src/mandato/test/audit.mjs",
     "test:garimpo": "node src/garimpo/test/rules.mjs",
+    "test:garimpo:art": "node src/garimpo/test/art.mjs",
     "sim:garimpo": "node src/garimpo/test/sim.mjs",
     "test:garimpo:online": "node src/garimpo/test/online.mjs"
   },
