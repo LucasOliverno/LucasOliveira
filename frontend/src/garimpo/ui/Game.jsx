@@ -13,7 +13,7 @@ export function Card({ id, onClick, disabled, footer, small, hidden }) {
   const c = CARDS[id];
   return (
     <button type="button" className={`gm-card t-${c.type}${small ? ' small' : ''}${onClick && !disabled ? ' can' : ''}`} onClick={disabled ? undefined : onClick} disabled={!onClick || disabled}>
-      <div className="gm-card-art" style={hasArt(id) ? { backgroundImage: `url(${art(id)})` } : undefined}>{c.quake && <span className="gm-quake" title="Rachadura: dispara a Fúria ao entrar na Fila">🌋</span>}</div>
+      <div className="gm-card-art" style={hasArt(id) ? { backgroundImage: `url(${art(id)})` } : undefined}>{!hasArt(id) && <span className="gm-card-ph">{c.luz ? '🔦' : c.prosa ? '🤝' : c.pic ? '⛏' : c.type === 'beast' ? '🐾' : '✦'}</span>}{c.quake && <span className="gm-quake" title="Rachadura: dispara a Fúria ao entrar na Fila">🌋</span>}</div>
       <div className="gm-card-head">
         <span className="gm-card-name">{c.name}</span>
         {c.cost !== undefined && <span className="gm-card-cost">🤝{c.cost}</span>}
@@ -193,22 +193,98 @@ function Actions({ s, me, send }) {
   return <div className="gm-actions">{btn}</div>;
 }
 
-export default function Game({ s, you, actor, send, top = null, note = null }) {
+// Pilha de cartas (baralho, jogadas, descarte): mostra a de cima e a quantidade; clique abre a lista
+function Pile({ label, ids, hidden, onOpen }) {
+  const top = ids[ids.length - 1];
+  return (
+    <button type="button" className={`gm-pile${ids.length ? '' : ' empty'}`} onClick={onOpen} title={`${label}: ${ids.length} carta(s). Clique para ver`}>
+      <div className="gm-pile-stack">
+        {ids.length > 2 && <span className="layer l2" />}
+        {ids.length > 1 && <span className="layer l1" />}
+        {ids.length ? (hidden ? <span className="face back" style={{ backgroundImage: `url(${asset('verso.webp')})` }} /> : <span className="face" style={hasArt(top) ? { backgroundImage: `url(${art(top)})` } : undefined}><b>{CARDS[top].name}</b></span>) : <span className="face none" />}
+      </div>
+      <span className="gm-pile-lbl">{label} <b>{ids.length}</b></span>
+    </button>
+  );
+}
+
+// Lista do baralho (sem ordem: a ordem é segredo), das jogadas e do descarte
+function DeckView({ me, open, onClose }) {
+  const groups = [
+    ['deck', 'Baralho (a ordem fica escondida)', [...me.deck].filter(Boolean).sort()],
+    ['play', 'Jogadas neste turno', me.play],
+    ['discard', 'Descarte', me.discard],
+  ];
+  return (
+    <div className="gm-modal wide" role="dialog" aria-label="Suas cartas">
+      <div className="gm-modal-head"><h3>Suas cartas <small>{E.allCards(me).length} no total</small></h3><button type="button" onClick={onClose}>Fechar</button></div>
+      {groups.map(([k, title, ids]) => (
+        <section key={k} className={`gm-deckgroup${open === k ? ' focus' : ''}`}>
+          <h4>{title} <small>({ids.length})</small></h4>
+          <div className="gm-cardrow">{ids.length ? ids.map((id, i) => <Card key={`${id}${i}`} id={id} small />) : <p className="gm-empty">Nenhuma.</p>}</div>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+function Market({ s, myTurn, t, send }) {
+  return (
+    <div className="gm-shop">
+      <h4>Loja especial <small>Fila do Túnel · {s.tunnel.length} no monte</small></h4>
+      <div className="gm-shopgrid">
+        {s.row.map((id, i) => {
+          const c = CARDS[id]; const beast = c.type === 'beast';
+          const ok = myTurn && (beast ? t.pic >= c.fight : t.prosa >= c.cost);
+          return <Card key={`${id}${i}`} id={id} small onClick={myTurn ? () => send(beast ? { t: 'fight', src: 'row', i } : { t: 'buy', src: 'row', i }) : undefined} disabled={!ok} footer={beast ? `derrotar ⛏${c.fight}` : `comprar 🤝${c.cost}`} />;
+        })}
+      </div>
+      <h4>Loja base <small>sempre disponível</small></h4>
+      <div className="gm-shopgrid">
+        {Object.keys(s.fixedQty).map((id) => <Card key={id} id={id} small disabled={!myTurn || t.prosa < CARDS[id].cost || s.fixedQty[id] <= 0} onClick={myTurn ? () => send({ t: 'buy', src: 'fixed', id }) : undefined} footer={`🤝${CARDS[id].cost} · restam ${s.fixedQty[id]}`} />)}
+        <Card id="RATO" small disabled={!myTurn || t.pic < 2} onClick={myTurn ? () => send({ t: 'fight', src: 'fixed' }) : undefined} footer="⛏2 · sempre aqui" />
+      </div>
+    </div>
+  );
+}
+
+function Chat({ list, you, onSend }) {
+  const [text, setText] = useState('');
+  return (
+    <div className="gm-chat">
+      <div className="gm-chatlist">{list.slice(-60).map((m, i) => <div key={i} className={m.seat === you ? 'me' : ''}><b>{m.name}:</b> {m.text}</div>)}</div>
+      <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { onSend(text); setText(''); } }}>
+        <input value={text} maxLength={240} placeholder="Mensagem para a mesa" onChange={(e) => setText(e.target.value)} />
+        <button type="submit">Enviar</button>
+      </form>
+    </div>
+  );
+}
+
+export default function Game({ s, you, actor, send, top = null, note = null, chat = null, onChat = null }) {
   const [view3d, setView3d] = useState(false);
+  const [tab, setTab] = useState('loja');
+  const [piles, setPiles] = useState(null);
+  const [handOpen, setHandOpen] = useState(true);
   const me = s.players[you];
   const myTurn = actor === you && !s.over && !s.pending.length && E.currentPlayer(s).id === you;
   const waitingMe = actor === you && s.pending.length && s.pending[0].pid === you;
   const t = me?.t || { luz: 0, prosa: 0, pic: 0 };
-  const rides = useMemo(() => (myTurn && me && E.inMine(me) && (t.freeRide > 0 || t.luz >= 1) ? E.rideTargets(s, me.node) : {}), [s, myTurn, me, t.freeRide, t.luz]);
+  const rides = useMemo(() => (myTurn && me && E.inMine(me) && !t.tired && (t.freeRide > 0 || t.luz >= 1) ? E.rideTargets(s, me.node) : {}), [s, myTurn, me, t.tired, t.freeRide, t.luz]);
   const pickNodes = waitingMe && s.pending[0].k === 'grisu' ? E.grisuChoices(s) : null;
   const scores = s.over ? s.players.map((p) => ({ p, sc: E.scoreOf(s, p) })).sort((a, b) => b.sc.total - a.sc.total) : null;
+  const TABS = [['loja', 'Loja'], ['mesa', 'Jogadores'], ['diario', 'Diário'], ...(chat ? [['chat', 'Conversa']] : [])];
+  const status = s.over ? 'Fim de jogo' : myTurn ? 'Sua vez' : waitingMe ? 'Sua escolha' : actor != null ? `Vez de ${s.players[actor].name}` : '';
   return (
-    <div className="gm-game">
+    <div className={`gm-game${myTurn ? ' myturn' : ''}`}>
       <header className="gm-top">
         <div className="gm-brand">GARIMPO <small>A Cova da Mãe-do-Ouro</small></div>
         <Track s={s} />
         <div className="gm-topright">
-          <button type="button" className="gm-toggle" onClick={() => setView3d((v) => !v)}>{view3d ? 'Tabuleiro' : 'Mesa 3D'}</button>
+          <div className="gm-viewsel" role="group" aria-label="Visualização">
+            <button type="button" className={view3d ? '' : 'on'} onClick={() => setView3d(false)}>Tabuleiro</button>
+            <button type="button" className={view3d ? 'on' : ''} onClick={() => setView3d(true)}>Mesa 3D</button>
+          </div>
           {top}
         </div>
       </header>
@@ -222,68 +298,75 @@ export default function Game({ s, you, actor, send, top = null, note = null }) {
               onExplore={(dir) => send({ t: 'explore', dir })}
               pickNodes={pickNodes} onPickNode={(node) => send({ t: 'choose', node })} />
           )}
+          <div className={`gm-turnflag${myTurn ? ' mine' : ''}`} style={actor != null ? { '--pc': PLAYER_HEX[s.players[actor].color] } : undefined}>{status}</div>
+          {myTurn && !view3d && <div className="gm-hint">Clique numa sala com borda dourada para andar, ou num <b>?</b> na borda da sua sala para explorar.</div>}
           {note && <div className="gm-note">{note}</div>}
         </section>
         <aside className="gm-side">
-          <Players s={s} you={you} actor={actor} />
-          <div className="gm-log">{s.log.slice(-40).reverse().map((l, i) => <div key={i} className={`k-${l.kind}`}>[{l.n}] {l.msg}</div>)}</div>
+          <div className="gm-tabs" role="tablist">
+            {TABS.map(([k, l]) => <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>)}
+          </div>
+          <div className="gm-tabbody">
+            {tab === 'loja' && <Market s={s} myTurn={myTurn} t={t} send={send} />}
+            {tab === 'mesa' && <Players s={s} you={you} actor={actor} />}
+            {tab === 'diario' && <div className="gm-log">{s.log.slice(-80).reverse().map((l, i) => <div key={i} className={`k-${l.kind}`}>[{l.n}] {l.msg}</div>)}</div>}
+            {tab === 'chat' && chat && <Chat list={chat} you={you} onSend={onChat} />}
+          </div>
         </aside>
       </main>
       {scores ? (
         <section className="gm-over">
-          <h2>Fim de jogo</h2>
+          <h2>Fim de jogo — {scores[0].p.name} venceu</h2>
           <table><thead><tr><th>Garimpeiro</th><th>🟡</th><th>💠</th><th>🏺</th><th>🃏</th><th>🎒</th><th>Selo</th><th>Total</th></tr></thead>
-            <tbody>{scores.map(({ p, sc }) => <tr key={p.id} className={s.winners.includes(p.id) ? 'win' : ''}><td>{p.name}{sc.note ? <small> ({sc.note})</small> : null}</td><td>{sc.gold}</td><td>{sc.crystals}</td><td>{sc.relics}</td><td>{sc.cards}</td><td>{sc.items}</td><td>{sc.selo}</td><td><b>{sc.total}</b></td></tr>)}</tbody></table>
+            <tbody>{scores.map(({ p, sc }) => <tr key={p.id} className={s.winners.includes(p.id) ? 'win' : ''}><td><span className="dot" style={{ background: PLAYER_HEX[p.color] }} /> {p.name}{sc.note ? <small> ({sc.note})</small> : null}</td><td>{sc.gold}</td><td>{sc.crystals}</td><td>{sc.relics}</td><td>{sc.cards}</td><td>{sc.items}</td><td>{sc.selo}</td><td><b>{sc.total}</b></td></tr>)}</tbody></table>
         </section>
-      ) : (
-        <section className="gm-bottom">
-          <div className="gm-turnbar">
-            {me && E.inMine(me) ? (
+      ) : me && (
+        <footer className="gm-dock">
+          <div className="gm-dock-left">
+            <div className="gm-pool">
+              <span className="gm-res big" title="Luz: movimento">🔦<b>{t.luz}</b></span>
+              <span className="gm-res big" title="Prosa: compra cartas">🤝<b>{t.prosa}</b></span>
+              <span className="gm-res big" title="Picareta: Bichos, Tocas, desabamentos">⛏<b>{t.pic}</b></span>
+              <span className="gm-res" title="Barulho deste turno: vira cubos na Bateia no fim do turno">💥 {Math.max(0, me.area || 0)}</span>
+              <span className="gm-res" title="Fôlego">🫧 {me.folego}/{MAX_FOLEGO}</span>
+              <span className="gm-res" title="Pepitas">🟡 {me.gold}</span>
+              {t.tired && <span className="gm-res warn" title="Você entrou num Geodo: acabou o movimento deste turno">😵 cansado</span>}
+            </div>
+            {E.inMine(me) ? (
               <>
-                <span className="gm-res" title="Luz: movimento">🔦 {t.luz}</span>
-                <span className="gm-res" title="Prosa: compra cartas">🤝 {t.prosa}</span>
-                <span className="gm-res" title="Picareta: derrota Bichos, limpa passagens">⛏ {t.pic}</span>
-                <span className="gm-res" title="Estrondo deste turno: vira cubos na Bateia no fim do turno">💥 {Math.max(0, me.area || 0)}</span>
-                <span className="gm-res" title="Fôlego">🫧 {me.folego}/{MAX_FOLEGO}</span>
-                {t.tired && <span className="gm-res warn" title="Você entrou num Geodo: acabou o movimento deste turno">😵 cansado</span>}
-                <span className="gm-res" title="Pepitas (pontos e moeda do Mascate)">🟡 {me.gold}</span>
-                <span className="gm-res">🃏 baralho {me.deck.length} · descarte {me.discard.length}</span>
-                {myTurn ? <span className="gm-yourturn">Sua vez</span> : <span className="gm-wait">{actor != null ? `Vez de ${s.players[actor].name}` : ''}</span>}
-                <span className="gm-grow" />
-                {myTurn && <button type="button" onClick={() => send({ t: 'playAll' })} disabled={!me.hand.length}>Jogar todas</button>}
-                {myTurn && <button type="button" className="hot" onClick={() => send({ t: 'end' })}>Encerrar turno</button>}
+                {myTurn && <Actions s={s} me={me} send={send} />}
+                <div className="gm-dock-buttons">
+                  <button type="button" onClick={() => send({ t: 'playAll' })} disabled={!myTurn || !me.hand.length}>Jogar todas</button>
+                  <button type="button" className="hot end" onClick={() => send({ t: 'end' })} disabled={!myTurn}>Encerrar turno</button>
+                </div>
               </>
-            ) : <span className="gm-wait">{me?.status === 'out' ? 'Você saiu da mina. Acompanhe o fim.' : 'Você ficou soterrado. Acompanhe o fim.'}</span>}
+            ) : <p className="gm-wait">{me.status === 'out' ? '🏁 Você saiu da mina. No seu turno saem cubos da Bateia.' : '🪦 Você ficou soterrado.'}</p>}
           </div>
-          {myTurn && me && <Actions s={s} me={me} send={send} />}
-          <div className="gm-hands">
-            <div className="gm-hand">
-              <h4>Sua mão</h4>
-              <div className="gm-cardrow">
-                {me?.hand.map((id, i) => <Card key={`${id}${i}`} id={id} onClick={myTurn ? () => send({ t: 'play', hi: i }) : undefined} />)}
-                {me?.play.length > 0 && <div className="gm-played">Jogadas: {me.play.map((id) => CARDS[id].name).join(', ')}</div>}
-              </div>
+          <div className={`gm-handwrap${handOpen ? '' : ' closed'}`}>
+            <div className="gm-hand-head">
+              <h4>{myTurn ? 'Sua mão' : 'Sua próxima mão'} <small>{me.hand.length} carta(s){myTurn ? ' · clique para jogar' : ''}</small></h4>
+              <button type="button" className="gm-link" onClick={() => setHandOpen((v) => !v)}>{handOpen ? 'recolher' : 'mostrar a mão'}</button>
             </div>
-            <div className="gm-market">
-              <h4>Loja especial — Fila do Túnel <small>({s.tunnel.length} no monte)</small></h4>
-              <div className="gm-cardrow">
-                {s.row.map((id, i) => {
-                  const c = CARDS[id]; const beast = c.type === 'beast';
-                  const ok = myTurn && (beast ? t.pic >= c.fight : t.prosa >= c.cost);
-                  return <Card key={`${id}${i}`} id={id} small onClick={myTurn ? () => send(beast ? { t: 'fight', src: 'row', i } : { t: 'buy', src: 'row', i }) : undefined} disabled={!ok} footer={beast ? 'derrotar' : 'comprar'} />;
-                })}
+            {handOpen && (
+              <div className="gm-fan">
+                {me.hand.map((id, i) => (
+                  <div key={`${id}${i}`} className="gm-fancell" style={{ '--i': i - (me.hand.length - 1) / 2, '--n': me.hand.length }}>
+                    <Card id={id} onClick={myTurn ? () => send({ t: 'play', hi: i }) : undefined} />
+                  </div>
+                ))}
+                {!me.hand.length && <p className="gm-empty">Mão vazia — no fim do turno você compra 5.</p>}
               </div>
-              <h4>Loja base — Mercado Fixo</h4>
-              <div className="gm-cardrow">
-                {Object.keys(s.fixedQty).map((id) => <Card key={id} id={id} small disabled={!myTurn || t.prosa < CARDS[id].cost || s.fixedQty[id] <= 0} onClick={myTurn ? () => send({ t: 'buy', src: 'fixed', id }) : undefined} footer={`restam ${s.fixedQty[id]}`} />)}
-                <Card id="RATO" small disabled={!myTurn || t.pic < 2} onClick={myTurn ? () => send({ t: 'fight', src: 'fixed' }) : undefined} footer="sempre aqui" />
-              </div>
-            </div>
+            )}
           </div>
-        </section>
+          <div className="gm-piles">
+            <Pile label="Baralho" ids={me.deck} hidden onOpen={() => setPiles('deck')} />
+            <Pile label="Jogadas" ids={me.play} onOpen={() => setPiles('play')} />
+            <Pile label="Descarte" ids={me.discard} onOpen={() => setPiles('discard')} />
+          </div>
+        </footer>
       )}
+      {piles && me && <DeckView me={me} open={piles} onClose={() => setPiles(null)} />}
       <Pending s={s} you={you} send={send} />
     </div>
   );
 }
-
